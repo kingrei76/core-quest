@@ -1,0 +1,90 @@
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.title {
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.importBtn {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.importBtn:hover {
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
+}
+
+.sections {
+  margin-top: var(--space-lg);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile: hide processing, show recent */
+.processingSection {
+  display: none;
+}
+
+.recentSection {
+  display: block;
+}
+
+@media (min-width: 769px) {
+  .processingSection {
+    display: block;
+  }
+  .recentSection {
+    display: none;
+  }
+}
+
+.recentList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.recentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.recentText {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.recentStatus {
+  color: var(--color-xp);
+  font-size: 1.1rem;
+}

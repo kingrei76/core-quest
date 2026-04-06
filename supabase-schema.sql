@@ -1,0 +1,155 @@
+-- CORE Quest Database Schema
+-- Run this in the Supabase SQL Editor (https://app.supabase.com → SQL Editor)
+
+-- ============================================
+-- TABLES
+-- ============================================
+
+-- Profiles (extends Supabase Auth users)
+create table profiles (
+  id uuid references auth.users on delete cascade primary key,
+  display_name text default 'Adventurer',
+  character_name text default 'Adventurer',
+  character_class text default 'Adventurer',
+  character_title text default 'Apprentice',
+  total_xp integer default 0,
+  current_streak integer default 0,
+  best_streak integer default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Character stats
+create table character_stats (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade unique not null,
+  vitality integer default 10,
+  wisdom integer default 10,
+  fortune integer default 10,
+  charisma integer default 10,
+  current_hp integer default 150,
+  current_mp integer default 80,
+  updated_at timestamptz default now()
+);
+
+-- Inbox items (raw captures)
+create table inbox_items (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  content text not null,
+  type text default 'unsorted' check (type in ('task', 'note', 'unsorted')),
+  processed boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Quests (processed tasks)
+create table quests (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  title text not null,
+  description text,
+  category text not null check (category in ('health', 'intelligence', 'money', 'relationships', 'household')),
+  difficulty text not null check (difficulty in ('trivial', 'easy', 'medium', 'hard', 'epic', 'legendary')),
+  status text default 'available' check (status in ('available', 'in_progress', 'completed', 'failed', 'abandoned')),
+  due_date date,
+  recurrence text default 'none' check (recurrence in ('none', 'daily', 'weekly', 'monthly')),
+  xp_value integer not null,
+  inbox_source_id uuid references inbox_items(id),
+  created_at timestamptz default now(),
+  completed_at timestamptz
+);
+
+-- Notes
+create table notes (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  content text not null,
+  tags text[] default '{}',
+  linked_quest_id uuid references quests(id) on delete set null,
+  inbox_source_id uuid references inbox_items(id),
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- XP events (history)
+create table xp_events (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  quest_id uuid references quests(id) on delete set null,
+  xp_earned integer not null,
+  category text,
+  earned_at timestamptz default now()
+);
+
+-- ============================================
+-- ROW LEVEL SECURITY
+-- ============================================
+
+alter table profiles enable row level security;
+alter table character_stats enable row level security;
+alter table inbox_items enable row level security;
+alter table quests enable row level security;
+alter table notes enable row level security;
+alter table xp_events enable row level security;
+
+-- Profiles: uses id (not user_id)
+create policy "Users can view own profile" on profiles for select using (auth.uid() = id);
+create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
+
+-- Character stats
+create policy "Users can view own stats" on character_stats for select using (auth.uid() = user_id);
+create policy "Users can update own stats" on character_stats for update using (auth.uid() = user_id);
+
+-- Inbox items
+create policy "Users can view own inbox" on inbox_items for select using (auth.uid() = user_id);
+create policy "Users can insert own inbox" on inbox_items for insert with check (auth.uid() = user_id);
+create policy "Users can update own inbox" on inbox_items for update using (auth.uid() = user_id);
+create policy "Users can delete own inbox" on inbox_items for delete using (auth.uid() = user_id);
+
+-- Quests
+create policy "Users can view own quests" on quests for select using (auth.uid() = user_id);
+create policy "Users can insert own quests" on quests for insert with check (auth.uid() = user_id);
+create policy "Users can update own quests" on quests for update using (auth.uid() = user_id);
+create policy "Users can delete own quests" on quests for delete using (auth.uid() = user_id);
+
+-- Notes
+create policy "Users can view own notes" on notes for select using (auth.uid() = user_id);
+create policy "Users can insert own notes" on notes for insert with check (auth.uid() = user_id);
+create policy "Users can update own notes" on notes for update using (auth.uid() = user_id);
+create policy "Users can delete own notes" on notes for delete using (auth.uid() = user_id);
+
+-- XP events
+create policy "Users can view own xp" on xp_events for select using (auth.uid() = user_id);
+create policy "Users can insert own xp" on xp_events for insert with check (auth.uid() = user_id);
+
+-- ============================================
+-- AUTO-CREATE PROFILE ON SIGNUP
+-- ============================================
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, display_name, character_name)
+  values (new.id, coalesce(new.raw_user_meta_data->>'name', 'Adventurer'), 'Adventurer');
+
+  insert into public.character_stats (user_id)
+  values (new.id);
+
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- ============================================
+-- ENABLE REALTIME
+-- ============================================
+
+alter publication supabase_realtime add table profiles;
+alter publication supabase_realtime add table character_stats;
+alter publication supabase_realtime add table inbox_items;
+alter publication supabase_realtime add table quests;
+alter publication supabase_realtime add table notes;
+alter publication supabase_realtime add table xp_events;

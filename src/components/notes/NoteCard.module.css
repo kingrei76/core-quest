@@ -1,0 +1,51 @@
+.card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: var(--color-gold);
+}
+
+.content {
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  margin-bottom: var(--space-sm);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: 0.8rem;
+}
+
+.linked {
+  color: var(--color-accent);
+}
+
+.date {
+  color: var(--color-text-muted);
+}
+
+.deleteBtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  padding: 2px 6px;
+}
+
+.deleteBtn:hover {
+  color: var(--color-accent);
+}

@@ -1,0 +1,16 @@
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}

@@ -1,0 +1,53 @@
+:root {
+  /* Colors - dark RPG theme */
+  --color-bg-primary: #1a1a2e;
+  --color-bg-secondary: #16213e;
+  --color-bg-card: #0f3460;
+  --color-bg-input: #1e2a4a;
+  --color-accent: #e94560;
+  --color-gold: #ffd700;
+  --color-xp: #00d4aa;
+  --color-hp: #e94560;
+  --color-mp: #4a90d9;
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #a0a0b0;
+  --color-text-muted: #6a6a7a;
+  --color-border: #2a3a5e;
+
+  /* Category colors */
+  --color-health: #e94560;
+  --color-intelligence: #4a90d9;
+  --color-money: #ffd700;
+  --color-relationships: #f39c12;
+  --color-household: #2ecc71;
+
+  /* Difficulty colors */
+  --color-trivial: #95a5a6;
+  --color-easy: #2ecc71;
+  --color-medium: #f1c40f;
+  --color-hard: #e67e22;
+  --color-epic: #e94560;
+  --color-legendary: #9b59b6;
+
+  /* Typography */
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Cormorant Garamond', serif;
+  --font-accent: 'Caveat', cursive;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Safe areas for iOS PWA */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}

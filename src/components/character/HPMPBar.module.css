@@ -1,0 +1,36 @@
+.container {
+  /* intentionally empty - spacing handled by parent */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+}
+
+.values {
+  font-family: var(--font-accent);
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.track {
+  height: 8px;
+  background: var(--color-bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}

@@ -1,0 +1,37 @@
+.container {
+  text-align: center;
+  padding: var(--space-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.current {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.flame {
+  font-size: 1.5rem;
+}
+
+.count {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.label {
+  font-family: var(--font-accent);
+  font-size: 1.2rem;
+  color: var(--color-text-secondary);
+}
+
+.best {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-xs);
+}
