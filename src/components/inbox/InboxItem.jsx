@@ -10,18 +10,26 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
   const { createNote } = useNotes()
   const [category, setCategory] = useState('health')
   const [difficulty, setDifficulty] = useState('easy')
+  const [dueDate, setDueDate] = useState('')
+  const [reminderDate, setReminderDate] = useState('')
+  const [reminderTime, setReminderTime] = useState('')
   const [processing, setProcessing] = useState(false)
 
   const handleCreateQuest = async () => {
     setProcessing(true)
     const xpValue = DIFFICULTIES[difficulty].xp
-    await createQuest({
+    const questData = {
       title: item.content,
       category,
       difficulty,
       xp_value: xpValue,
       inbox_source_id: item.id,
-    })
+    }
+    if (dueDate) questData.due_date = dueDate
+    if (reminderDate && reminderTime) {
+      questData.reminder_at = `${reminderDate}T${reminderTime}:00`
+    }
+    await createQuest(questData)
     await onProcess(item.id)
     setProcessing(false)
   }
@@ -62,6 +70,36 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
             </option>
           ))}
         </select>
+      </div>
+
+      <div className={styles.dateControls}>
+        <label className={styles.dateLabel}>
+          <span>Due date</span>
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className={styles.dateInput}
+          />
+        </label>
+
+        <label className={styles.dateLabel}>
+          <span>Remind me</span>
+          <div className={styles.reminderRow}>
+            <input
+              type="date"
+              value={reminderDate}
+              onChange={(e) => setReminderDate(e.target.value)}
+              className={styles.dateInput}
+            />
+            <input
+              type="time"
+              value={reminderTime}
+              onChange={(e) => setReminderTime(e.target.value)}
+              className={styles.dateInput}
+            />
+          </div>
+        </label>
       </div>
 
       <div className={styles.actions}>

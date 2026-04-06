@@ -40,20 +40,23 @@ export function useQuests() {
     return () => supabase.removeChannel(channel)
   }, [user, fetchQuests])
 
-  const createQuest = async ({ title, description, category, difficulty, xp_value, inbox_source_id }) => {
+  const createQuest = async ({ title, description, category, difficulty, xp_value, inbox_source_id, due_date, reminder_at }) => {
     if (!user) return { error: new Error('Not authenticated') }
+    const row = {
+      user_id: user.id,
+      title,
+      description,
+      category,
+      difficulty,
+      xp_value,
+      status: 'available',
+      inbox_source_id,
+    }
+    if (due_date) row.due_date = due_date
+    if (reminder_at) row.reminder_at = reminder_at
     const { data, error } = await supabase
       .from('quests')
-      .insert({
-        user_id: user.id,
-        title,
-        description,
-        category,
-        difficulty,
-        xp_value,
-        status: 'available',
-        inbox_source_id,
-      })
+      .insert(row)
       .select()
       .single()
     return { data, error }

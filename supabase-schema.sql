@@ -55,6 +55,7 @@ create table quests (
   recurrence text default 'none' check (recurrence in ('none', 'daily', 'weekly', 'monthly')),
   xp_value integer not null,
   inbox_source_id uuid references inbox_items(id),
+  reminder_at timestamptz,
   created_at timestamptz default now(),
   completed_at timestamptz
 );
