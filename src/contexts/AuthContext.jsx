@@ -33,6 +33,15 @@ export function AuthProvider({ children }) {
     return { error }
   }
 
+  const verifyOtp = async (email, token) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    })
+    return { data, error }
+  }
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     return { error }
@@ -43,6 +52,7 @@ export function AuthProvider({ children }) {
     user: session?.user ?? null,
     loading,
     signIn,
+    verifyOtp,
     signOut,
   }
 
