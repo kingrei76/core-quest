@@ -25,7 +25,7 @@ export default function LoginPage() {
       setStatus({ type: 'error', message: error.message })
     } else {
       setStep('code')
-      setStatus({ type: 'success', message: 'Check your email for the 6-digit code' })
+      setStatus({ type: 'success', message: 'Check your email for the code' })
     }
     setSending(false)
   }
@@ -81,12 +81,12 @@ export default function LoginPage() {
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="Enter 6-digit code"
+              placeholder="Enter code from email"
               className={styles.input}
               inputMode="numeric"
               autoComplete="one-time-code"
               autoFocus
-              maxLength={6}
+              maxLength={8}
             />
             <button
               type="submit"
