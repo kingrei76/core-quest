@@ -1,14 +1,25 @@
 import { useState } from 'react'
-import { useInbox } from '../../hooks/useInbox'
+import { useQuests } from '../../hooks/useQuests'
+import { useNotes } from '../../hooks/useNotes'
 import InboxInput from './InboxInput'
-import InboxList from './InboxList'
 import ImportModal from './ImportModal'
+import { useInbox } from '../../hooks/useInbox'
 import EmptyState from '../shared/EmptyState'
 import styles from './InboxPage.module.css'
 
 export default function InboxPage() {
-  const { pendingItems, recentItems, loading, addItem, bulkAddItems, processItem, dismissItem } = useInbox()
+  const { quests } = useQuests()
+  const { notes } = useNotes()
+  const { bulkAddItems } = useInbox()
   const [showImport, setShowImport] = useState(false)
+
+  // Show recent quests and notes combined, sorted by creation
+  const recentItems = [
+    ...quests.slice(0, 10).map(q => ({ ...q, _type: 'quest' })),
+    ...notes.slice(0, 10).map(n => ({ ...n, _type: 'note', title: n.content })),
+  ]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 15)
 
   return (
     <div className={styles.page}>
@@ -22,45 +33,24 @@ export default function InboxPage() {
         </button>
       </div>
 
-      <InboxInput onAdd={addItem} />
+      <InboxInput />
 
       <div className={styles.sections}>
-        {/* Desktop: processing list */}
-        <div className={styles.processingSection}>
-          <h3 className={styles.sectionTitle}>
-            Unprocessed ({pendingItems.length})
-          </h3>
-          {pendingItems.length === 0 && !loading ? (
-            <EmptyState
-              icon="\u2728"
-              title="All clear!"
-              description="Capture something new above"
-            />
-          ) : (
-            <InboxList
-              items={pendingItems}
-              onProcess={processItem}
-              onDismiss={dismissItem}
-            />
-          )}
-        </div>
-
-        {/* Mobile: recent captures */}
         <div className={styles.recentSection}>
           <h3 className={styles.sectionTitle}>Recent</h3>
           {recentItems.length === 0 ? (
             <EmptyState
-              icon="\u{1F4DD}"
+              icon={"\u{1F4DD}"}
               title="Nothing here yet"
-              description="Add your first task or note above"
+              description="Add your first quest or note above"
             />
           ) : (
             <ul className={styles.recentList}>
               {recentItems.map(item => (
                 <li key={item.id} className={styles.recentItem}>
-                  <span className={styles.recentText}>{item.content}</span>
-                  <span className={styles.recentStatus}>
-                    {item.processed ? '\u2713' : '\u25CB'}
+                  <span className={styles.recentText}>{item.title || item.content}</span>
+                  <span className={`${styles.recentBadge} ${item._type === 'quest' ? styles.questBadge : styles.noteBadge}`}>
+                    {item._type === 'quest' ? 'Quest' : 'Note'}
                   </span>
                 </li>
               ))}
