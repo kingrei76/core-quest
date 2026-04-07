@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useId } from 'react'
 import { supabase } from '../config/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
 export function useQuests() {
   const { user } = useAuth()
+  const id = useId()
   const [quests, setQuests] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -26,7 +27,7 @@ export function useQuests() {
   useEffect(() => {
     if (!user) return
     const channel = supabase
-      .channel('quest-changes')
+      .channel(`quest-changes-${id}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',

@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useId } from 'react'
 import { supabase } from '../config/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
 export function useNotes() {
   const { user } = useAuth()
+  const id = useId()
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -25,7 +26,7 @@ export function useNotes() {
   useEffect(() => {
     if (!user) return
     const channel = supabase
-      .channel('notes-changes')
+      .channel(`notes-changes-${id}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
