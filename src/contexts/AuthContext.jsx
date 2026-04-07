@@ -23,6 +23,14 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  const signInWithPassword = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    return { data, error }
+  }
+
   const signIn = async (email) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -52,6 +60,7 @@ export function AuthProvider({ children }) {
     user: session?.user ?? null,
     loading,
     signIn,
+    signInWithPassword,
     verifyOtp,
     signOut,
   }

@@ -4,16 +4,33 @@ import { useAuth } from '../../contexts/AuthContext'
 import styles from './LoginPage.module.css'
 
 export default function LoginPage() {
-  const { signIn, verifyOtp } = useAuth()
+  const { signIn, verifyOtp, signInWithPassword } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
-  const [step, setStep] = useState('email') // 'email' or 'code'
+  const [step, setStep] = useState('login') // 'login' or 'code'
   const [status, setStatus] = useState(null)
   const [sending, setSending] = useState(false)
 
-  const handleSendCode = async (e) => {
+  const handlePasswordLogin = async (e) => {
     e.preventDefault()
+    if (!email.trim() || !password.trim() || sending) return
+
+    setSending(true)
+    setStatus(null)
+
+    const { error } = await signInWithPassword(email.trim(), password.trim())
+
+    if (error) {
+      setStatus({ type: 'error', message: error.message })
+    } else {
+      navigate('/inbox', { replace: true })
+    }
+    setSending(false)
+  }
+
+  const handleSendCode = async () => {
     if (!email.trim() || sending) return
 
     setSending(true)
@@ -53,8 +70,8 @@ export default function LoginPage() {
         <h1 className={styles.title}>CORE Quest</h1>
         <p className={styles.subtitle}>Your adventure awaits</p>
 
-        {step === 'email' ? (
-          <form onSubmit={handleSendCode} className={styles.form}>
+        {step === 'login' ? (
+          <form onSubmit={handlePasswordLogin} className={styles.form}>
             <input
               type="email"
               value={email}
@@ -64,12 +81,28 @@ export default function LoginPage() {
               autoComplete="email"
               autoFocus
             />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className={styles.input}
+              autoComplete="current-password"
+            />
             <button
               type="submit"
               className={styles.button}
+              disabled={sending || !email.trim() || !password.trim()}
+            >
+              {sending ? 'Signing in...' : 'Sign In'}
+            </button>
+            <button
+              type="button"
+              className={styles.backBtn}
+              onClick={handleSendCode}
               disabled={sending || !email.trim()}
             >
-              {sending ? 'Sending...' : 'Send Code'}
+              Sign in with email code instead
             </button>
           </form>
         ) : (
@@ -98,9 +131,9 @@ export default function LoginPage() {
             <button
               type="button"
               className={styles.backBtn}
-              onClick={() => { setStep('email'); setCode(''); setStatus(null) }}
+              onClick={() => { setStep('login'); setCode(''); setStatus(null) }}
             >
-              Use a different email
+              Back to login
             </button>
           </form>
         )}
