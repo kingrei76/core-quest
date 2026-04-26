@@ -7,8 +7,20 @@ import styles from './QuestCard.module.css'
 
 const SWIPE_THRESHOLD = 100
 
-export default function QuestCard({ quest, onComplete, onStart, onFail, onAbandon, onEdit, onDelete }) {
+export default function QuestCard({
+  quest,
+  children = [],
+  onComplete,
+  onStart,
+  onFail,
+  onAbandon,
+  onEdit,
+  onDelete,
+  onAddSubQuest,
+  isChild = false,
+}) {
   const [completing, setCompleting] = useState(false)
+  const [expanded, setExpanded] = useState(false)
   const x = useMotionValue(0)
   const completeOpacity = useTransform(x, [0, SWIPE_THRESHOLD], [0, 1])
   const abandonOpacity = useTransform(x, [-SWIPE_THRESHOLD, 0], [1, 0])
@@ -20,6 +32,8 @@ export default function QuestCard({ quest, onComplete, onStart, onFail, onAbando
   const isFailed = quest.status === 'failed'
   const isAbandoned = quest.status === 'abandoned'
   const isInactive = isCompleted || isFailed || isAbandoned
+  const hasChildren = children.length > 0
+  const completedChildren = children.filter(c => c.status === 'completed').length
 
   const handleComplete = async () => {
     setCompleting(true)
@@ -52,7 +66,7 @@ export default function QuestCard({ quest, onComplete, onStart, onFail, onAbando
       </motion.div>
 
       <motion.div
-        className={`${styles.card} ${isInactive ? styles.completed : ''}`}
+        className={`${styles.card} ${isInactive ? styles.completed : ''} ${quest.is_boss ? styles.boss : ''} ${isChild ? styles.child : ''}`}
         drag={isActive ? 'x' : false}
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.4}
@@ -60,15 +74,22 @@ export default function QuestCard({ quest, onComplete, onStart, onFail, onAbando
         onDragEnd={handleDragEnd}
       >
         <div className={styles.header}>
-          <h3 className={styles.title}>{quest.title}</h3>
+          <h3 className={styles.title}>
+            {quest.is_boss && <span className={styles.bossMark}>★ </span>}
+            {quest.title}
+          </h3>
           <span className={styles.xp}>+{quest.xp_value} XP</span>
         </div>
 
         <div className={styles.badges}>
           {category && <Badge label={category.label} color={category.color} />}
           {difficulty && <Badge label={difficulty.label} color={difficulty.color} />}
+          {quest.is_boss && <Badge label="Boss" color="var(--color-gold)" />}
           {isRecurring(quest) && (
             <Badge label={`↻ ${RECURRENCES[quest.recurrence].label}`} color="var(--color-accent)" />
+          )}
+          {hasChildren && (
+            <Badge label={`${completedChildren}/${children.length} sub-quests`} color="var(--color-accent)" />
           )}
           {isInactive && statusLabel && (
             <Badge
@@ -84,22 +105,52 @@ export default function QuestCard({ quest, onComplete, onStart, onFail, onAbando
 
         {isActive && (
           <div className={styles.actions}>
-            {quest.status === 'available' && (
+            {quest.status === 'available' && !hasChildren && (
               <button onClick={() => onStart(quest)} className={styles.startBtn}>
                 Begin Quest
               </button>
             )}
-            <button
-              onClick={handleComplete}
-              disabled={completing}
-              className={styles.completeBtn}
-            >
-              {completing ? 'Completing...' : 'Complete Quest'}
-            </button>
+            {!hasChildren && (
+              <button
+                onClick={handleComplete}
+                disabled={completing}
+                className={styles.completeBtn}
+              >
+                {completing ? 'Completing...' : 'Complete Quest'}
+              </button>
+            )}
+            {hasChildren && (
+              <button onClick={() => setExpanded(e => !e)} className={styles.startBtn}>
+                {expanded ? 'Hide sub-quests' : 'Show sub-quests'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {hasChildren && expanded && (
+          <div className={styles.children}>
+            {children.map(child => (
+              <QuestCard
+                key={child.id}
+                quest={child}
+                onComplete={onComplete}
+                onStart={onStart}
+                onFail={onFail}
+                onAbandon={onAbandon}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                isChild
+              />
+            ))}
           </div>
         )}
 
         <div className={styles.metaActions}>
+          {quest.is_boss && isActive && onAddSubQuest && (
+            <button onClick={() => onAddSubQuest(quest)} className={styles.metaBtn}>
+              + Sub-quest
+            </button>
+          )}
           {isActive && (
             <>
               <button onClick={() => onFail(quest)} className={styles.metaBtn}>

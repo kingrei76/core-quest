@@ -42,7 +42,7 @@ export function useQuests() {
     return () => supabase.removeChannel(channel)
   }, [user, fetchQuests])
 
-  const createQuest = async ({ title, description, category, difficulty, xp_value, inbox_source_id, due_date, reminder_at, recurrence }) => {
+  const createQuest = async ({ title, description, category, difficulty, xp_value, inbox_source_id, due_date, reminder_at, recurrence, parent_quest_id, is_boss }) => {
     if (!user) return { error: new Error('Not authenticated') }
     const row = {
       user_id: user.id,
@@ -50,13 +50,15 @@ export function useQuests() {
       description,
       category,
       difficulty,
-      xp_value,
+      xp_value: is_boss ? xp_value * 2 : xp_value,
       status: 'available',
       inbox_source_id,
     }
     if (due_date) row.due_date = due_date
     if (reminder_at) row.reminder_at = reminder_at
     if (recurrence && recurrence !== 'none') row.recurrence = recurrence
+    if (parent_quest_id) row.parent_quest_id = parent_quest_id
+    if (is_boss) row.is_boss = true
     const { data, error } = await supabase
       .from('quests')
       .insert(row)
@@ -64,6 +66,10 @@ export function useQuests() {
       .single()
     return { data, error }
   }
+
+  const getChildren = useCallback((parentId) => {
+    return quests.filter(q => q.parent_quest_id === parentId)
+  }, [quests])
 
   const spawnNextRecurrence = async (quest) => {
     if (!user || !isRecurring(quest)) return { data: null }
@@ -123,6 +129,18 @@ export function useQuests() {
       await spawnNextRecurrence(data)
     }
 
+    if (!error && status === 'completed' && data?.parent_quest_id) {
+      const siblings = quests.filter(q => q.parent_quest_id === data.parent_quest_id)
+      const allDone = siblings.every(q => q.id === questId || q.status === 'completed')
+      if (allDone) {
+        await supabase
+          .from('quests')
+          .update({ status: 'completed', completed_at: new Date().toISOString() })
+          .eq('id', data.parent_quest_id)
+          .in('status', ['available', 'in_progress'])
+      }
+    }
+
     return { data, error }
   }
 
@@ -130,8 +148,11 @@ export function useQuests() {
     quests,
     loading,
     createQuest,
+    updateQuest,
+    deleteQuest,
     updateQuestStatus,
     spawnNextRecurrence,
+    getChildren,
     refresh: fetchQuests,
   }
 }

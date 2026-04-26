@@ -14,6 +14,7 @@ export default function InboxInput({ onAdd }) {
   const [category, setCategory] = useState('health')
   const [difficulty, setDifficulty] = useState('easy')
   const [recurrence, setRecurrence] = useState('none')
+  const [isBoss, setIsBoss] = useState(false)
   const [dueDate, setDueDate] = useState('')
   const [reminderDate, setReminderDate] = useState('')
   const [reminderTime, setReminderTime] = useState('')
@@ -33,6 +34,7 @@ export default function InboxInput({ onAdd }) {
         difficulty,
         xp_value: DIFFICULTIES[difficulty].xp,
         recurrence,
+        is_boss: isBoss,
       }
       if (dueDate) questData.due_date = dueDate
       if (reminderDate && reminderTime) {
@@ -49,6 +51,7 @@ export default function InboxInput({ onAdd }) {
     setReminderDate('')
     setReminderTime('')
     setRecurrence('none')
+    setIsBoss(false)
     setSaving(false)
   }
 
@@ -127,6 +130,14 @@ export default function InboxInput({ onAdd }) {
                 </option>
               ))}
             </select>
+            <label className={styles.bossToggle}>
+              <input
+                type="checkbox"
+                checked={isBoss}
+                onChange={(e) => setIsBoss(e.target.checked)}
+              />
+              <span>Boss quest (2× XP)</span>
+            </label>
           </div>
 
           <div className={styles.dateRow}>

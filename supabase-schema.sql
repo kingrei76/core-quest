@@ -152,6 +152,18 @@ alter table character_stats
   add column if not exists last_penalty_at timestamptz;
 
 -- ============================================
+-- BOSS QUESTS / SUB-QUESTS (Phase 4.2)
+-- ============================================
+
+alter table quests
+  add column if not exists parent_quest_id uuid references quests(id) on delete cascade;
+
+alter table quests
+  add column if not exists is_boss boolean default false;
+
+create index if not exists quests_parent_idx on quests(parent_quest_id);
+
+-- ============================================
 -- PUSH NOTIFICATIONS (Phase 3)
 -- ============================================
 

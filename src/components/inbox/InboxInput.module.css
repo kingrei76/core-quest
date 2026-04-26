@@ -139,3 +139,17 @@
 .reminderInputs .dateInput {
   flex: 1;
 }
+
+.bossToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.bossToggle input {
+  accent-color: var(--color-gold);
+}
