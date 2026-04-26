@@ -164,6 +164,44 @@ alter table quests
 create index if not exists quests_parent_idx on quests(parent_quest_id);
 
 -- ============================================
+-- CHALLENGES (Phase 4.3)
+-- ============================================
+
+create table if not exists challenges (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  kind text not null,
+  label text not null,
+  scope text not null check (scope in ('daily', 'weekly')),
+  target_category text,
+  target_difficulty text,
+  target_count integer not null,
+  progress integer default 0,
+  reward_xp integer not null,
+  period_start date not null,
+  period_end date not null,
+  completed_at timestamptz,
+  created_at timestamptz default now()
+);
+
+create unique index if not exists challenges_unique_period
+  on challenges(user_id, kind, period_start);
+
+create index if not exists challenges_user_active_idx
+  on challenges(user_id, period_end);
+
+alter table challenges enable row level security;
+
+create policy "Users can view own challenges" on challenges
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own challenges" on challenges
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own challenges" on challenges
+  for update using (auth.uid() = user_id);
+
+alter publication supabase_realtime add table challenges;
+
+-- ============================================
 -- PUSH NOTIFICATIONS (Phase 3)
 -- ============================================
 

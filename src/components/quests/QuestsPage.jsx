@@ -3,6 +3,7 @@ import { useQuests } from '../../hooks/useQuests'
 import { useXP } from '../../hooks/useXP'
 import { useStreak } from '../../hooks/useStreak'
 import { useVitals } from '../../hooks/useVitals'
+import { useChallenges } from '../../hooks/useChallenges'
 import QuestCard from './QuestCard'
 import QuestFilters from './QuestFilters'
 import QuestEditor from './QuestEditor'
@@ -15,6 +16,7 @@ export default function QuestsPage() {
   const { awardQuestXP } = useXP()
   const { refresh: refreshStreak } = useStreak()
   const { applyDailyMissPenalty } = useVitals()
+  const { recordCompletion } = useChallenges()
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('active')
   const [editing, setEditing] = useState(null)
@@ -41,6 +43,7 @@ export default function QuestsPage() {
   const handleComplete = async (quest) => {
     await updateQuestStatus(quest.id, 'completed')
     await awardQuestXP(quest)
+    await recordCompletion(quest)
     await refreshStreak()
   }
 
