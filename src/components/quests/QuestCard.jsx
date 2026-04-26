@@ -4,7 +4,7 @@ import { isRecurring } from '../../utils/recurrence'
 import Badge from '../shared/Badge'
 import styles from './QuestCard.module.css'
 
-export default function QuestCard({ quest, onComplete, onStart }) {
+export default function QuestCard({ quest, onComplete, onStart, onEdit, onDelete }) {
   const [completing, setCompleting] = useState(false)
   const category = CATEGORIES[quest.category]
   const difficulty = DIFFICULTIES[quest.difficulty]
@@ -15,6 +15,10 @@ export default function QuestCard({ quest, onComplete, onStart }) {
     setCompleting(true)
     await onComplete(quest)
     setCompleting(false)
+  }
+
+  const handleDelete = () => {
+    if (window.confirm(`Delete "${quest.title}"?`)) onDelete(quest)
   }
 
   return (
@@ -53,6 +57,15 @@ export default function QuestCard({ quest, onComplete, onStart }) {
           </button>
         </div>
       )}
+
+      <div className={styles.metaActions}>
+        <button onClick={() => onEdit(quest)} className={styles.metaBtn} aria-label="Edit quest">
+          Edit
+        </button>
+        <button onClick={handleDelete} className={`${styles.metaBtn} ${styles.deleteBtn}`} aria-label="Delete quest">
+          Delete
+        </button>
+      </div>
     </div>
   )
 }

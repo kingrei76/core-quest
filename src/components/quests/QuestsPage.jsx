@@ -4,15 +4,17 @@ import { useXP } from '../../hooks/useXP'
 import { useStreak } from '../../hooks/useStreak'
 import QuestCard from './QuestCard'
 import QuestFilters from './QuestFilters'
+import QuestEditor from './QuestEditor'
 import EmptyState from '../shared/EmptyState'
 import styles from './QuestsPage.module.css'
 
 export default function QuestsPage() {
-  const { quests, loading, updateQuestStatus } = useQuests()
+  const { quests, loading, updateQuestStatus, updateQuest, deleteQuest } = useQuests()
   const { awardQuestXP } = useXP()
   const { refresh: refreshStreak } = useStreak()
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('active')
+  const [editing, setEditing] = useState(null)
 
   const filteredQuests = quests.filter(q => {
     if (categoryFilter !== 'all' && q.category !== categoryFilter) return false
@@ -29,6 +31,10 @@ export default function QuestsPage() {
 
   const handleStart = async (quest) => {
     await updateQuestStatus(quest.id, 'in_progress')
+  }
+
+  const handleDelete = async (quest) => {
+    await deleteQuest(quest.id)
   }
 
   return (
@@ -58,9 +64,19 @@ export default function QuestsPage() {
               quest={quest}
               onComplete={handleComplete}
               onStart={handleStart}
+              onEdit={setEditing}
+              onDelete={handleDelete}
             />
           ))}
         </div>
+      )}
+
+      {editing && (
+        <QuestEditor
+          quest={editing}
+          onSave={updateQuest}
+          onClose={() => setEditing(null)}
+        />
       )}
     </div>
   )

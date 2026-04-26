@@ -89,6 +89,24 @@ export function useQuests() {
     return { data, error }
   }
 
+  const updateQuest = async (questId, updates) => {
+    const { data, error } = await supabase
+      .from('quests')
+      .update(updates)
+      .eq('id', questId)
+      .select()
+      .single()
+    return { data, error }
+  }
+
+  const deleteQuest = async (questId) => {
+    const { error } = await supabase
+      .from('quests')
+      .delete()
+      .eq('id', questId)
+    return { error }
+  }
+
   const updateQuestStatus = async (questId, status) => {
     const updates = { status }
     if (status === 'completed') {
