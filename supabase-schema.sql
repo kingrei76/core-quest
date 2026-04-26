@@ -145,6 +145,31 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- ============================================
+-- PUSH NOTIFICATIONS (Phase 3)
+-- ============================================
+
+create table if not exists push_subscriptions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  user_agent text,
+  created_at timestamptz default now()
+);
+
+create index if not exists push_subscriptions_user_id_idx on push_subscriptions(user_id);
+
+alter table push_subscriptions enable row level security;
+
+create policy "Users can view own subscriptions" on push_subscriptions
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own subscriptions" on push_subscriptions
+  for insert with check (auth.uid() = user_id);
+create policy "Users can delete own subscriptions" on push_subscriptions
+  for delete using (auth.uid() = user_id);
+
+-- ============================================
 -- ENABLE REALTIME
 -- ============================================
 
