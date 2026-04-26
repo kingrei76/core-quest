@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import App from './App'
 import LoginPage from './components/auth/LoginPage'
 import AuthCallback from './components/auth/AuthCallback'
+import OnboardingPage from './components/onboarding/OnboardingPage'
 import InboxPage from './components/inbox/InboxPage'
 import QuestsPage from './components/quests/QuestsPage'
 import CharacterPage from './components/character/CharacterPage'
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: '/auth/callback',
     element: <AuthCallback />,
+  },
+  {
+    path: '/onboarding',
+    element: <OnboardingPage />,
   },
   {
     path: '/',

@@ -1,0 +1,137 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  background: var(--color-bg-primary);
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  position: relative;
+}
+
+.skip {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.title {
+  font-family: var(--font-display);
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+}
+
+.body {
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-md);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-md);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--color-gold);
+}
+
+.cta {
+  width: 100%;
+  padding: var(--space-md);
+  background: var(--color-gold);
+  color: var(--color-bg-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: var(--space-md);
+  cursor: pointer;
+}
+
+.cta:disabled {
+  opacity: 0.5;
+}
+
+.secondary {
+  flex: 1;
+  padding: var(--space-md);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.buttons {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.buttons .cta {
+  flex: 1;
+  margin-top: 0;
+}
+
+.focusGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0;
+}
+
+.focusBtn {
+  padding: var(--space-md);
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.focusBtn:hover {
+  border-color: var(--focus-color, var(--color-gold));
+}
+
+.focusActive {
+  border-color: var(--focus-color, var(--color-gold));
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.focusLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.focusStat {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
