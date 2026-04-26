@@ -5,6 +5,7 @@ import XPBar from './XPBar'
 import StatsGrid from './StatsGrid'
 import HPMPBar from './HPMPBar'
 import StreakDisplay from './StreakDisplay'
+import HistoryList from './HistoryList'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import styles from './CharacterPage.module.css'
 
@@ -36,6 +37,8 @@ export default function CharacterPage() {
       <StatsGrid stats={stats} />
 
       <StreakDisplay current={streak.current} best={streak.best} />
+
+      <HistoryList />
 
       <button onClick={signOut} className={styles.signOut}>
         Sign Out
