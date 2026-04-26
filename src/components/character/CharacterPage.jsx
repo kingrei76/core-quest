@@ -6,6 +6,7 @@ import StatsGrid from './StatsGrid'
 import HPMPBar from './HPMPBar'
 import StreakDisplay from './StreakDisplay'
 import HistoryList from './HistoryList'
+import NotificationSettings from './NotificationSettings'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import styles from './CharacterPage.module.css'
 
@@ -37,6 +38,8 @@ export default function CharacterPage() {
       <StatsGrid stats={stats} />
 
       <StreakDisplay current={streak.current} best={streak.best} />
+
+      <NotificationSettings />
 
       <HistoryList />
 
