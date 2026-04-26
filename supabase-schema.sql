@@ -202,6 +202,29 @@ create policy "Users can update own challenges" on challenges
 alter publication supabase_realtime add table challenges;
 
 -- ============================================
+-- ACHIEVEMENTS (Phase 4.4)
+-- ============================================
+
+create table if not exists achievements (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  key text not null,
+  unlocked_at timestamptz default now(),
+  unique(user_id, key)
+);
+
+create index if not exists achievements_user_idx on achievements(user_id);
+
+alter table achievements enable row level security;
+
+create policy "Users can view own achievements" on achievements
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own achievements" on achievements
+  for insert with check (auth.uid() = user_id);
+
+alter publication supabase_realtime add table achievements;
+
+-- ============================================
 -- PUSH NOTIFICATIONS (Phase 3)
 -- ============================================
 
