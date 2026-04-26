@@ -225,6 +225,41 @@ create policy "Users can insert own achievements" on achievements
 alter publication supabase_realtime add table achievements;
 
 -- ============================================
+-- CUSTOM CATEGORIES (Phase 5.3)
+-- ============================================
+
+create table if not exists user_categories (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  key text not null,
+  label text not null,
+  stat text not null check (stat in ('vitality', 'wisdom', 'fortune', 'charisma')),
+  color text,
+  archived boolean default false,
+  created_at timestamptz default now(),
+  unique(user_id, key)
+);
+
+create index if not exists user_categories_user_idx on user_categories(user_id);
+
+alter table user_categories enable row level security;
+
+create policy "Users can view own categories" on user_categories
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own categories" on user_categories
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own categories" on user_categories
+  for update using (auth.uid() = user_id);
+create policy "Users can delete own categories" on user_categories
+  for delete using (auth.uid() = user_id);
+
+alter publication supabase_realtime add table user_categories;
+
+-- Quests previously had a CHECK constraint on category.
+-- Drop it so user-defined keys are accepted.
+alter table quests drop constraint if exists quests_category_check;
+
+-- ============================================
 -- PUSH NOTIFICATIONS (Phase 3)
 -- ============================================
 

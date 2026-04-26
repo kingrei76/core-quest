@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { DIFFICULTIES } from '../../config/constants'
-import { categoryOptions, difficultyOptions } from '../../utils/categories'
+import { difficultyOptions } from '../../utils/categories'
+import { useCategories } from '../../hooks/useCategories'
 import styles from './QuestEditor.module.css'
 
 export default function SubQuestModal({ parent, onCreate, onClose }) {
+  const { visible: categoryOptions } = useCategories()
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState(parent.category || 'health')
   const [difficulty, setDifficulty] = useState('easy')
@@ -49,7 +51,7 @@ export default function SubQuestModal({ parent, onCreate, onClose }) {
           <div className={styles.row}>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className={styles.select}>
               {categoryOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.key} value={opt.key}>{opt.label}</option>
               ))}
             </select>
             <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className={styles.select}>

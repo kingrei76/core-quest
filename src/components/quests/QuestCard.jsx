@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
-import { CATEGORIES, DIFFICULTIES, RECURRENCES, QUEST_STATUSES } from '../../config/constants'
+import { DIFFICULTIES, RECURRENCES, QUEST_STATUSES } from '../../config/constants'
 import { isRecurring } from '../../utils/recurrence'
+import { useCategories } from '../../hooks/useCategories'
 import Badge from '../shared/Badge'
 import styles from './QuestCard.module.css'
 
@@ -25,8 +26,9 @@ export default function QuestCard({
   const x = useMotionValue(0)
   const completeOpacity = useTransform(x, [0, SWIPE_THRESHOLD], [0, 1])
   const abandonOpacity = useTransform(x, [-SWIPE_THRESHOLD, 0], [1, 0])
+  const { lookup: categoryLookup } = useCategories()
 
-  const category = CATEGORIES[quest.category]
+  const category = categoryLookup[quest.category]
   const difficulty = DIFFICULTIES[quest.difficulty]
   const isActive = quest.status === 'available' || quest.status === 'in_progress'
   const isCompleted = quest.status === 'completed'

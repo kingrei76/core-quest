@@ -9,6 +9,7 @@ import HistoryList from './HistoryList'
 import NotificationSettings from './NotificationSettings'
 import ChallengePanel from './ChallengePanel'
 import AchievementsGrid from './AchievementsGrid'
+import CategoryManager from './CategoryManager'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import styles from './CharacterPage.module.css'
 
@@ -44,6 +45,8 @@ export default function CharacterPage() {
       <ChallengePanel />
 
       <AchievementsGrid />
+
+      <CategoryManager />
 
       <NotificationSettings />
 

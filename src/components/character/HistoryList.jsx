@@ -1,5 +1,6 @@
 import { useXPHistory } from '../../hooks/useXPHistory'
-import { CATEGORIES, DIFFICULTIES } from '../../config/constants'
+import { DIFFICULTIES } from '../../config/constants'
+import { useCategories } from '../../hooks/useCategories'
 import styles from './HistoryList.module.css'
 
 function dayKey(iso) {
@@ -28,6 +29,7 @@ function timeLabel(iso) {
 
 export default function HistoryList() {
   const { events, loading, hasMore, loadMore } = useXPHistory()
+  const { lookup: categoryLookup } = useCategories()
 
   if (loading && events.length === 0) {
     return <div className={styles.empty}>Loading history…</div>
@@ -57,7 +59,7 @@ export default function HistoryList() {
             </div>
             <ul className={styles.events}>
               {dayEvents.map(ev => {
-                const cat = ev.category ? CATEGORIES[ev.category] : null
+                const cat = ev.category ? categoryLookup[ev.category] : null
                 const diff = ev.quests?.difficulty ? DIFFICULTIES[ev.quests.difficulty] : null
                 return (
                   <li key={ev.id} className={styles.event}>

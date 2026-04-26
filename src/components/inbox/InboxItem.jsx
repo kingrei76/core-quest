@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { useQuests } from '../../hooks/useQuests'
 import { useNotes } from '../../hooks/useNotes'
 import { DIFFICULTIES } from '../../config/constants'
-import { categoryOptions, difficultyOptions } from '../../utils/categories'
+import { difficultyOptions } from '../../utils/categories'
+import { useCategories } from '../../hooks/useCategories'
 import { recurrenceOptions } from '../../utils/recurrence'
 import styles from './InboxItem.module.css'
 
 export default function InboxItem({ item, onProcess, onDismiss }) {
   const { createQuest } = useQuests()
   const { createNote } = useNotes()
+  const { visible: categoryOptions } = useCategories()
   const [category, setCategory] = useState('health')
   const [difficulty, setDifficulty] = useState('easy')
   const [recurrence, setRecurrence] = useState('none')
@@ -58,7 +60,7 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
           className={styles.select}
         >
           {categoryOptions.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.key} value={opt.key}>{opt.label}</option>
           ))}
         </select>
 

@@ -1,7 +1,8 @@
-import { categoryOptions } from '../../utils/categories'
+import { useCategories } from '../../hooks/useCategories'
 import styles from './QuestFilters.module.css'
 
 export default function QuestFilters({ category, onCategoryChange, status, onStatusChange }) {
+  const { visible: categoryOptions } = useCategories()
   return (
     <div className={styles.filters}>
       <div className={styles.chips}>
@@ -13,10 +14,10 @@ export default function QuestFilters({ category, onCategoryChange, status, onSta
         </button>
         {categoryOptions.map(opt => (
           <button
-            key={opt.value}
-            className={`${styles.chip} ${category === opt.value ? styles.active : ''}`}
+            key={opt.key}
+            className={`${styles.chip} ${category === opt.key ? styles.active : ''}`}
             style={{ '--chip-color': opt.color }}
-            onClick={() => onCategoryChange(opt.value)}
+            onClick={() => onCategoryChange(opt.key)}
           >
             {opt.label}
           </button>

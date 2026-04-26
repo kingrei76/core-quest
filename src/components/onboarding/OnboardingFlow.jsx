@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../config/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useCharacter } from '../../contexts/CharacterContext'
-import { CATEGORIES, DIFFICULTIES } from '../../config/constants'
-import { categoryOptions } from '../../utils/categories'
+import { DIFFICULTIES } from '../../config/constants'
+import { useCategories } from '../../hooks/useCategories'
 import { getCategoryStat } from '../../utils/rpg'
 import styles from './OnboardingFlow.module.css'
 
@@ -14,6 +14,7 @@ const SECONDARY_BONUS = 2
 export default function OnboardingFlow() {
   const { user } = useAuth()
   const { refresh } = useCharacter()
+  const { visible: categoryOptions } = useCategories()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [characterName, setCharacterName] = useState('')
@@ -114,14 +115,14 @@ export default function OnboardingFlow() {
             <div className={styles.focusGrid}>
               {categoryOptions.map(opt => (
                 <button
-                  key={opt.value}
+                  key={opt.key}
                   type="button"
-                  className={`${styles.focusBtn} ${focus === opt.value ? styles.focusActive : ''}`}
+                  className={`${styles.focusBtn} ${focus === opt.key ? styles.focusActive : ''}`}
                   style={{ '--focus-color': opt.color }}
-                  onClick={() => setFocus(opt.value)}
+                  onClick={() => setFocus(opt.key)}
                 >
                   <div className={styles.focusLabel}>{opt.label}</div>
-                  <div className={styles.focusStat}>+{FOCUS_BONUS} {CATEGORIES[opt.value].stat}</div>
+                  <div className={styles.focusStat}>+{FOCUS_BONUS} {opt.stat}</div>
                 </button>
               ))}
             </div>
