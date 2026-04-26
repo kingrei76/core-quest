@@ -24,7 +24,7 @@ export default function QuestFilters({ category, onCategoryChange, status, onSta
       </div>
 
       <div className={styles.statusToggle}>
-        {['active', 'completed', 'all'].map(s => (
+        {['active', 'completed', 'failed', 'abandoned', 'all'].map(s => (
           <button
             key={s}
             className={`${styles.statusBtn} ${status === s ? styles.statusActive : ''}`}

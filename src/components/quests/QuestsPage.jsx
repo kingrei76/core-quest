@@ -20,6 +20,8 @@ export default function QuestsPage() {
     if (categoryFilter !== 'all' && q.category !== categoryFilter) return false
     if (statusFilter === 'active') return q.status === 'available' || q.status === 'in_progress'
     if (statusFilter === 'completed') return q.status === 'completed'
+    if (statusFilter === 'failed') return q.status === 'failed'
+    if (statusFilter === 'abandoned') return q.status === 'abandoned'
     return true
   })
 
@@ -31,6 +33,14 @@ export default function QuestsPage() {
 
   const handleStart = async (quest) => {
     await updateQuestStatus(quest.id, 'in_progress')
+  }
+
+  const handleFail = async (quest) => {
+    await updateQuestStatus(quest.id, 'failed')
+  }
+
+  const handleAbandon = async (quest) => {
+    await updateQuestStatus(quest.id, 'abandoned')
   }
 
   const handleDelete = async (quest) => {
@@ -64,6 +74,8 @@ export default function QuestsPage() {
               quest={quest}
               onComplete={handleComplete}
               onStart={handleStart}
+              onFail={handleFail}
+              onAbandon={handleAbandon}
               onEdit={setEditing}
               onDelete={handleDelete}
             />
