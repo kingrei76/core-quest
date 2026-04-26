@@ -10,6 +10,7 @@ import NotificationSettings from './NotificationSettings'
 import ChallengePanel from './ChallengePanel'
 import AchievementsGrid from './AchievementsGrid'
 import CategoryManager from './CategoryManager'
+import StatsCharts from './StatsCharts'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import styles from './CharacterPage.module.css'
 
@@ -43,6 +44,8 @@ export default function CharacterPage() {
       <StreakDisplay current={streak.current} best={streak.best} />
 
       <ChallengePanel />
+
+      <StatsCharts />
 
       <AchievementsGrid />
 
