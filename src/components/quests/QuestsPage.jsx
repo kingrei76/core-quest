@@ -4,6 +4,7 @@ import { useXP } from '../../hooks/useXP'
 import { useStreak } from '../../hooks/useStreak'
 import { useVitals } from '../../hooks/useVitals'
 import { useChallenges } from '../../hooks/useChallenges'
+import { useNotes } from '../../hooks/useNotes'
 import QuestCard from './QuestCard'
 import QuestFilters from './QuestFilters'
 import QuestEditor from './QuestEditor'
@@ -17,6 +18,7 @@ export default function QuestsPage() {
   const { refresh: refreshStreak } = useStreak()
   const { applyDailyMissPenalty } = useVitals()
   const { recordCompletion } = useChallenges()
+  const { notes } = useNotes()
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('active')
   const [editing, setEditing] = useState(null)
@@ -30,6 +32,11 @@ export default function QuestsPage() {
   }, [quests, loading, applyDailyMissPenalty])
 
   const topLevel = quests.filter(q => !q.parent_quest_id)
+
+  const noteCountByQuest = notes.reduce((acc, n) => {
+    if (n.linked_quest_id) acc[n.linked_quest_id] = (acc[n.linked_quest_id] || 0) + 1
+    return acc
+  }, {})
 
   const filteredQuests = topLevel.filter(q => {
     if (categoryFilter !== 'all' && q.category !== categoryFilter) return false
@@ -89,6 +96,7 @@ export default function QuestsPage() {
               key={quest.id}
               quest={quest}
               children={getChildren(quest.id)}
+              noteCount={noteCountByQuest[quest.id] || 0}
               onComplete={handleComplete}
               onStart={handleStart}
               onFail={handleFail}

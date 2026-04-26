@@ -30,3 +30,31 @@
   flex-direction: column;
   gap: var(--space-sm);
 }
+
+.tagFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-md);
+}
+
+.tagChip {
+  padding: 4px 10px;
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tagChip:hover {
+  color: var(--color-text-primary);
+}
+
+.tagActive {
+  background: var(--color-gold);
+  color: var(--color-bg-primary);
+  border-color: var(--color-gold);
+}

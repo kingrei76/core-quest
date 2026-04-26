@@ -23,6 +23,51 @@
   border-color: var(--color-gold);
 }
 
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-sm);
+  margin-top: var(--space-sm);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  color: var(--color-text-primary);
+  font-size: 0.8rem;
+}
+
+.tagRemove {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tagInput {
+  flex: 1;
+  min-width: 100px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  padding: 2px 4px;
+}
+
 .options {
   margin-top: var(--space-sm);
 }

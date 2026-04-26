@@ -10,6 +10,7 @@ const SWIPE_THRESHOLD = 100
 export default function QuestCard({
   quest,
   children = [],
+  noteCount = 0,
   onComplete,
   onStart,
   onFail,
@@ -90,6 +91,9 @@ export default function QuestCard({
           )}
           {hasChildren && (
             <Badge label={`${completedChildren}/${children.length} sub-quests`} color="var(--color-accent)" />
+          )}
+          {noteCount > 0 && (
+            <Badge label={`${noteCount} note${noteCount === 1 ? '' : 's'}`} color="var(--color-text-muted)" />
           )}
           {isInactive && statusLabel && (
             <Badge
