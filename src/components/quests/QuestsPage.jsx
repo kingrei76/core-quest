@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuests } from '../../hooks/useQuests'
 import { useXP } from '../../hooks/useXP'
 import { useStreak } from '../../hooks/useStreak'
+import { useVitals } from '../../hooks/useVitals'
 import QuestCard from './QuestCard'
 import QuestFilters from './QuestFilters'
 import QuestEditor from './QuestEditor'
@@ -12,9 +13,17 @@ export default function QuestsPage() {
   const { quests, loading, updateQuestStatus, updateQuest, deleteQuest } = useQuests()
   const { awardQuestXP } = useXP()
   const { refresh: refreshStreak } = useStreak()
+  const { applyDailyMissPenalty } = useVitals()
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('active')
   const [editing, setEditing] = useState(null)
+  const penaltyChecked = useRef(false)
+
+  useEffect(() => {
+    if (penaltyChecked.current || loading || quests.length === 0) return
+    penaltyChecked.current = true
+    applyDailyMissPenalty(quests)
+  }, [quests, loading, applyDailyMissPenalty])
 
   const filteredQuests = quests.filter(q => {
     if (categoryFilter !== 'all' && q.category !== categoryFilter) return false

@@ -145,6 +145,13 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- ============================================
+-- VITALS TIMESTAMP (Phase 4.1)
+-- ============================================
+
+alter table character_stats
+  add column if not exists last_penalty_at timestamptz;
+
+-- ============================================
 -- PUSH NOTIFICATIONS (Phase 3)
 -- ============================================
 

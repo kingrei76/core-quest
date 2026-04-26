@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '../config/supabase'
 import { useAuth } from './AuthContext'
-import { calculateLevel, levelProgress, getTitle, getClass, calculateHP, calculateMP } from '../utils/rpg'
+import { calculateLevel, levelProgress, getTitle, getClass, maxHP, maxMP } from '../utils/rpg'
 
 const CharacterContext = createContext(null)
 
@@ -73,8 +73,10 @@ export function CharacterProvider({ children }) {
   const progress = levelProgress(totalXP)
   const title = getTitle(level)
   const characterClass = stats ? getClass(stats) : 'Adventurer'
-  const hp = stats ? calculateHP(level, stats.vitality, stats.wisdom) : 60
-  const mp = stats ? calculateMP(level, stats.wisdom, stats.fortune) : 35
+  const hpMax = stats ? maxHP(level, stats.vitality, stats.wisdom) : 60
+  const mpMax = stats ? maxMP(level, stats.wisdom, stats.fortune) : 35
+  const currentHp = stats ? Math.max(0, Math.min(stats.current_hp ?? hpMax, hpMax)) : hpMax
+  const currentMp = stats ? Math.max(0, Math.min(stats.current_mp ?? mpMax, mpMax)) : mpMax
 
   const value = {
     profile,
@@ -85,8 +87,12 @@ export function CharacterProvider({ children }) {
     progress,
     title,
     characterClass,
-    hp,
-    mp,
+    hp: currentHp,
+    mp: currentMp,
+    hpMax,
+    mpMax,
+    currentHp,
+    currentMp,
     refresh: fetchCharacter,
   }
 

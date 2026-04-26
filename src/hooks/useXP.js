@@ -1,11 +1,13 @@
 import { supabase } from '../config/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useCharacter } from '../contexts/CharacterContext'
+import { useVitals } from './useVitals'
 import { getQuestXP, getStatGain, getCategoryStat } from '../utils/rpg'
 
 export function useXP() {
   const { user } = useAuth()
   const { profile, stats, refresh } = useCharacter()
+  const { rewardForCompletion } = useVitals()
 
   const awardQuestXP = async (quest) => {
     if (!user || !profile || !stats) return { error: new Error('Not ready') }
@@ -49,8 +51,9 @@ export function useXP() {
 
     if (statsError) return { error: statsError }
 
-    // Refresh character context
+    // Refresh character context, then top up vitals
     await refresh()
+    await rewardForCompletion()
 
     return { xpEarned, statGain, targetStat }
   }

@@ -12,7 +12,7 @@ import styles from './CharacterPage.module.css'
 
 export default function CharacterPage() {
   const { signOut } = useAuth()
-  const { profile, stats, loading, level, totalXP, progress, title, characterClass, hp, mp } = useCharacter()
+  const { profile, stats, loading, level, totalXP, progress, title, characterClass, currentHp, currentMp, hpMax, mpMax } = useCharacter()
   const streak = useStreak()
 
   if (loading) return <LoadingSpinner />
@@ -31,8 +31,8 @@ export default function CharacterPage() {
       <XPBar totalXP={totalXP} level={level} progress={progress} />
 
       <div className={styles.bars}>
-        <HPMPBar label="HP" current={hp} max={hp} color="var(--color-hp)" />
-        <HPMPBar label="MP" current={mp} max={mp} color="var(--color-mp)" />
+        <HPMPBar label="HP" current={currentHp} max={hpMax} color="var(--color-hp)" />
+        <HPMPBar label="MP" current={currentMp} max={mpMax} color="var(--color-mp)" />
       </div>
 
       <StatsGrid stats={stats} />

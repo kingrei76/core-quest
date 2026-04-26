@@ -60,15 +60,20 @@ export function getClass(stats) {
   return tied ? 'Adventurer' : highest
 }
 
-/** Calculate HP from level and stats */
-export function calculateHP(level, vitality, wisdom) {
+/** Maximum HP from level and stats */
+export function maxHP(level, vitality, wisdom) {
   return 50 + (level * 10) + (vitality * 3) + (wisdom * 1)
 }
 
-/** Calculate MP from level and stats */
-export function calculateMP(level, wisdom, fortune) {
+/** Maximum MP from level and stats */
+export function maxMP(level, wisdom, fortune) {
   return 30 + (level * 5) + (wisdom * 3) + (fortune * 2)
 }
+
+/** @deprecated use maxHP */
+export const calculateHP = maxHP
+/** @deprecated use maxMP */
+export const calculateMP = maxMP
 
 /** Get XP value for a quest based on difficulty, with streak bonus */
 export function getQuestXP(difficulty, streakDays) {
