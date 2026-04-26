@@ -3,6 +3,7 @@ import { useQuests } from '../../hooks/useQuests'
 import { useNotes } from '../../hooks/useNotes'
 import { DIFFICULTIES } from '../../config/constants'
 import { categoryOptions, difficultyOptions } from '../../utils/categories'
+import { recurrenceOptions } from '../../utils/recurrence'
 import styles from './InboxInput.module.css'
 
 export default function InboxInput({ onAdd }) {
@@ -12,6 +13,7 @@ export default function InboxInput({ onAdd }) {
   const [type, setType] = useState('task')
   const [category, setCategory] = useState('health')
   const [difficulty, setDifficulty] = useState('easy')
+  const [recurrence, setRecurrence] = useState('none')
   const [dueDate, setDueDate] = useState('')
   const [reminderDate, setReminderDate] = useState('')
   const [reminderTime, setReminderTime] = useState('')
@@ -30,6 +32,7 @@ export default function InboxInput({ onAdd }) {
         category,
         difficulty,
         xp_value: DIFFICULTIES[difficulty].xp,
+        recurrence,
       }
       if (dueDate) questData.due_date = dueDate
       if (reminderDate && reminderTime) {
@@ -45,6 +48,7 @@ export default function InboxInput({ onAdd }) {
     setDueDate('')
     setReminderDate('')
     setReminderTime('')
+    setRecurrence('none')
     setSaving(false)
   }
 
@@ -106,6 +110,20 @@ export default function InboxInput({ onAdd }) {
               {difficultyOptions.map(opt => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label} ({opt.xp} XP)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.selectRow}>
+            <select
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value)}
+              className={styles.select}
+            >
+              {recurrenceOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.value === 'none' ? opt.label : `Repeats ${opt.label.toLowerCase()}`}
                 </option>
               ))}
             </select>

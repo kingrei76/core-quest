@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useId } from 'react'
 import { supabase } from '../config/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { isRecurring, nextDueDate, nextReminderAt } from '../utils/recurrence'
 
 export function useQuests() {
   const { user } = useAuth()
@@ -41,7 +42,7 @@ export function useQuests() {
     return () => supabase.removeChannel(channel)
   }, [user, fetchQuests])
 
-  const createQuest = async ({ title, description, category, difficulty, xp_value, inbox_source_id, due_date, reminder_at }) => {
+  const createQuest = async ({ title, description, category, difficulty, xp_value, inbox_source_id, due_date, reminder_at, recurrence }) => {
     if (!user) return { error: new Error('Not authenticated') }
     const row = {
       user_id: user.id,
@@ -55,6 +56,31 @@ export function useQuests() {
     }
     if (due_date) row.due_date = due_date
     if (reminder_at) row.reminder_at = reminder_at
+    if (recurrence && recurrence !== 'none') row.recurrence = recurrence
+    const { data, error } = await supabase
+      .from('quests')
+      .insert(row)
+      .select()
+      .single()
+    return { data, error }
+  }
+
+  const spawnNextRecurrence = async (quest) => {
+    if (!user || !isRecurring(quest)) return { data: null }
+    const row = {
+      user_id: user.id,
+      title: quest.title,
+      description: quest.description,
+      category: quest.category,
+      difficulty: quest.difficulty,
+      xp_value: quest.xp_value,
+      status: 'available',
+      recurrence: quest.recurrence,
+    }
+    const due = nextDueDate(quest)
+    const remind = nextReminderAt(quest)
+    if (due) row.due_date = due
+    if (remind) row.reminder_at = remind
     const { data, error } = await supabase
       .from('quests')
       .insert(row)
@@ -74,6 +100,11 @@ export function useQuests() {
       .eq('id', questId)
       .select()
       .single()
+
+    if (!error && status === 'completed' && isRecurring(data)) {
+      await spawnNextRecurrence(data)
+    }
+
     return { data, error }
   }
 
@@ -82,6 +113,7 @@ export function useQuests() {
     loading,
     createQuest,
     updateQuestStatus,
+    spawnNextRecurrence,
     refresh: fetchQuests,
   }
 }

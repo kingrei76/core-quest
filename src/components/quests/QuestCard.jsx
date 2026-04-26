@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { CATEGORIES, DIFFICULTIES } from '../../config/constants'
+import { CATEGORIES, DIFFICULTIES, RECURRENCES } from '../../config/constants'
+import { isRecurring } from '../../utils/recurrence'
 import Badge from '../shared/Badge'
 import styles from './QuestCard.module.css'
 
@@ -26,6 +27,9 @@ export default function QuestCard({ quest, onComplete, onStart }) {
       <div className={styles.badges}>
         {category && <Badge label={category.label} color={category.color} />}
         {difficulty && <Badge label={difficulty.label} color={difficulty.color} />}
+        {isRecurring(quest) && (
+          <Badge label={`↻ ${RECURRENCES[quest.recurrence].label}`} color="var(--color-accent)" />
+        )}
         {isCompleted && <Badge label="Completed" color="var(--color-xp)" />}
       </div>
 

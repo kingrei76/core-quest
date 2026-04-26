@@ -38,6 +38,14 @@ export const TITLES = [
   { minLevel: 50, title: 'Mythic' },
 ]
 
+// Quest recurrence options
+export const RECURRENCES = {
+  none:    { label: 'One-time' },
+  daily:   { label: 'Daily' },
+  weekly:  { label: 'Weekly' },
+  monthly: { label: 'Monthly' },
+}
+
 // Streak bonus thresholds
 export const STREAK_BONUSES = [
   { days: 30, bonus: 0.25 },
