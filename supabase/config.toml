@@ -1,0 +1,7 @@
+[functions.dispatch-reminders]
+# Cron-driven function — invoked internally by pg_cron with the project's
+# service role key. Disable platform JWT verification so the new
+# `sb_secret_*` API key format works (it's not accepted by edge-function
+# JWT auth as of 2026-04). Function still uses SERVICE_ROLE internally
+# to read/write the database.
+verify_jwt = false
