@@ -46,6 +46,44 @@
   display: block;
 }
 
+.bucket {
+  margin-bottom: var(--space-lg);
+}
+
+.bucketHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-sm);
+  padding-bottom: var(--space-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bucketCount {
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  letter-spacing: normal;
+}
+
+.pendingList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.diff_trivial { background: var(--color-trivial); color: var(--color-bg-primary); }
+.diff_easy    { background: var(--color-easy);    color: var(--color-bg-primary); }
+.diff_medium  { background: var(--color-medium);  color: var(--color-bg-primary); }
+.diff_hard    { background: var(--color-hard);    color: var(--color-bg-primary); }
+.diff_epic    { background: var(--color-epic);    color: white; }
+.diff_legendary { background: var(--color-legendary); color: white; }
+
 .recentList {
   list-style: none;
   padding: 0;
