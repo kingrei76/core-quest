@@ -285,6 +285,39 @@ create policy "Users can delete own subscriptions" on push_subscriptions
   for delete using (auth.uid() = user_id);
 
 -- ============================================
+-- DEVICE IMPORT (iPhone Shortcuts → inbox)
+-- ============================================
+
+alter table inbox_items
+  add column if not exists external_id text,
+  add column if not exists external_source text,
+  add column if not exists metadata jsonb default '{}'::jsonb;
+
+create unique index if not exists inbox_items_external_key
+  on inbox_items (user_id, external_source, external_id)
+  where external_id is not null;
+
+create table if not exists device_import_tokens (
+  token text primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  label text,
+  created_at timestamptz default now(),
+  last_used_at timestamptz
+);
+
+create index if not exists device_import_tokens_user_idx
+  on device_import_tokens(user_id);
+
+alter table device_import_tokens enable row level security;
+
+create policy "Users can view own tokens" on device_import_tokens
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own tokens" on device_import_tokens
+  for insert with check (auth.uid() = user_id);
+create policy "Users can delete own tokens" on device_import_tokens
+  for delete using (auth.uid() = user_id);
+
+-- ============================================
 -- ENABLE REALTIME
 -- ============================================
 

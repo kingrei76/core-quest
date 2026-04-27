@@ -10,6 +10,7 @@ import NotificationSettings from './NotificationSettings'
 import ChallengePanel from './ChallengePanel'
 import AchievementsGrid from './AchievementsGrid'
 import CategoryManager from './CategoryManager'
+import DeviceImport from './DeviceImport'
 import StatsCharts from './StatsCharts'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import styles from './CharacterPage.module.css'
@@ -52,6 +53,8 @@ export default function CharacterPage() {
       <CategoryManager />
 
       <NotificationSettings />
+
+      <DeviceImport />
 
       <HistoryList />
 

@@ -5,6 +5,20 @@
   padding: var(--space-md);
 }
 
+.sourceBadge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent);
+  background: rgba(125, 211, 252, 0.08);
+  border: 1px solid var(--color-accent);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: var(--space-xs);
+}
+
 .content {
   margin: 0 0 var(--space-md);
   font-size: 1rem;

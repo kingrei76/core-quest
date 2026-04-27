@@ -11,12 +11,13 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
   const { createQuest } = useQuests()
   const { createNote } = useNotes()
   const { visible: categoryOptions } = useCategories()
-  const [category, setCategory] = useState('health')
-  const [difficulty, setDifficulty] = useState('easy')
-  const [recurrence, setRecurrence] = useState('none')
-  const [dueDate, setDueDate] = useState('')
-  const [reminderDate, setReminderDate] = useState('')
-  const [reminderTime, setReminderTime] = useState('')
+  const meta = item.metadata || {}
+  const [category, setCategory] = useState(meta.category || 'health')
+  const [difficulty, setDifficulty] = useState(meta.difficulty || 'easy')
+  const [recurrence, setRecurrence] = useState(meta.recurrence || 'none')
+  const [dueDate, setDueDate] = useState(meta.due_date || item.due_date || '')
+  const [reminderDate, setReminderDate] = useState(meta.reminder_date || '')
+  const [reminderTime, setReminderTime] = useState(meta.reminder_time || '')
   const [processing, setProcessing] = useState(false)
 
   const handleCreateQuest = async () => {
@@ -49,8 +50,16 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
     setProcessing(false)
   }
 
+  const sourceLabel = {
+    ios_reminders: 'iPhone Reminders',
+    ios_notes: 'iPhone Notes',
+  }[item.external_source]
+
   return (
     <div className={styles.item}>
+      {sourceLabel && (
+        <span className={styles.sourceBadge}>{sourceLabel}</span>
+      )}
       <p className={styles.content}>{item.content}</p>
 
       <div className={styles.controls}>

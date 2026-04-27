@@ -1,0 +1,206 @@
+.section {
+  margin-top: var(--space-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  margin: 0 0 var(--space-xs);
+  color: var(--color-text-primary);
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-md);
+  line-height: 1.4;
+}
+
+.createForm {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.input {
+  flex: 1;
+  padding: var(--space-sm);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.primary, .secondary, .dangerBtn {
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.primary {
+  background: var(--color-gold);
+  color: var(--color-bg-primary);
+}
+
+.secondary {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.dangerBtn {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  padding: 4px 10px;
+}
+
+.dangerBtn:hover {
+  color: var(--color-danger, #e85d6f);
+  border-color: var(--color-danger, #e85d6f);
+}
+
+.linkBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tokenList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.tokenRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  gap: var(--space-sm);
+}
+
+.tokenInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.tokenLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.tokenValue {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin: 2px 0;
+  word-break: break-all;
+}
+
+.tokenMeta {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.tokenActions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.callout {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid var(--color-gold);
+  border-radius: var(--radius-sm);
+}
+
+.calloutTitle {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-gold);
+}
+
+.calloutHint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.details {
+  margin-top: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.details summary {
+  cursor: pointer;
+  padding: var(--space-xs) 0;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.endpointRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-xs);
+}
+
+.endpoint {
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  word-break: break-all;
+}
+
+.steps {
+  padding-left: var(--space-md);
+  margin: var(--space-sm) 0;
+  line-height: 1.6;
+}
+
+.steps li {
+  margin-bottom: 6px;
+}
+
+.steps code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  background: var(--color-bg-card);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--color-text-primary);
+}
+
+.note {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-sm);
+}
