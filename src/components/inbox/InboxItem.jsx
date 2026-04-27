@@ -32,7 +32,7 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
     }
     if (dueDate) questData.due_date = dueDate
     if (reminderDate && reminderTime) {
-      questData.reminder_at = `${reminderDate}T${reminderTime}:00`
+      questData.reminder_at = new Date(`${reminderDate}T${reminderTime}`).toISOString()
     }
     await createQuest(questData)
     await onProcess(item.id)

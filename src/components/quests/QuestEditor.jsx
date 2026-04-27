@@ -47,7 +47,7 @@ export default function QuestEditor({ quest, onSave, onClose }) {
       xp_value: DIFFICULTIES[difficulty].xp,
       recurrence,
       due_date: dueDate || null,
-      reminder_at: reminderDate && reminderTime ? `${reminderDate}T${reminderTime}:00` : null,
+      reminder_at: reminderDate && reminderTime ? new Date(`${reminderDate}T${reminderTime}`).toISOString() : null,
     }
     await onSave(quest.id, updates)
     setSaving(false)
