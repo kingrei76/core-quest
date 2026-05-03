@@ -204,3 +204,28 @@
   color: var(--color-text-muted);
   margin-top: var(--space-sm);
 }
+
+.freshnessFresh {
+  color: var(--color-success, #6fcf97);
+}
+
+.freshnessOk {
+  color: var(--color-text-muted);
+}
+
+.freshnessStale {
+  color: var(--color-danger, #e85d6f);
+}
+
+.testOk {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--color-success, #6fcf97);
+}
+
+.testFail {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--color-danger, #e85d6f);
+  word-break: break-word;
+}

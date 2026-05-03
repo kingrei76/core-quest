@@ -1,6 +1,9 @@
 // Supabase Edge Function: dispatch-reminders
-// Scans quests with reminder_at falling in the recent window and sends a
-// Web Push notification to every subscription belonging to the quest's user.
+// Scans quests whose reminder_at is due and that have not yet been notified
+// for this reminder, and sends a Web Push to every subscription belonging
+// to the quest's user. Stamps `last_reminded_at` after each successful send
+// so back-to-back cron runs don't double-fire and so a late cron run will
+// still pick up reminders it missed.
 //
 // Deploy: supabase functions deploy dispatch-reminders
 // Secrets needed:
@@ -8,7 +11,7 @@
 //   VAPID_PRIVATE_KEY - VAPID private key
 //   VAPID_SUBJECT     - "mailto:you@example.com" or your site URL
 // Schedule (Supabase Dashboard -> Database -> Cron):
-//   Every 5 minutes -> select net.http_post(...) calling this function
+//   Every 1-5 minutes -> select net.http_post(...) calling this function
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
@@ -25,35 +28,63 @@ const admin = createClient(SUPABASE_URL, SERVICE_ROLE, {
   auth: { persistSession: false },
 })
 
+// Don't keep firing reminders for things that are days overdue — if a
+// cron outage caused a multi-day backlog, only the last 24h is worth
+// surfacing.
+const STALE_REMINDER_HOURS = 24
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST' && req.method !== 'GET') {
     return new Response('Method not allowed', { status: 405 })
   }
 
   const now = new Date()
-  const fiveMinAgo = new Date(now.getTime() - 5 * 60 * 1000)
+  const staleCutoff = new Date(now.getTime() - STALE_REMINDER_HOURS * 60 * 60 * 1000)
 
-  const { data: quests, error: qErr } = await admin
+  // Pick up everything due and not too stale. We do a column-to-column
+  // comparison (last_reminded_at < reminder_at) in JS, since PostgREST
+  // can't express that filter directly.
+  const { data: candidates, error: qErr } = await admin
     .from('quests')
-    .select('id, user_id, title, category, reminder_at, status')
-    .gte('reminder_at', fiveMinAgo.toISOString())
+    .select('id, user_id, title, reminder_at, last_reminded_at')
     .lte('reminder_at', now.toISOString())
+    .gte('reminder_at', staleCutoff.toISOString())
     .in('status', ['available', 'in_progress'])
+    .limit(500)
 
   if (qErr) {
     return new Response(JSON.stringify({ error: qErr.message }), { status: 500 })
   }
 
+  // Send if we've never reminded, OR if reminder_at was rolled forward
+  // past the last reminder we sent (recurrence rollover, manual edit).
+  const quests = (candidates ?? []).filter(q => {
+    if (!q.last_reminded_at) return true
+    return new Date(q.last_reminded_at) < new Date(q.reminder_at)
+  })
+
   let sent = 0
   let failed = 0
+  let stamped = 0
 
-  for (const quest of quests ?? []) {
+  for (const quest of quests) {
     const { data: subs } = await admin
       .from('push_subscriptions')
       .select('endpoint, p256dh, auth')
       .eq('user_id', quest.user_id)
 
-    for (const sub of subs ?? []) {
+    if (!subs || subs.length === 0) {
+      // No devices to push to — still stamp so we don't loop forever.
+      await admin
+        .from('quests')
+        .update({ last_reminded_at: now.toISOString() })
+        .eq('id', quest.id)
+      stamped++
+      continue
+    }
+
+    let anyOk = false
+    for (const sub of subs) {
       const payload = JSON.stringify({
         title: 'Quest reminder',
         body: quest.title,
@@ -63,9 +94,10 @@ Deno.serve(async (req) => {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          payload
+          payload,
         )
         sent++
+        anyOk = true
       } catch (err) {
         failed++
         const status = (err as { statusCode?: number })?.statusCode
@@ -74,10 +106,27 @@ Deno.serve(async (req) => {
         }
       }
     }
+
+    // Stamp once at least one device was reachable, OR if every device
+    // was a permanent failure (already deleted) — either way we shouldn't
+    // re-attempt this reminder on the next cron tick.
+    if (anyOk || failed > 0) {
+      await admin
+        .from('quests')
+        .update({ last_reminded_at: now.toISOString() })
+        .eq('id', quest.id)
+      stamped++
+    }
   }
 
   return new Response(
-    JSON.stringify({ scanned: quests?.length ?? 0, sent, failed }),
-    { headers: { 'Content-Type': 'application/json' } }
+    JSON.stringify({
+      candidates: candidates?.length ?? 0,
+      scanned: quests.length,
+      sent,
+      failed,
+      stamped,
+    }),
+    { headers: { 'Content-Type': 'application/json' } },
   )
 })

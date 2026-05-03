@@ -318,6 +318,23 @@ create policy "Users can delete own tokens" on device_import_tokens
   for delete using (auth.uid() = user_id);
 
 -- ============================================
+-- REMINDER DEDUPE (Phase 3 robustness fix)
+-- ============================================
+-- Stamp the moment we last sent a push for a quest's reminder. The
+-- dispatcher uses this so it can scan "everything due and not yet
+-- reminded" instead of relying on a fragile 5-min window — late
+-- reminders fire as soon as the cron next runs, and back-to-back
+-- runs don't double-send.
+
+alter table quests
+  add column if not exists last_reminded_at timestamptz;
+
+create index if not exists quests_due_reminder_idx
+  on quests (reminder_at)
+  where status in ('available', 'in_progress')
+    and reminder_at is not null;
+
+-- ============================================
 -- ENABLE REALTIME
 -- ============================================
 
