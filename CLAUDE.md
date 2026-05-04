@@ -8,7 +8,7 @@ Add an entry whenever you discover a non-obvious convention, gotcha, or invarian
 
 ## Conventions
 
-- **Branch**: develop on `claude/check-project-status-J4gwt` unless user says otherwise. They sometimes ask for direct pushes to `main`; honor that when stated.
+- **Branch**: develop on whatever branch the current task description specifies (most recent: `claude/continue-work-ndzl4`). The user sometimes asks for direct pushes to `main`; honor that when stated.
 - **Realtime channels**: every list hook (`useQuests`, `useNotes`, etc.) must use `useId()` to namespace its Supabase channel name, otherwise multiple components mounting the same hook collide on `postgres_changes`. See `1f49491` for the original fix.
 - **Auth**: email + password is primary; OTP code is fallback. Never re-add `emailRedirectTo` to `signInWithOtp` — that breaks iOS PWA login (link opens in Safari, not the home-screen app).
 - **Reminders**: timestamps written by the frontend must use `new Date('YYYY-MM-DDTHH:mm').toISOString()` so they include the user's UTC offset. The Edge Function compares against `now()` in UTC.
@@ -82,3 +82,17 @@ Because web Claude can't run `supabase db push`. Every schema change shows up as
 - 4.1 HP/MP combat loop · 4.2 Boss + sub-quests · 4.3 Daily/weekly challenges · 4.4 Achievements
 - 5.1 Onboarding · 5.2 Note tags + quest links · 5.3 Custom categories · 5.4 Stats charts
 - iPhone reminder auto-import (most recent)
+
+## Game design direction
+
+CORE Quest is becoming a **modern-day portal RPG** where a team of specialists tackles real-life goals as monster-world dungeons. The full brief lives in `vision.md`. Key invariants for any session that touches gameplay-adjacent code:
+
+- **Art direction:** modern HD-2D pixel art (Octopath Traveler / Sea of Stars references). Decided May 4, 2026.
+- **Setting:** modern-day team at a home base; portals open into themed monster worlds.
+- **Team model:** fixed small roster of 5 archetypes (Warrior / Mage / Rogue / Diplomat / Scholar). Each archetype maps to a quest category cluster.
+- **Combat model:** action-point economy. Quests award AP to the matching archetype; user spends AP in on-demand combat from a portal screen. Combat is *manual*, not auto-resolve.
+- **Orientation:** TBD (leaning portrait + letterboxed combat). Decided in the encounter spike — see `docs/encounter-spike.md`.
+- **Roadmap:** `vision.md` § "Phase 6 — Visual + narrative overhaul" for the gated sequence (6.1 art lock-in → 6.2 spike → 6.3 schema migration → 6.4 combat MVP → ...).
+- **Style bible:** `docs/design/style-bible.md` is the durable home for locked reference images, palette, sprite specs, prompt recipes. Populated during Phase 6.1 design sessions.
+
+Don't re-litigate these in passing. If something needs to change, update `vision.md` first.

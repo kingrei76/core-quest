@@ -32,17 +32,65 @@ constrained by the answer.
 
 ---
 
-## The next big rock: Art & world direction
+## Decisions locked (May 4, 2026)
 
-**Goal of the next Claude Design session:** explore 3–4 distinct
-visual directions, pick a winner (or a "lead with backups"), and walk
-out with enough conviction to start commissioning / generating actual
-assets the week after.
+After tonight's itch.io browsing and reflection, the following are no longer open. They become the constraints for the next design session and everything downstream.
 
-Combat mechanics, story, skill trees, gear systems are **all parked**
-until art is decided. Locking art first prevents the trap of
-designing systems that don't fit the look (e.g., designing a gritty
-soulslike loop, then trying to draw it in chibi).
+### Art direction: modern HD-2D pixel art (Style A — winner)
+- References: **Octopath Traveler**, **Sea of Stars**, **Chained Echoes**.
+- Detailed pixel sprites, hand-painted backgrounds, modern lighting.
+- Layout / input simplicity influence from **Shogun Showdown** (sideways feel, single-button-friendly, phone-readable scale).
+- Acknowledged trade-off: highest art-production cost of the four candidates. AI tools (PixelLab + Aseprite) handle the sprite layer; the "HD-2D" depth/lighting effect requires custom shader/composition work and is the spike's main technical risk.
+
+### Setting: modern-day portals + a team at a home base
+**Frame:** real-world team of specialists at a home base. Modern-day setting. Portals open into themed monster worlds. The player commands a *team*, not a single avatar.
+
+**Quest → portal mapping**
+- Individual quest → a portal (or a room within a portal)
+- Sub-quests → mini-portals or chained rooms within a portal
+- Weekly challenges → mini-bosses
+- Quarterly bosses → main bosses at the end of a portal arc
+- Different team members enter different portals based on the quest's category
+
+### Team model: fixed small roster, archetype-based
+3-5 named characters with class identities. Initial archetype sketch (refine in design):
+- **Warrior** — frontline melee, handles physical category quests (workouts, fitness)
+- **Mage** — arcane caster, handles mental / cognitive quests (study, learning)
+- **Rogue** — finesse / agility, handles career / strategic quests
+- **Diplomat** — social / charm, handles social / relationships
+- **Scholar** — wisdom / patience, handles creative / reflective
+
+Final names, classes, and category mapping are a design-phase decision. Categories that don't map cleanly fall back to a "general" archetype (likely Warrior or Scholar).
+
+### Combat model: action-point economy + manual play
+The user's invented hybrid model:
+1. Completing a quest in real life awards **items** that grant **action points** (AP) to the character whose category was tackled.
+2. AP accumulates per character.
+3. The user opens a character's portal at will and *spends* AP to perform combat actions.
+4. Combat is manual and on-demand, but driven by an economy fed by real productivity.
+
+This separates the *earning* of combat power from the *playing* of combat while keeping them tightly coupled. Three risks to watch in design:
+- **Friction trap:** if combat requires too much ritual, users skip it and the loop dies.
+- **Balance:** too few AP per quest = rare combat; too many = inflation.
+- **Bookkeeping:** AP per character per portal needs a real schema (extend `characters` or new `character_action_points` table).
+
+### Orientation: leaning portrait, decided in spike
+- User leans **portrait everything** with a letterboxed sideways combat strip (no rotation lock).
+- Final call deferred to the encounter spike (`docs/encounter-spike.md`) — must be tested on real iPhone PWA before committing.
+- Two backup options remain: portrait CRUD + landscape-lock combat, or full landscape redesign.
+
+### Equipment: deferred
+Characters earn equipment based on portals completed. Cosmetic-only vs. stat-bearing vs. both is deferred to Phase 6.6 — don't over-design it now.
+
+---
+
+## The next big rock: execute the chosen direction
+
+The art-direction question has shifted from "choose between candidates" to "execute on Style A and validate it works for our specific setup."
+
+**Next Claude Design session goal (revised):** produce concept art in HD-2D pixel for **the 5-archetype roster**, **at least one portal background**, **a home-base scene**, **a sample boss**, and **a combat scene mockup** — all in our modern-day-portal frame. Walk out with locked reference images for the style bible (`docs/design/style-bible.md`).
+
+Combat mechanics now have a known shape (action-point economy). Skill trees, gear systems, and story remain open but will be informed by the locked art.
 
 ---
 
@@ -91,7 +139,7 @@ Four distinct directions, ordered roughly from cheapest-to-produce
 to most-expensive. Each has a reference game so you can scroll
 screenshots in 30 seconds.
 
-### A. Modern detailed pixel art (HD-2D-adjacent)
+### A. Modern detailed pixel art (HD-2D-adjacent) — **CHOSEN (May 4, 2026)**
 **References:** *Sea of Stars*, *Chained Echoes*, *Octopath Traveler*,
 *Triangle Strategy*. Bigger pixels (32×32 sprites), modern lighting,
 hand-painted backgrounds.
@@ -164,39 +212,47 @@ combat cut-ins.
 
 ---
 
-## Concrete Claude Design prompts to try
+## Next session — concrete Claude Design prompts (revised for Style A)
 
-For each style, generate the same three views so you can compare
-apples-to-apples:
+Style is locked. The next session is about producing **the actual reference images** that lock in HD-2D pixel for our specific roster + setting, not exploring alternatives. Each prompt assumes "Sea of Stars / Octopath Traveler / Chained Echoes" as the base style anchor.
 
-1. **Character portrait** — your character (Adventurer class), full
-   body, idle pose, against a transparent / solid bg.
-2. **Quest card** — a single quest in the chosen style (showing title,
-   difficulty, XP, "Boss" tier with a small enemy peek).
-3. **Encounter screen** — character on left, enemy ("Q3 Revenue Goal"
-   labeled as e.g. "Treasurer of Avarice") on right, HP bars, action
-   buttons. Even a static mockup.
+Generate these views, in order:
 
-**Suggested seed prompts** (paste, then iterate):
+1. **The 5 archetype portraits** — one per character, full body, idle pose, transparent background. **The most important deliverable** — these become canonical reference images for every later asset.
+2. **Home-base scene** — modern-day room or hideout where the team rests between portals. Establishes the modern-day frame.
+3. **One portal entrance** — modern-day environment with a glowing rift opening into a fantasy world. Establishes the portal visual language.
+4. **One sample boss** — a creature inside a portal. Pick a category (e.g., "Boss of Procrastination" for the Mage's portal) to make it concrete.
+5. **Combat scene mockup** — sideways letterboxed strip showing one archetype mid-attack on the sample boss, with an AP indicator UI element.
 
-> "Modern HD-2D pixel art RPG character portrait, 32×32 base, gold
-> & cyan accents, dark navy background, Sea of Stars / Chained Echoes
-> style"
+### Suggested seed prompts (iterate from these)
 
-> "Hand-drawn storybook illustration of an adventurer, painterly, dark
-> jewel tones (navy + gold + teal), Banner Saga / Gris influence,
-> serif title 'Apprentice of CORE Quest'"
+> "HD-2D pixel art RPG character portrait, 64x64 base sprite scaled up, modern detailed pixel art in the style of Sea of Stars and Octopath Traveler, hand-painted lighting. **Warrior archetype:** modern-day clothing with athletic / gym cues, fantasy weapon as accent, frontline melee energy"
 
-> "Chibi RPG character, cute proportions, warm palette, soft outlines,
-> Cult of the Lamb / Cozy Grove style, friendly expressive face"
+> "Same style and character grammar. **Mage archetype:** modern-day scholar / student clothing, glasses or book motif, arcane accent, mental / cognitive theme"
 
-> "Fire Emblem GBA tactical RPG sprite, 16×16 map sprite + paired
-> 64×64 portrait, palette swap variants (Warrior / Scholar / Merchant
-> / Diplomat)"
+> "Same style and character grammar. **Rogue archetype:** modern-day business-casual or street look, tactical / strategic accents, finesse"
 
-Once you pick a leading direction, codify a small **style guide**
-(palette, typography, spacing, asset specs) before any asset is built
-for real.
+> "Same style and character grammar. **Diplomat archetype:** modern-day professional / social look, charisma and approachability cues"
+
+> "Same style and character grammar. **Scholar archetype:** modern-day artist / writer / creative look, reflective and patient demeanor"
+
+> "HD-2D pixel art interior scene: modern-day urban hideout / safehouse for a team of specialists. Evening lighting. Walls hint at past portal adventures (trophies, notes, a closed portal frame). Sea of Stars composition style"
+
+> "HD-2D pixel art portal entrance: modern-day rooftop or alley with a swirling magical rift opening into a fantasy world. Dramatic lighting. The contrast between concrete / steel and fantasy is the point"
+
+> "HD-2D pixel art boss creature: 'Boss of Procrastination' — a sluggish, comfortable monster surrounded by unfinished objects. Pixel art, Octopath Traveler boss-pose composition, intimidating but lazy"
+
+> "HD-2D pixel art sideways combat scene, letterboxed view (wide, short aspect ratio): mage on left mid-cast, boss on right, AP gauge UI element in corner. Shogun Showdown layout influence + Sea of Stars rendering"
+
+### What to bring back into the style bible
+
+For each generated image you keep:
+- The image itself (downloaded, named clearly e.g. `warrior-v1.png`)
+- The exact prompt that produced it
+- Any seed / parameter values
+- Notes on what to *change* on the next pass (e.g., "cooler palette," "less detail in background")
+
+These all go into `docs/design/style-bible.md`.
 
 ---
 
@@ -217,25 +273,63 @@ to avoid:
 
 ---
 
-## Long-term roadmap (parking lot — not committed)
+## Phase 6 — Visual + narrative overhaul (concrete roadmap)
 
-> Captured here so it's written down. Don't plan against this; we'll
-> revisit each rock once the previous one is real.
+This is what tonight's decisions trigger. Each step is gated by the previous one. Replaces the prior speculative roadmap.
 
-| # | Rock | Status |
-|---|------|--------|
-| Now | **Art & world direction** | actively planning |
-| Next | Apply chosen style to existing UI (menu/character/quests) | pending art lock |
-| Then | **Combat v0** — character does *something visible* when a quest is completed (damage tick on a placeholder enemy) | pending art |
-| Then | **Weekly Sub-Bosses** as real-life sub-goals you fight across a week | pending combat v0 |
-| Then | **Quarterly Big Bosses** mapped to quarterly life goals | pending sub-bosses working |
-| Later | Skills, gear, character class progression | TBD |
-| Eventually | **Fire Emblem-style grid combat** with multiple units | north-star, may take years |
-| Maybe | Story / narrative chapter system | optional, TBD |
+### 6.1 — Art direction lock-in (this week)
+- Next Claude Design session: produce concept art per the prompts above
+- Outputs: 5 archetype portraits, 1 home-base scene, 1 portal entrance, 1 sample boss, 1 combat-scene mockup
+- Lock canonical reference images into `docs/design/style-bible.md`
+- Pick AI tooling subscription: **PixelLab** (~$10/mo) for sprite production
+- Acquire **Aseprite** ($20 one-time) for cleanup and sprite-sheet export
+- **Done when:** style bible exists with locked reference images and a documented prompt recipe per archetype
 
-The user is explicit that **mechanics and story** are deliberately
-unplanned right now. Art locks first, then mechanics with several
-ideas in hand, then story emerges from both.
+### 6.2 — Encounter spike (1-2 days, throwaway branch)
+- Already specced in detail at `docs/encounter-spike.md` — DOM + framer-motion + sprite sheets approach
+- Build the throwaway combat scene per that spec: one character vs. one enemy, single-button attack, HP swap
+- Test all three orientation options on real iPhone PWA: portrait + letterboxed strip, portrait CRUD + landscape combat, full landscape
+- Decide AP storage shape: extend `characters` row vs. new `character_action_points` table
+- **Done when:** orientation locked from real-device testing; rendering approach validated (DOM-only / DOM + canvas overlay / Pixi); AP schema sketch exists
+
+### 6.3 — Schema migration: team of characters
+- Migrate `characters`: from one-row-per-user to many-rows-per-user with `archetype` field
+- Add AP storage (per spike decision)
+- Stub `equipment` table (columns deferred to 6.6)
+- Update `useCharacter` / `CharacterContext` to expose the team roster
+- Keep HP / MP and stats user-level for now unless spike says otherwise
+- **Done when:** `useCharacter()` returns a team of 5; existing screens still render correctly
+
+### 6.4 — Combat scene MVP (behind feature flag)
+- Implement winning render approach from spike, in-app, behind feature flag
+- Single character vs. single enemy, on-demand combat from a portal screen
+- Quest completion → AP awarded to matching archetype
+- Spend AP in combat → enemy HP ticks down → victory / defeat states
+- **Done when:** end-to-end loop works on real device — complete a real quest, see AP bump, open portal, spend AP, see combat resolve, see reward
+
+### 6.5 — Portal + home-base UI
+- Home-base screen (modern-day setting): team idle, portals visible by category
+- Portal entrance / exit transitions
+- Replace or augment current dashboard with home-base
+- Tie portal visuals to category color coding (existing CATEGORIES tokens)
+- **Done when:** a stranger can navigate home-base → portal → combat → back without instruction
+
+### 6.6 — Equipment & cosmetics
+- Decision: cosmetic-only vs. stat-bearing vs. both (defer until here)
+- Earn equipment from defeating bosses
+- Per-character inventory UI; visible variation on character sprites
+- **Done when:** completing a quarterly boss visibly changes the responsible character
+
+### 6.7 — Polish + sub-boss / boss systems re-skin
+- Re-theme weekly challenges (existing Phase 4.3) as portal mini-bosses
+- Re-theme quarterly bosses (existing Phase 4.2) as portal arc bosses
+- Achievements (existing Phase 4.4) become trophies in home-base
+- **Done when:** existing Phase 4 systems feel native to the new world, not bolted on
+
+### Beyond 6.7 (north star, not committed)
+- Story / narrative chapters
+- True grid-tactics combat (Fire Emblem-style) — original far-future goal
+- Multiplayer / social (sharing portal completions)
 
 ---
 
@@ -277,26 +371,25 @@ These are already wired and shouldn't be touched while we explore:
 
 ---
 
-## Open questions to bring into the design session
+## Open questions — status after May 4
 
-Things we don't have to answer today, but worth bringing into the
-Claude Design session:
+Original list, with answers:
 
-1. **Tone:** heroic & earnest? Deadpan absurdist? Cozy melancholic?
-   Soulslike grim? This decides which of A–D actually fits.
-2. **Character identity:** is "the character" *you*, or a separate
-   avatar you guide? Affects portrait/customization scope.
-3. **Boss visual language:** are bosses "monsters" (Treasurer of
-   Avarice, Hydra of Procrastination) or are they more abstract
-   (a literal mountain you climb)? Two very different art briefs.
-4. **Animation budget:** static portraits + UI motion only, vs. real
-   walk cycles & combat animations? Decides whether pixel art (A) or
-   hand-drawn (B) is more realistic.
-5. **One character or party?** End-state is grid tactics with units,
-   so a party is implied — but does the party exist visually from day
-   one, or only when grid combat lands?
+1. **Tone:** OPEN — bring to Claude Design with reference imagery. The modern-day-portal-fantasy frame implies *grounded with magical contrast*, but tone is still pickable.
+2. **Character identity:** ANSWERED — separate avatars (a 5-archetype team), not "you."
+3. **Boss visual language:** OPEN, narrowed — modern-day portals lean toward thematic monsters ("Boss of Procrastination" as a sluggish creature) over abstract metaphors. Decide in the next session.
+4. **Animation budget:** OPEN — depends on rendering choice in the encounter spike. Pixel sprites can do walk cycles cheaply if PixelLab handles generation; HD-2D lighting effects might be the bottleneck instead.
+5. **One character or party?** ANSWERED — party of 5 archetypes from day one.
 
-These are the conversations to have *with art on screen*, not before.
+New questions raised tonight (May 4):
+
+6. **AP economy balance:** how many AP per quest? Per difficulty tier? Does a category-matched character (warrior on physical quests) get more AP than a non-match? Needs first-pass numbers in design.
+7. **AP UI surfacing:** where in the existing app shell does AP appear? On the character page? On each quest card? Both?
+8. **Equipment role:** cosmetic, stat-bearing, or both. Defer to Phase 6.6, but a tone-setting answer helps the style bible.
+9. **Portal lifecycle:** does completing a portal lock it forever, or do new portals of the same type spawn? Habit games need infinite content; story games need finite. Probably the former for CORE Quest's purpose.
+10. **Modern-day scene language:** how visible is the modern-day setting in the home-base? Subtle (lighting + clothing cues), or overt (smartphones, coffee cups, computer screens)? Affects every background asset.
+
+These are conversations to have *with art on screen*.
 
 ---
 
@@ -315,21 +408,22 @@ These are the conversations to have *with art on screen*, not before.
 - `CLAUDE.md` — conventions + Supabase handoff workflow; always
   re-read at session start
 - `docs/encounter-spike.md` — the prototype that validates the
-  DOM-only combat architecture
+  DOM-only combat architecture (Phase 6.2)
+- `docs/design/style-bible.md` — locked reference images, palette,
+  typography, sprite specs (populated during Phase 6.1 design session)
 
 ---
 
-## Verification (when does this rock count as "done")
+## Verification — when each phase is "done"
 
-This planning rock is done when, after the next Claude Design
-session, we have:
+### Phase 6.1 (art lock-in) is done when:
+1. ✓ Primary art style chosen — **DONE (May 4): Style A**
+2. Reference image generated for each: 5 archetype portraits, 1 home-base scene, 1 portal entrance, 1 sample boss, 1 combat-scene mockup
+3. `docs/design/style-bible.md` exists with palette + typography + sprite specs + reference gallery
+4. Each reference image has its prompt + parameters recorded next to it
 
-1. A chosen primary art style (A / B / C / D / hybrid)
-2. At least one mockup of each of: character portrait, quest card,
-   encounter screen — in that style
-3. A short **style guide** doc (palette + typography + spacing +
-   asset specs) committed to `docs/` or appended here
-4. A pruned roadmap: what changes in the existing UI to apply the
-   new style, in what order
-
-Then — and only then — we start planning the next rock (combat v0).
+### Phase 6.2 (encounter spike) is done when (per `docs/encounter-spike.md`):
+1. Orientation strategy locked from real-device testing (not theory)
+2. Rendering approach validated (DOM-only / DOM + canvas overlay / Pixi)
+3. AP storage shape decided (table vs. column)
+4. Throwaway combat scene runs on real iPhone PWA without dropping frames
