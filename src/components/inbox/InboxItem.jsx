@@ -22,32 +22,58 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
 
   const handleCreateQuest = async () => {
     setProcessing(true)
-    const xpValue = DIFFICULTIES[difficulty].xp
-    const questData = {
-      title: item.content,
-      category,
-      difficulty,
-      xp_value: xpValue,
-      inbox_source_id: item.id,
-      recurrence,
+    try {
+      const xpValue = DIFFICULTIES[difficulty].xp
+      const questData = {
+        title: item.content,
+        category,
+        difficulty,
+        xp_value: xpValue,
+        inbox_source_id: item.id,
+        recurrence,
+      }
+      if (dueDate) questData.due_date = dueDate
+      if (reminderDate && reminderTime) {
+        questData.reminder_at = new Date(`${reminderDate}T${reminderTime}`).toISOString()
+      }
+      const { error: createErr } = await createQuest(questData)
+      if (createErr) throw createErr
+      const { error: processErr } = await onProcess(item.id)
+      if (processErr) throw processErr
+    } catch (err) {
+      alert(`Couldn't create quest: ${err.message || err}`)
+    } finally {
+      setProcessing(false)
     }
-    if (dueDate) questData.due_date = dueDate
-    if (reminderDate && reminderTime) {
-      questData.reminder_at = new Date(`${reminderDate}T${reminderTime}`).toISOString()
-    }
-    await createQuest(questData)
-    await onProcess(item.id)
-    setProcessing(false)
   }
 
   const handleSaveNote = async () => {
     setProcessing(true)
-    await createNote({
-      content: item.content,
-      inbox_source_id: item.id,
-    })
-    await onProcess(item.id)
-    setProcessing(false)
+    try {
+      const { error: createErr } = await createNote({
+        content: item.content,
+        inbox_source_id: item.id,
+      })
+      if (createErr) throw createErr
+      const { error: processErr } = await onProcess(item.id)
+      if (processErr) throw processErr
+    } catch (err) {
+      alert(`Couldn't save note: ${err.message || err}`)
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  const handleDismiss = async () => {
+    setProcessing(true)
+    try {
+      const { error } = await onDismiss(item.id)
+      if (error) throw error
+    } catch (err) {
+      alert(`Couldn't dismiss: ${err.message || err}`)
+    } finally {
+      setProcessing(false)
+    }
   }
 
   const sourceLabel = {
@@ -144,7 +170,7 @@ export default function InboxItem({ item, onProcess, onDismiss }) {
           Save as Note
         </button>
         <button
-          onClick={() => onDismiss(item.id)}
+          onClick={handleDismiss}
           disabled={processing}
           className={styles.dismissBtn}
         >
