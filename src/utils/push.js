@@ -18,6 +18,18 @@ function bufferToBase64(buf) {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
+function subscriptionUsesVapidKey(subscription, currentVapidBase64) {
+  const existingKey = subscription.options?.applicationServerKey
+  if (!existingKey) return false
+  const expected = urlBase64ToUint8Array(currentVapidBase64)
+  const existingBytes = new Uint8Array(existingKey)
+  if (existingBytes.byteLength !== expected.byteLength) return false
+  for (let i = 0; i < existingBytes.byteLength; i++) {
+    if (existingBytes[i] !== expected[i]) return false
+  }
+  return true
+}
+
 export function pushSupported() {
   return typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
@@ -45,7 +57,13 @@ export async function subscribeToPush(userId) {
 
   const reg = await navigator.serviceWorker.ready
   const existing = await reg.pushManager.getSubscription()
-  if (existing) return existing
+  if (existing) {
+    if (subscriptionUsesVapidKey(existing, VAPID_PUBLIC_KEY)) return existing
+    // VAPID key rotated since this subscription was created. Drop the stale row
+    // and unsubscribe so the subscribe() below issues a fresh endpoint.
+    await supabase.from('push_subscriptions').delete().eq('endpoint', existing.endpoint)
+    await existing.unsubscribe().catch(() => {})
+  }
 
   const sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
