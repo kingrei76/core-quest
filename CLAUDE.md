@@ -8,7 +8,8 @@ Add an entry whenever you discover a non-obvious convention, gotcha, or invarian
 
 ## Conventions
 
-- **Branch**: develop on whatever branch the current task description specifies (most recent: `claude/continue-work-ndzl4`). The user sometimes asks for direct pushes to `main`; honor that when stated.
+- **Branch**: develop on whatever branch the current task description specifies (most recent: `claude/continue-work-ndzl4`).
+- **Deploy-as-test workflow**: this is a personal app — the user is the only user. The user does NOT routinely run `npm run dev` locally; instead, the testing surface IS the deployed Vercel app at `core-quest.vercel.app`. When a feature branch is ready to verify, **merge it into `main` and push** — Vercel auto-deploys main and the user reviews on the live URL. Don't insist on local-server testing; don't ask the user to run terminal commands when a merge-to-main accomplishes the same thing. Direct pushes to `main` are explicitly OK for this project, including for prototype / spike work, because there are no external users to break.
 - **Realtime channels**: every list hook (`useQuests`, `useNotes`, etc.) must use `useId()` to namespace its Supabase channel name, otherwise multiple components mounting the same hook collide on `postgres_changes`. See `1f49491` for the original fix.
 - **Auth**: email + password is primary; OTP code is fallback. Never re-add `emailRedirectTo` to `signInWithOtp` — that breaks iOS PWA login (link opens in Safari, not the home-screen app).
 - **Reminders**: timestamps written by the frontend must use `new Date('YYYY-MM-DDTHH:mm').toISOString()` so they include the user's UTC offset. The Edge Function compares against `now()` in UTC.
