@@ -370,22 +370,21 @@ Quest Board now sorts `due_date ASC NULLS LAST, created_at DESC`. `useQuests.js`
 
 - **Open follow-ups for a future polish pass:** visual cue for overdue dates (red), today (amber), future (default) — matches the Asana reference. Possibly a sort toggle if Matt wants priority/category-driven ordering.
 
-### TM.2 — Mobile-friendly grid layout (Asana-inspired)
-Current Quest Board is a vertical card list — fine on desktop, OK on mobile, but loses density. Matt's reference (screenshot 2026-05-05) is the Asana list view: one row per task, columns for due date / priority / assignee. The CORE Quest equivalent would be columns for due date, category, difficulty (the current "card chips" become row cells).
+### TM.2 — Mobile-friendly grid layout (Asana-inspired) ✓ SHIPPED 2026-05-05
+Quest Board is now a dense bucketed list. Each quest renders as a `QuestRow` with status circle (Asana-style — tap to complete), title, inline meta strip (due-date label, category chip, difficulty chip, recurrence/subtask/note tags), and XP. Tapping the body expands an inline detail drawer with description + action buttons (Begin / Complete / + Subtask / Edit / Fail / Abandon / Delete). Swipe-right-to-complete and swipe-left-to-abandon preserved from the previous QuestCard.
 
-- **Mobile pivot:** below a breakpoint, columns collapse into a denser two-line row (title + meta strip) rather than full cards. Don't simply hide columns — re-arrange.
-- **Group by section:** Today / Upcoming / No date — natural break points that make the list scannable.
-- **Inline expand:** tapping a row expands subtasks below it (tree disclosure triangle), à la the Asana screenshot.
-- **Done when:** on iPhone PWA, the Quest Board shows ~8-10 quests in the viewport (current shows ~3), and grouping/expansion feels native.
+Active-status board is grouped into Overdue / Today / Tomorrow / This week / Later / No due date sections via shared `src/utils/buckets.js` helper (also used by InboxPage). Section headers tinted: Overdue red, Today gold, others muted. Other status filters (completed/failed/abandoned) render as a flat list — bucketing doesn't make sense for inactive items.
 
-### TM.3 — Subtasks (UI for an existing primitive)
-**Subtasks already exist in the schema** — `quests.parent_quest_id` and `is_boss` from Phase 4.2 (Boss + sub-quests). The UI is partial: bosses can have sub-quests in the boss flow, but a regular quest can't be split into subtasks from the Quest Board.
+Old `QuestCard.jsx` + `QuestCard.module.css` removed; `QuestRow.jsx` + `QuestSection.jsx` are the new primitives.
 
-- **From quest detail / edit:** add "+ Add subtask" action that creates a child quest with the parent's category/difficulty defaults.
-- **From Quest Board:** parent rows show child count + disclosure triangle (per Asana ref).
-- **Subtask completion behavior:** does completing all subtasks auto-complete the parent? Phase 4.2 logic already handles this for bosses — extend to all quests.
-- **XP rules:** decide whether subtasks award XP independently or only the parent does. Default: each subtask awards its own XP, parent awards a small completion bonus. Confirm with Matt before building.
-- **Done when:** Matt can break a real quest (e.g. "Auto add the rent out of Perry properties") into 3-4 sub-steps from the Quest Board, see them roll up to the parent's progress, and complete them individually.
+### TM.3 — Subtasks (UI for an existing primitive) ✓ SHIPPED 2026-05-05
+`QuestRow` has built-in recursion: parent rows show a chevron (▸ collapsed / ▾ expanded) plus a "subtasks: N/M" tag on the meta line. Expanding renders child rows indented 20px to the right of their parent — visually identical row component, recursive depth tracked via `depth` prop.
+
+"+ Subtask" action lives in the expanded detail of any active quest (not just bosses) — opens the existing `SubQuestModal` with parent's category as the default. Parent auto-complete behavior already lived in `useQuests.updateQuestStatus` since Phase 4.2 — works for any parent, not just bosses.
+
+The status circle on parent rows is intentionally disabled with a tooltip ("Complete children to finish parent") — completing a parent directly bypasses subtasks, which would lose XP / muddle progress tracking.
+
+**Open follow-ups:** XP-bonus when all subtasks complete (currently parent just transitions to completed when its children all do, awarding only the parent's own xp_value). Currently subtasks each award their own XP independently — fine default; revisit if Matt wants a roll-up bonus.
 
 ### TM.4 — Notes & comments on quests
 Existing notes (Phase 5.2) are top-level standalone records linked to quests via `inbox_source_id`, not free-form comments on a quest. Matt wants per-quest notes/comments that travel with the quest as it progresses.
