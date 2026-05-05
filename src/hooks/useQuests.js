@@ -15,6 +15,7 @@ export function useQuests() {
       .from('quests')
       .select('*')
       .eq('user_id', user.id)
+      .order('due_date', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
     if (data) setQuests(data)
     setLoading(false)
