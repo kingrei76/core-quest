@@ -94,5 +94,8 @@ CORE Quest is becoming a **modern-day portal RPG** where a team of specialists t
 - **Orientation:** TBD (leaning portrait + letterboxed combat). Decided in the encounter spike — see `docs/encounter-spike.md`.
 - **Roadmap:** `vision.md` § "Phase 6 — Visual + narrative overhaul" for the gated sequence (6.1 art lock-in → 6.2 spike → 6.3 schema migration → 6.4 combat MVP → ...).
 - **Style bible:** `docs/design/style-bible.md` is the durable home for locked reference images, palette, sprite specs, prompt recipes. Populated during Phase 6.1 design sessions.
+- **Magic system:** `docs/design/magic-system.md` — 3-tier Jungian power set (Persona / Shadow / Integration). Only **Power 1 (Persona) ships in Phase 6.4**. Powers 2 and 3 are designed-on-paper but **deferred to Phase 7+**. Don't implement Shadow or Integration before then. Power 1 mechanics must stay **skin-agnostic** (modern-weapon variants are cosmetic, not code-forks).
+- **Higher Being layer:** powers are granted by a bonded entity, not innate. Bond level scales with real-life quest engagement and gates Powers 2/3. Affects home-base art (the Higher Being's "presence" grows with bond). See magic-system doc.
+- **Weekly check-in:** `docs/design/weekly-checkin.md` — post-sub-boss frank conversation via Claude API (Edge Function). Tone *ramps with Bond level*. Implementation deferred to Phase 6.7. When implementing, use prompt caching on the system prompt + character context block.
 
 Don't re-litigate these in passing. If something needs to change, update `vision.md` first.
