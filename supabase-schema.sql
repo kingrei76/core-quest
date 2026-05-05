@@ -293,9 +293,12 @@ alter table inbox_items
   add column if not exists external_source text,
   add column if not exists metadata jsonb default '{}'::jsonb;
 
+-- NOTE: index is non-partial so Postgres ON CONFLICT inference can use it
+-- (partial unique indexes can't be inferred targets). Postgres' default
+-- NULLS-DISTINCT semantics make a partial WHERE redundant anyway — composite
+-- unique indexes already allow multiple rows where any column is NULL.
 create unique index if not exists inbox_items_external_key
-  on inbox_items (user_id, external_source, external_id)
-  where external_id is not null;
+  on inbox_items (user_id, external_source, external_id);
 
 create table if not exists device_import_tokens (
   token text primary key,
