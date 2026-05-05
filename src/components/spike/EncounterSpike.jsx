@@ -51,7 +51,7 @@ export default function EncounterSpike() {
             }
           >
             <img
-              src="/sprites/vanguard-v1-clean.png"
+              src="/sprites/vanguard-v1-cropped.png"
               alt="Vanguard"
               className={styles.sprite}
               draggable={false}

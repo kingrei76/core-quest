@@ -65,8 +65,8 @@
 }
 
 .sprite {
-  width: 180px;
-  height: 180px;
+  width: auto;
+  height: 240px;
   object-fit: contain;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -232,8 +232,8 @@
 
 @media (max-width: 480px) {
   .sprite {
-    width: 140px;
-    height: 140px;
+    width: auto;
+    height: 200px;
   }
   .enemyPlaceholder {
     width: 110px;
