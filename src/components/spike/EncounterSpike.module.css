@@ -1,0 +1,245 @@
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1rem;
+  min-height: 100%;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  color: #f4ecd8;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.bannerLabel {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #ffd700;
+}
+
+.bannerText {
+  color: #f4ecd8;
+  opacity: 0.85;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 360px;
+  padding: 1rem 0.5rem 2rem;
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(ellipse at 50% 95%, rgba(244, 162, 97, 0.18) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(15, 52, 96, 0) 0%, rgba(15, 52, 96, 0.5) 100%);
+  overflow: hidden;
+}
+
+.actorWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+}
+
+.actorWrapRight {
+  align-items: center;
+}
+
+.actor {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sprite {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.35));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.enemyPlaceholder {
+  width: 140px;
+  height: 140px;
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 50% 35%, #4a3158 0%, #2a1d3a 70%, #1a1228 100%);
+  border: 2px solid #7d63a1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 14px 18px;
+  padding-top: 36px;
+  box-shadow:
+    inset 0 -10px 16px rgba(0, 0, 0, 0.4),
+    0 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.enemyEye {
+  width: 14px;
+  height: 14px;
+  background: #ffd700;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+}
+
+.enemyMouth {
+  width: 60px;
+  height: 6px;
+  background: #1a1228;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.flash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  margin: -90px 0 0 -90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.95) 0%, rgba(255, 110, 60, 0.4) 50%, transparent 75%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.strikeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.4rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #1a1a2e;
+  background: linear-gradient(180deg, #ffd700 0%, #d9a900 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 0 #856700, 0 6px 12px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.strikeButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.strikeButton:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #856700, 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+.strikeButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.strikeCost {
+  padding: 0.15rem 0.45rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  background: rgba(26, 26, 46, 0.85);
+  color: #ffd700;
+  border-radius: 0.25rem;
+}
+
+.resetButton {
+  padding: 0.7rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #f4ecd8;
+  background: transparent;
+  border: 1px solid rgba(244, 236, 216, 0.4);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.resetButton:hover {
+  background: rgba(244, 236, 216, 0.08);
+}
+
+.hpBar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 160px;
+}
+
+.hpBarRight {
+  align-items: flex-end;
+}
+
+.hpLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: #f4ecd8;
+  opacity: 0.85;
+}
+
+.hpTrack {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(244, 236, 216, 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hpFill {
+  height: 100%;
+  background: linear-gradient(90deg, #e94560 0%, #ff7a8c 100%);
+  width: 100%;
+}
+
+.hpValue {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: #f4ecd8;
+  opacity: 0.7;
+}
+
+.note {
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(244, 236, 216, 0.55);
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .sprite {
+    width: 140px;
+    height: 140px;
+  }
+  .enemyPlaceholder {
+    width: 110px;
+    height: 110px;
+  }
+  .field {
+    min-height: 280px;
+  }
+}

@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: '/quests', label: 'Quests', icon: '\u2694' },
   { to: '/character', label: 'Hero', icon: '\u{1F6E1}' },
   { to: '/notes', label: 'Notes', icon: '\u{1F4DC}' },
+  { to: '/encounter', label: 'Spike', icon: '\u{1F300}' },
 ]
 
 export default function BottomNav() {
