@@ -10,6 +10,7 @@ import InboxPage from './components/inbox/InboxPage'
 import QuestsPage from './components/quests/QuestsPage'
 import CharacterPage from './components/character/CharacterPage'
 import NotesPage from './components/notes/NotesPage'
+import EncounterSpike from './components/spike/EncounterSpike'
 import './index.css'
 
 const router = createBrowserRouter([
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: 'quests', element: <QuestsPage /> },
       { path: 'character', element: <CharacterPage /> },
       { path: 'notes', element: <NotesPage /> },
+      { path: 'encounter', element: <EncounterSpike /> },
     ],
   },
 ])

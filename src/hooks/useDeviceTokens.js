@@ -53,5 +53,27 @@ export function useDeviceTokens() {
     return { error }
   }
 
-  return { tokens, loading, createToken, revokeToken }
+  const testToken = async (token) => {
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-from-device`
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items: [] }),
+      })
+      let body
+      try { body = await res.json() } catch { body = null }
+      if (!res.ok) return { ok: false, status: res.status, error: body?.error || `HTTP ${res.status}` }
+      // Successful empty-batch call updates last_used_at server-side.
+      await fetchTokens()
+      return { ok: true, body }
+    } catch (err) {
+      return { ok: false, error: err.message || 'network error' }
+    }
+  }
+
+  return { tokens, loading, createToken, revokeToken, testToken }
 }

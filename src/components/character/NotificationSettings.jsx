@@ -6,8 +6,28 @@ import {
   getCurrentSubscription,
   subscribeToPush,
   unsubscribeFromPush,
+  reconcileSubscription,
+  syncRotatedSubscription,
+  sendTestPush,
 } from '../../utils/push'
 import styles from './NotificationSettings.module.css'
+
+function summarizeTest(result) {
+  if (!result) return null
+  if (result.note === 'no subscriptions on file') {
+    return { ok: false, msg: 'No push subscriptions stored for your account. Toggle off and back on, then try again.' }
+  }
+  if (result.sent > 0 && result.failed === 0) {
+    return { ok: true, msg: `Sent to ${result.sent} device${result.sent === 1 ? '' : 's'}. Check your home screen / lock screen.` }
+  }
+  if (result.sent > 0 && result.failed > 0) {
+    return { ok: true, msg: `Sent to ${result.sent}, failed on ${result.failed}. Failed endpoints were cleaned up if expired.` }
+  }
+  // All failed
+  const first = result.results?.find(r => !r.ok)
+  const status = first?.status ? ` (HTTP ${first.status})` : ''
+  return { ok: false, msg: `All ${result.failed} push attempt(s) failed${status}. ${first?.error || ''}`.trim() }
+}
 
 export default function NotificationSettings() {
   const { user } = useAuth()
@@ -16,6 +36,8 @@ export default function NotificationSettings() {
   const [subscribed, setSubscribed] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState(null)
 
   useEffect(() => {
     setSupported(pushSupported())
@@ -24,9 +46,29 @@ export default function NotificationSettings() {
     getCurrentSubscription().then(s => setSubscribed(!!s))
   }, [])
 
+  // Listen for SW-triggered subscription rotation and persist the new sub.
+  useEffect(() => {
+    if (!user || !pushSupported()) return
+    const handler = (event) => {
+      if (event.data?.type !== 'PUSH_SUBSCRIPTION_CHANGED') return
+      syncRotatedSubscription(user.id, event.data.oldEndpoint, event.data.subscription)
+        .then(() => setSubscribed(true))
+        .catch(() => {})
+    }
+    navigator.serviceWorker?.addEventListener('message', handler)
+    return () => navigator.serviceWorker?.removeEventListener('message', handler)
+  }, [user])
+
+  // Self-heal: on mount, reconcile the browser subscription against the DB row.
+  useEffect(() => {
+    if (!user) return
+    reconcileSubscription(user.id).catch(() => {})
+  }, [user])
+
   const handleEnable = async () => {
     setBusy(true)
     setError(null)
+    setTestResult(null)
     try {
       await subscribeToPush(user.id)
       setSubscribed(true)
@@ -41,6 +83,7 @@ export default function NotificationSettings() {
   const handleDisable = async () => {
     setBusy(true)
     setError(null)
+    setTestResult(null)
     try {
       await unsubscribeFromPush()
       setSubscribed(false)
@@ -48,6 +91,20 @@ export default function NotificationSettings() {
       setError(err.message || 'Failed to disable notifications')
     } finally {
       setBusy(false)
+    }
+  }
+
+  const handleTest = async () => {
+    setTesting(true)
+    setTestResult(null)
+    setError(null)
+    try {
+      const result = await sendTestPush()
+      setTestResult(result)
+    } catch (err) {
+      setError(err.message || 'Test push failed')
+    } finally {
+      setTesting(false)
     }
   }
 
@@ -77,6 +134,8 @@ export default function NotificationSettings() {
     )
   }
 
+  const summary = summarizeTest(testResult)
+
   return (
     <div className={styles.card}>
       <div className={styles.row}>
@@ -96,6 +155,31 @@ export default function NotificationSettings() {
           </button>
         )}
       </div>
+
+      {subscribed && (
+        <div className={styles.testRow}>
+          <button onClick={handleTest} className={styles.btnTest} disabled={testing}>
+            {testing ? 'Sending…' : 'Send test notification'}
+          </button>
+          {summary && (
+            <p className={summary.ok ? styles.ok : styles.error}>{summary.msg}</p>
+          )}
+          {testResult?.results?.length > 0 && (
+            <details className={styles.details}>
+              <summary>Diagnostic detail</summary>
+              <ul className={styles.diag}>
+                {testResult.results.map((r, i) => (
+                  <li key={i} className={r.ok ? styles.diagOk : styles.diagFail}>
+                    <code>{r.endpoint}</code>
+                    {r.ok ? ' ✓' : ` ✗ ${r.status || ''} ${r.error || ''}`}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+
       {error && <p className={styles.error}>{error}</p>}
     </div>
   )

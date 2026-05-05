@@ -13,8 +13,9 @@ function maskToken(t) {
 function relativeTime(iso) {
   if (!iso) return 'never'
   const diff = Date.now() - new Date(iso).getTime()
-  const min = Math.round(diff / 60000)
-  if (min < 1) return 'just now'
+  const sec = Math.round(diff / 1000)
+  if (sec < 60) return sec <= 5 ? 'just now' : `${sec}s ago`
+  const min = Math.round(sec / 60)
   if (min < 60) return `${min}m ago`
   const hr = Math.round(min / 60)
   if (hr < 24) return `${hr}h ago`
@@ -22,12 +23,22 @@ function relativeTime(iso) {
   return `${day}d ago`
 }
 
+function freshnessClass(iso) {
+  if (!iso) return styles.freshnessStale
+  const minutes = (Date.now() - new Date(iso).getTime()) / 60000
+  if (minutes < 90) return styles.freshnessFresh   // ran within last hour & change
+  if (minutes < 24 * 60) return styles.freshnessOk
+  return styles.freshnessStale
+}
+
 export default function DeviceImport() {
-  const { tokens, loading, createToken, revokeToken } = useDeviceTokens()
+  const { tokens, loading, createToken, revokeToken, testToken } = useDeviceTokens()
   const [label, setLabel] = useState('')
   const [busy, setBusy] = useState(false)
   const [justCreated, setJustCreated] = useState(null)
   const [copiedField, setCopiedField] = useState(null)
+  const [testing, setTesting] = useState(null)
+  const [testResult, setTestResult] = useState(null)
 
   const handleCreate = async (e) => {
     e.preventDefault()
@@ -46,6 +57,14 @@ export default function DeviceImport() {
     } catch {
       // ignore
     }
+  }
+
+  const handleTest = async (token) => {
+    setTesting(token)
+    setTestResult(null)
+    const result = await testToken(token)
+    setTestResult({ token, ...result })
+    setTesting(null)
   }
 
   if (loading) return null
@@ -76,6 +95,8 @@ export default function DeviceImport() {
           <div className={styles.tokenList}>
             {tokens.map(t => {
               const showFull = justCreated === t.token
+              const isTesting = testing === t.token
+              const result = testResult?.token === t.token ? testResult : null
               return (
                 <div key={t.token} className={styles.tokenRow}>
                   <div className={styles.tokenInfo}>
@@ -83,9 +104,16 @@ export default function DeviceImport() {
                     <code className={styles.tokenValue}>
                       {showFull ? t.token : maskToken(t.token)}
                     </code>
-                    <div className={styles.tokenMeta}>
-                      Last used {relativeTime(t.last_used_at)}
+                    <div className={`${styles.tokenMeta} ${freshnessClass(t.last_used_at)}`}>
+                      Last imported {relativeTime(t.last_used_at)}
                     </div>
+                    {result && (
+                      <div className={result.ok ? styles.testOk : styles.testFail}>
+                        {result.ok
+                          ? 'Connection works ✓'
+                          : `Failed${result.status ? ` (HTTP ${result.status})` : ''}: ${result.error || ''}`}
+                      </div>
+                    )}
                   </div>
                   <div className={styles.tokenActions}>
                     {showFull && (
@@ -97,6 +125,14 @@ export default function DeviceImport() {
                         {copiedField === `token-${t.token}` ? 'Copied' : 'Copy'}
                       </button>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => handleTest(t.token)}
+                      className={styles.linkBtn}
+                      disabled={isTesting}
+                    >
+                      {isTesting ? '…' : 'Test'}
+                    </button>
                     <button
                       type="button"
                       onClick={() => revokeToken(t.token)}
@@ -151,31 +187,62 @@ export default function DeviceImport() {
       </details>
 
       <details className={styles.details}>
-        <summary>Set up the iOS Shortcut</summary>
+        <summary>Set up the iOS Shortcut (one time)</summary>
         <ol className={styles.steps}>
-          <li>Open the <strong>Shortcuts</strong> app on your iPhone.</li>
-          <li>New Shortcut → name it <em>CORE Quest Sync</em>.</li>
-          <li>Add <strong>Find Reminders where</strong> → "Is Completed" is "false". Limit 50.</li>
-          <li>Add <strong>Repeat with Each</strong> using the reminders.</li>
-          <li>Inside the loop, add <strong>Dictionary</strong> with keys:
+          <li>Open <strong>Shortcuts</strong> on your iPhone → tap <strong>+</strong> to create a new shortcut. Name it <em>CORE Quest Sync</em>.</li>
+          <li>Add <strong>Find Reminders where</strong> → <em>Is Completed</em> = <em>false</em>. Limit 50.</li>
+          <li>Add <strong>Repeat with Each</strong> using the Found Reminders.</li>
+          <li>Inside the Repeat, add a <strong>Dictionary</strong> with these four keys:
             <ul>
-              <li><code>external_id</code> = Reminder Identifier</li>
+              <li><code>external_id</code> = Repeat Item → Identifier</li>
               <li><code>external_source</code> = <code>ios_reminders</code></li>
-              <li><code>content</code> = Reminder Title</li>
-              <li><code>due_date</code> = Reminder Due Date formatted as <code>yyyy-MM-dd</code></li>
+              <li><code>content</code> = Repeat Item → Title</li>
+              <li><code>due_date</code> = Repeat Item → Due Date, formatted as <code>yyyy-MM-dd</code></li>
             </ul>
           </li>
-          <li>After the loop, wrap the End Repeat output in <strong>Dictionary</strong>: <code>items</code> = Repeat Results.</li>
-          <li>Add <strong>Get Contents of URL</strong> → POST to your endpoint above.
-            Headers: <code>Authorization: Bearer YOUR_TOKEN</code>, <code>Content-Type: application/json</code>.
-            Request Body: JSON, file = the dictionary.
+          <li>After End Repeat, add another <strong>Dictionary</strong> with key <code>items</code> = <em>Repeat Results</em>.</li>
+          <li>Add <strong>Get Contents of URL</strong>:
+            <ul>
+              <li>Method: <strong>POST</strong></li>
+              <li>URL: paste your endpoint from above</li>
+              <li>Headers: <code>Authorization: Bearer YOUR_TOKEN</code> and <code>Content-Type: application/json</code></li>
+              <li>Request Body: <strong>JSON</strong> → File = the dictionary from the previous step</li>
+            </ul>
           </li>
-          <li>(Optional) <strong>Show Result</strong> with the response so you can confirm <code>inserted</code> count.</li>
-          <li>Set up an <strong>Automation</strong> (Personal Automation → Time of Day → repeat hourly) that runs this Shortcut. Or run from the share sheet on demand.</li>
+        </ol>
+      </details>
+
+      <details className={styles.details} open>
+        <summary>Make it actually run automatically</summary>
+        <p className={styles.note}>
+          A Shortcut by itself doesn't run on a schedule — you need a <strong>Personal Automation</strong>
+          to trigger it, and you have to allow it to run unattended.
+        </p>
+        <ol className={styles.steps}>
+          <li>In <strong>Shortcuts</strong>, switch to the <strong>Automation</strong> tab → <strong>+</strong> → <strong>Create Personal Automation</strong>.</li>
+          <li>Pick <strong>Time of Day</strong> → choose a time → repeat <strong>Hourly</strong> (or Daily).</li>
+          <li>Action: <strong>Run Shortcut</strong> → pick <em>CORE Quest Sync</em>.</li>
+          <li><strong>Critical:</strong> on the next screen, turn OFF <em>Ask Before Running</em>, then turn OFF <em>Notify When Run</em> if you don't want a banner each time.</li>
+          <li>Tap <strong>Done</strong>. Verify the automation is <strong>Enabled</strong> in the list.</li>
         </ol>
         <p className={styles.note}>
-          Reminders are deduped server-side via the Reminder Identifier — you can run the Shortcut as often as you like without spamming your inbox.
+          iOS sometimes requires the device to be unlocked at the trigger time for the first run. After
+          that, automations fire while the phone is locked. Plug in & connect to Wi-Fi for best reliability.
         </p>
+        <p className={styles.note}>
+          Tip: also wire up a <strong>"When app is opened"</strong> automation pointed at <em>CORE Quest</em> so
+          opening the PWA forces a fresh sync on top of the hourly schedule.
+        </p>
+      </details>
+
+      <details className={styles.details}>
+        <summary>Troubleshooting</summary>
+        <ul className={styles.steps}>
+          <li>Press <strong>Test</strong> next to your token. If the connection works, the token + endpoint are good — the issue is on the iPhone side.</li>
+          <li>If <em>Last imported</em> stays "never" even after the Shortcut runs, check Shortcuts → Automation → tap your automation → make sure <em>Ask Before Running</em> is OFF.</li>
+          <li>iOS occasionally suspends Personal Automations. If it goes silent, run the Shortcut once manually from the Shortcuts app — that usually wakes it up.</li>
+          <li>If <em>Last imported</em> says "1d ago" or older, your Shortcut probably failed silently. Open Shortcuts → run it manually and read the output.</li>
+        </ul>
       </details>
     </div>
   )

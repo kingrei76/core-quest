@@ -73,8 +73,16 @@ Deno.serve(async (req) => {
 
   const items = (body as { items?: unknown[] })?.items
   if (!Array.isArray(items)) return jsonResponse({ error: 'items must be an array' }, 400)
-  if (items.length === 0) return jsonResponse({ inserted: 0, skipped: 0 })
   if (items.length > 200) return jsonResponse({ error: 'too many items (max 200)' }, 400)
+  if (items.length === 0) {
+    // Empty batch is a valid "ping" — bump last_used_at so the user can
+    // see it in the UI after pressing "Test connection".
+    await admin
+      .from('device_import_tokens')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('token', token)
+    return jsonResponse({ inserted: 0, skipped: 0 })
+  }
 
   const rows = items
     .map((raw) => {

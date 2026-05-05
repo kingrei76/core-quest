@@ -63,3 +63,30 @@ sw.addEventListener('notificationclick', (event) => {
 sw.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') sw.skipWaiting()
 })
+
+// Re-subscribe automatically when the browser invalidates our push subscription
+// (happens periodically on iOS PWAs and when push servers rotate keys).
+sw.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const oldEndpoint = event.oldSubscription?.endpoint
+      const applicationServerKey = event.oldSubscription?.options?.applicationServerKey
+      if (!applicationServerKey) return
+      const fresh = await sw.registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      })
+      // Notify any open client so it can persist the new subscription to Supabase.
+      const clients = await sw.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      for (const client of clients) {
+        client.postMessage({
+          type: 'PUSH_SUBSCRIPTION_CHANGED',
+          oldEndpoint,
+          subscription: fresh.toJSON(),
+        })
+      }
+    } catch {
+      // Best-effort; surfacing this requires an open client.
+    }
+  })())
+})
