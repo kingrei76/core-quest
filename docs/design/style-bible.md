@@ -88,13 +88,52 @@ re-generating every asset.
 > notes for the next iteration pass. Locked images become the
 > reference for *every* later derivative.
 
-### Warrior (archetype 1)
+### Warrior (archetype 1) — Aspect: *The Vanguard*
 
-- **Image:** _(path to file, e.g., `public/sprites/warrior/portrait-v1.png`)_
-- **Prompt:** _(exact text)_
-- **Tool / model:** _(e.g., PixelLab v3, Midjourney v7)_
-- **Parameters:** _(seed, aspect ratio, style strength, etc.)_
-- **Notes for next pass:** _(what to keep, what to change)_
+- **Status:** v1 locked (May 5, 2026). Awaiting Aseprite cleanup pass.
+- **Image:** `docs/design/style-bible/vanguard-v1.png`
+- **Aspect:** The Vanguard (per `docs/design/magic-system.md`)
+- **Persona power (Phase 6.4):** *Crashing Strike*
+- **Modern-weapon variant:** Tactical Operator (rifle + greatsword)
+- **Tool:** Leonardo.AI (model — fill in: e.g., Pixel Art XL)
+- **Parameters:** _(fill in: aspect ratio, guidance, seed)_
+- **Prompt that produced v1:**
+
+  ```
+  HD-2D pixel art RPG character portrait, 64×64 base sprite scaled 3× for display.
+  Sea of Stars production polish with Octopath Traveler dramatic lighting and
+  painted depth. Twilight palette: deep navy background with warm amber and gold
+  accent lighting. Earnest-heroic tone, sincere adventure. Modern fantasy
+  aesthetic. Hand-painted gradient shading, no hard outlines.
+
+  Vanguard archetype, frontline warrior class. Full body idle pose, confident
+  weight-bearing stance, slight smirk, eye contact with viewer. Modern tactical
+  operator fused with fantasy plate armor: ballistic plate carrier with
+  rune-etched ceramic plates, modern combat helmet with visor flipped up,
+  fingerless tactical gloves, sturdy combat boots. Two-handed greatsword slung
+  diagonally across back, modern assault rifle held at low ready. Military
+  patches replaced with arcane sigils. Battle-scarred but composed expression.
+  Dominant earth and steel grey, gold accent on rune-etched plates, deep navy
+  background.
+  ```
+
+- **What landed (keep):**
+  - Silhouette reads at thumbnail
+  - Earnest-heroic facial expression (smile, eye contact, beard)
+  - Gold rune on left pauldron — the canonical "fantasy magic on modern gear" anchor
+  - Olive-and-steel palette with gold accent on navy background
+  - Full body idle pose, confident stance
+
+- **What to fix in Aseprite (next pass — not in Leonardo):**
+  - Remove watermark / hallucinated text artifacts ("Sea of Stars" upper-left, "HODERTL ZART" bottom-left)
+  - Slung weapon on back reads as a second rifle — paint over with a clear two-handed greatsword silhouette if dual-weapon vibe is desired
+  - Optionally simplify chest gear (remove 1-2 pouches/straps) for cleaner silhouette
+  - Lock final canvas size + pixel density (decide 64×64 vs. 96×96 base during cleanup)
+  - Ensure transparent background for compositing into game scenes
+
+- **Notes for v2 (only if Aseprite cleanup can't fix what's wrong):**
+  - Tighten prompt — long prompts caused Leonardo to drop instructions on subsequent generations
+  - Add aggressive negative prompt: `text, watermark, logo, signature, letters, helmet visor down, mouth covered`
 
 ### Mage (archetype 2)
 
