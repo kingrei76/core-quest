@@ -1,0 +1,66 @@
+.wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 200px;
+  height: 280px;
+}
+
+.shadow {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  width: 130px;
+  height: 16px;
+  margin-left: -65px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 40%,
+    rgba(0, 0, 0, 0) 75%
+  );
+  filter: blur(1px);
+  z-index: 0;
+}
+
+.body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  will-change: transform;
+}
+
+.bob {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sprite {
+  width: auto;
+  height: 260px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    width: 160px;
+    height: 220px;
+  }
+  .sprite {
+    height: 200px;
+  }
+  .shadow {
+    width: 100px;
+    margin-left: -50px;
+    bottom: 4px;
+  }
+}

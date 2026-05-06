@@ -1,129 +1,239 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useAnimationControls } from 'framer-motion'
+import Combatant from './Combatant'
+import Enemy from './Enemy'
+import FloatingNumber from './FloatingNumber'
+import { SKILLS } from '../../data/skills'
+import { ENEMIES } from '../../data/enemies'
+import { useSkillSequence } from '../../hooks/useSkillSequence'
 import styles from './EncounterSpike.module.css'
 
 const VANGUARD_MAX_HP = 100
-const ENEMY_MAX_HP = 80
-const STRIKE_DAMAGE = 18
+
+const SHAKE_KEYFRAMES = {
+  small: {
+    x: [0, -3, 4, -2, 0],
+    y: [0, 2, -1, 0, 0],
+    transition: { duration: 0.2, ease: 'easeOut' },
+  },
+  big: {
+    x: [0, -9, 11, -7, 4, 0],
+    y: [0, 4, -3, 2, -1, 0],
+    transition: { duration: 0.32, ease: 'easeOut' },
+  },
+}
 
 export default function EncounterSpike() {
-  const [enemyHp, setEnemyHp] = useState(ENEMY_MAX_HP)
-  const [vanguardHp] = useState(VANGUARD_MAX_HP)
-  const [striking, setStriking] = useState(false)
-  const [flashId, setFlashId] = useState(0)
+  const [waveIndex, setWaveIndex] = useState(0)
+  const [enemyHp, setEnemyHp] = useState(ENEMIES[0].maxHp)
+  const [hitToken, setHitToken] = useState(0)
+  const [flash, setFlash] = useState(false)
+  const [defeated, setDefeated] = useState(false)
+  const [entering, setEntering] = useState(true)
+  const [victory, setVictory] = useState(false)
+  const [damageEvents, setDamageEvents] = useState([])
 
-  const handleStrike = () => {
-    if (striking || enemyHp <= 0) return
-    setStriking(true)
-    setFlashId((id) => id + 1)
-    setTimeout(() => {
-      setEnemyHp((hp) => Math.max(0, hp - STRIKE_DAMAGE))
-    }, 220)
-    setTimeout(() => setStriking(false), 600)
+  const flashTimerRef = useRef(null)
+  const fieldControls = useAnimationControls()
+  const enemy = ENEMIES[waveIndex]
+
+  const triggerShake = useCallback(
+    (mode) => {
+      const kf = SHAKE_KEYFRAMES[mode] ?? SHAKE_KEYFRAMES.small
+      fieldControls.start(kf)
+    },
+    [fieldControls],
+  )
+
+  const handleEffect = useCallback(
+    (token) => {
+      if (token === 'enemyFlash') {
+        setFlash(true)
+        clearTimeout(flashTimerRef.current)
+        flashTimerRef.current = setTimeout(() => setFlash(false), 110)
+        return
+      }
+      if (token === 'screenShakeSmall') return triggerShake('small')
+      if (token === 'screenShakeBig') return triggerShake('big')
+      if (token.startsWith('damage:')) {
+        const value = parseInt(token.slice('damage:'.length), 10) || 0
+        setEnemyHp((hp) => Math.max(0, hp - value))
+        setHitToken((t) => t + 1)
+        const id = `${Date.now()}-${Math.random()}`
+        setDamageEvents((evs) => [...evs, { id, value }])
+      }
+    },
+    [triggerShake],
+  )
+
+  const { isPlaying, selfPose, play } = useSkillSequence({ onEffect: handleEffect })
+
+  // Defeat trigger when HP hits zero
+  useEffect(() => {
+    if (enemyHp <= 0 && !defeated && !victory) {
+      const t = setTimeout(() => setDefeated(true), 280)
+      return () => clearTimeout(t)
+    }
+  }, [enemyHp, defeated, victory])
+
+  // Wave advance after defeat fade-out
+  useEffect(() => {
+    if (!defeated) return
+    const t = setTimeout(() => {
+      const nextIndex = waveIndex + 1
+      if (nextIndex >= ENEMIES.length) {
+        setVictory(true)
+        return
+      }
+      setWaveIndex(nextIndex)
+      setEnemyHp(ENEMIES[nextIndex].maxHp)
+      setHitToken(0)
+      setFlash(false)
+      setDefeated(false)
+      setEntering(true)
+      setDamageEvents([])
+    }, 800)
+    return () => clearTimeout(t)
+  }, [defeated, waveIndex])
+
+  // Drop entering flag after enter anim
+  useEffect(() => {
+    if (!entering) return
+    const t = setTimeout(() => setEntering(false), 480)
+    return () => clearTimeout(t)
+  }, [entering])
+
+  // Cleanup flash timer on unmount
+  useEffect(() => () => clearTimeout(flashTimerRef.current), [])
+
+  const handleSkill = (skillKey) => {
+    if (isPlaying || defeated || victory) return
+    play(SKILLS[skillKey])
   }
 
-  const enemyDefeated = enemyHp <= 0
+  const handleReset = () => {
+    setWaveIndex(0)
+    setEnemyHp(ENEMIES[0].maxHp)
+    setHitToken(0)
+    setFlash(false)
+    setDefeated(false)
+    setVictory(false)
+    setDamageEvents([])
+    setEntering(true)
+  }
+
+  const removeDamageEvent = (id) =>
+    setDamageEvents((evs) => evs.filter((e) => e.id !== id))
 
   return (
     <div className={styles.stage}>
       <div className={styles.banner}>
         <span className={styles.bannerLabel}>SPIKE</span>
         <span className={styles.bannerText}>
-          Encounter prototype — Vanguard idle + Crashing Strike
+          {victory
+            ? 'Wave cleared'
+            : `Wave ${Math.min(waveIndex + 1, ENEMIES.length)} / ${ENEMIES.length} — ${enemy.name}`}
         </span>
       </div>
 
-      <div className={styles.field}>
+      <motion.div className={styles.field} animate={fieldControls}>
         {/* Vanguard (left) */}
-        <div className={styles.actorWrap}>
-          <HpBar label="Vanguard" hp={vanguardHp} max={VANGUARD_MAX_HP} side="left" />
-          <motion.div
-            className={styles.actor}
-            animate={
-              striking
-                ? { x: [0, 80, -8, 0], scale: [1, 1.06, 1, 1] }
-                : { y: [0, -4, 0], scale: [1, 1.012, 1] }
-            }
-            transition={
-              striking
-                ? { duration: 0.6, ease: 'easeOut', times: [0, 0.4, 0.65, 1] }
-                : { duration: 2.6, ease: 'easeInOut', repeat: Infinity }
-            }
-          >
-            <img
-              src="/sprites/vanguard-v1-cropped.png"
-              alt="Vanguard"
-              className={styles.sprite}
-              draggable={false}
-            />
-          </motion.div>
+        <div className={styles.actorSlot}>
+          <HpBar
+            label="Vanguard"
+            hp={VANGUARD_MAX_HP}
+            max={VANGUARD_MAX_HP}
+            side="left"
+          />
+          <Combatant
+            pose={selfPose}
+            sprite="/sprites/vanguard-v1-cropped.png"
+            alt="Vanguard"
+          />
         </div>
 
         {/* Enemy (right) */}
-        <div className={`${styles.actorWrap} ${styles.actorWrapRight}`}>
-          <HpBar label="Wraith" hp={enemyHp} max={ENEMY_MAX_HP} side="right" />
-          <motion.div
-            className={styles.actor}
-            animate={
-              enemyDefeated
-                ? { opacity: 0, y: 24, rotate: -8 }
-                : flashId > 0 && striking
-                  ? { x: [0, -10, 6, 0] }
-                  : { y: [0, -3, 0] }
-            }
-            transition={
-              enemyDefeated
-                ? { duration: 0.8, ease: 'easeIn' }
-                : flashId > 0 && striking
-                  ? { duration: 0.4, delay: 0.22 }
-                  : { duration: 3, ease: 'easeInOut', repeat: Infinity }
-            }
-          >
-            <div className={styles.enemyPlaceholder}>
-              <div className={styles.enemyEye} />
-              <div className={styles.enemyEye} />
-              <div className={styles.enemyMouth} />
-            </div>
-          </motion.div>
+        <div className={styles.actorSlot}>
+          <AnimatePresence mode="wait">
+            {!victory && (
+              <motion.div
+                key={enemy.id}
+                className={styles.enemySlot}
+                initial={false}
+                exit={{ opacity: 0 }}
+              >
+                <HpBar
+                  label={enemy.name}
+                  hp={enemyHp}
+                  max={enemy.maxHp}
+                  side="right"
+                />
+                <div className={styles.enemyHost}>
+                  <Enemy
+                    enemy={enemy}
+                    flash={flash}
+                    hitToken={hitToken}
+                    defeated={defeated}
+                    entering={entering}
+                  />
+                  <AnimatePresence>
+                    {damageEvents.map((ev) => (
+                      <FloatingNumber
+                        key={ev.id}
+                        value={ev.value}
+                        onDone={() => removeDamageEvent(ev.id)}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+            {victory && (
+              <motion.div
+                key="victory"
+                className={styles.victory}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
+                <div className={styles.victoryTitle}>VICTORY</div>
+                <div className={styles.victorySub}>The portal stabilizes.</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-
-        {/* Strike flash overlay */}
-        <AnimatePresence>
-          {striking && (
-            <motion.div
-              key={flashId}
-              className={styles.flash}
-              initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: [0, 0.9, 0], scale: [0.4, 1.4, 1.6] }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, times: [0, 0.3, 1] }}
-            />
-          )}
-        </AnimatePresence>
-      </div>
+      </motion.div>
 
       <div className={styles.controls}>
-        <button
-          className={styles.strikeButton}
-          onClick={handleStrike}
-          disabled={striking || enemyDefeated}
-        >
-          {enemyDefeated ? 'Defeated' : 'Crashing Strike'}
-          <span className={styles.strikeCost}>1 AP</span>
-        </button>
-        {enemyDefeated && (
-          <button
-            className={styles.resetButton}
-            onClick={() => setEnemyHp(ENEMY_MAX_HP)}
-          >
-            Reset
+        {!victory ? (
+          <>
+            <button
+              className={styles.skillButton}
+              onClick={() => handleSkill('crashingStrike')}
+              disabled={isPlaying || defeated}
+            >
+              <span className={styles.skillName}>Crashing Strike</span>
+              <span className={styles.skillCost}>1 AP</span>
+            </button>
+            <button
+              className={`${styles.skillButton} ${styles.skillButtonAlt}`}
+              onClick={() => handleSkill('quickSlash')}
+              disabled={isPlaying || defeated}
+            >
+              <span className={styles.skillName}>Quick Slash</span>
+              <span className={styles.skillCost}>1 AP</span>
+            </button>
+          </>
+        ) : (
+          <button className={styles.resetButton} onClick={handleReset}>
+            Reset wave
           </button>
         )}
       </div>
 
       <p className={styles.note}>
-        First proof point of the encounter spike (`docs/encounter-spike.md`):
-        DOM + framer-motion + a single static sprite. No sprite sheet yet.
+        Pose-driven body motion + beat-sequenced skills + 3-enemy wave. Swap the
+        Combatant sprite path for a sheet renderer when frames land.
       </p>
     </div>
   )

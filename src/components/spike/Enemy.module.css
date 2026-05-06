@@ -1,0 +1,326 @@
+.wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 200px;
+  height: 280px;
+}
+
+.shadow {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  width: 130px;
+  height: 16px;
+  margin-left: -65px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 40%,
+    rgba(0, 0, 0, 0) 75%
+  );
+  filter: blur(1px);
+  z-index: 0;
+}
+
+.recoil {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.idle {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+.shape {
+  position: relative;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4));
+  transition: filter 0.08s ease;
+}
+
+.flash {
+  filter:
+    drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4))
+    brightness(2.2)
+    saturate(0.4);
+}
+
+/* ---------------- Slime ---------------- */
+.slime {
+  position: relative;
+  width: 150px;
+  height: 130px;
+  margin-bottom: 12px;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    var(--enemy-core) 0%,
+    var(--enemy-mid) 65%,
+    var(--enemy-dark) 100%
+  );
+  border-radius: 50% 50% 48% 48% / 65% 65% 35% 35%;
+  border: 2px solid var(--enemy-dark);
+  box-shadow:
+    inset 0 -14px 18px rgba(0, 0, 0, 0.4),
+    inset 0 8px 12px rgba(255, 255, 255, 0.25),
+    0 0 18px var(--enemy-glow);
+  transform-origin: 50% 100%;
+}
+
+.slimeHighlight {
+  position: absolute;
+  top: 14px;
+  left: 28px;
+  width: 36px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.eyes {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+}
+
+.eye {
+  width: 14px;
+  height: 18px;
+  background: var(--enemy-eye);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--enemy-glow);
+}
+
+.slimeMouth {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  width: 38px;
+  height: 8px;
+  margin-left: -19px;
+  background: var(--enemy-dark);
+  border-radius: 0 0 18px 18px;
+}
+
+.drip {
+  position: absolute;
+  bottom: -10px;
+  width: 20px;
+  height: 22px;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    var(--enemy-core) 0%,
+    var(--enemy-mid) 80%,
+    var(--enemy-dark) 100%
+  );
+  border-radius: 50% 50% 50% 50% / 35% 35% 65% 65%;
+  border: 2px solid var(--enemy-dark);
+}
+.dripLeft  { left: 26px; }
+.dripRight { right: 22px; width: 14px; height: 16px; }
+
+/* ---------------- Gargoyle ---------------- */
+.gargoyle {
+  position: relative;
+  width: 150px;
+  height: 180px;
+  margin-bottom: 10px;
+  background: linear-gradient(
+    180deg,
+    var(--enemy-core) 0%,
+    var(--enemy-mid) 55%,
+    var(--enemy-dark) 100%
+  );
+  clip-path: polygon(
+    20% 0%, 80% 0%,
+    96% 28%, 100% 80%,
+    88% 100%, 12% 100%,
+    0% 80%, 4% 28%
+  );
+  box-shadow:
+    inset 0 -16px 18px rgba(0, 0, 0, 0.5),
+    inset 0 12px 14px rgba(255, 255, 255, 0.12),
+    0 0 16px var(--enemy-glow);
+}
+
+.horn {
+  position: absolute;
+  top: -18px;
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 30px solid var(--enemy-dark);
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4));
+}
+.hornLeft  { left: 22px; transform: rotate(-12deg); }
+.hornRight { right: 22px; transform: rotate(12deg); }
+
+.gargoyleBrow {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  width: 80px;
+  height: 12px;
+  margin-left: -40px;
+  background: var(--enemy-dark);
+  border-radius: 60% 60% 0 0 / 100% 100% 0 0;
+}
+
+.singleEye {
+  position: absolute;
+  top: 46px;
+  left: 50%;
+  width: 28px;
+  height: 14px;
+  margin-left: -14px;
+  background: var(--enemy-eye);
+  border-radius: 50%;
+  box-shadow:
+    0 0 12px var(--enemy-glow),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+  animation: gargoyleEyePulse 2.4s ease-in-out infinite;
+}
+
+@keyframes gargoyleEyePulse {
+  0%, 100% { box-shadow: 0 0 8px var(--enemy-glow); opacity: 0.85; }
+  50%      { box-shadow: 0 0 16px var(--enemy-glow); opacity: 1; }
+}
+
+.gargoyleFangs {
+  position: absolute;
+  top: 78px;
+  left: 50%;
+  width: 60px;
+  margin-left: -30px;
+  display: flex;
+  justify-content: space-between;
+}
+.gargoyleFangs span {
+  width: 8px;
+  height: 14px;
+  background: #f1eadf;
+  clip-path: polygon(50% 0%, 100% 0%, 80% 100%, 20% 100%, 0% 0%);
+}
+
+.gargoyleArm {
+  position: absolute;
+  bottom: 10px;
+  width: 24px;
+  height: 70px;
+  background: linear-gradient(180deg, var(--enemy-mid), var(--enemy-dark));
+  border-radius: 12px;
+  box-shadow: inset -3px 0 4px rgba(0, 0, 0, 0.4);
+}
+.gargoyleArmLeft  { left: -6px; transform: rotate(-8deg); }
+.gargoyleArmRight { right: -6px; transform: rotate(8deg); }
+
+/* ---------------- Wraith ---------------- */
+.wraith {
+  position: relative;
+  width: 130px;
+  height: 220px;
+  margin-bottom: 4px;
+}
+
+.wraithHood {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 130px;
+  height: 150px;
+  margin-left: -65px;
+  background: radial-gradient(
+    ellipse at 50% 28%,
+    var(--enemy-core) 0%,
+    var(--enemy-mid) 60%,
+    var(--enemy-dark) 100%
+  );
+  border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+  border: 2px solid var(--enemy-dark);
+  box-shadow:
+    inset 0 -14px 18px rgba(0, 0, 0, 0.55),
+    0 0 22px var(--enemy-glow);
+}
+
+.wraithEyes {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  z-index: 2;
+}
+
+.wraithEye {
+  width: 10px;
+  height: 22px;
+  background: var(--enemy-eye);
+  border-radius: 50%;
+  box-shadow: 0 0 14px var(--enemy-glow);
+  animation: wraithEyeFlicker 1.8s ease-in-out infinite;
+}
+
+@keyframes wraithEyeFlicker {
+  0%, 100% { opacity: 0.95; transform: scaleY(1); }
+  45%      { opacity: 1;    transform: scaleY(1.1); }
+  50%      { opacity: 0.5;  transform: scaleY(0.85); }
+  55%      { opacity: 1;    transform: scaleY(1.1); }
+}
+
+.wraithTatters {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 140px;
+  height: 80px;
+  margin-left: -70px;
+  display: flex;
+  justify-content: space-between;
+}
+.wraithTatters span {
+  width: 22px;
+  background: linear-gradient(180deg, var(--enemy-mid) 0%, var(--enemy-dark) 100%);
+  clip-path: polygon(0% 0%, 100% 0%, 80% 100%, 50% 70%, 20% 100%);
+  animation: wraithTatterSway 3s ease-in-out infinite;
+}
+.wraithTatters span:nth-child(1) { animation-delay: 0s;    height: 80px; }
+.wraithTatters span:nth-child(2) { animation-delay: 0.4s;  height: 60px; }
+.wraithTatters span:nth-child(3) { animation-delay: 0.8s;  height: 75px; }
+.wraithTatters span:nth-child(4) { animation-delay: 1.2s;  height: 55px; }
+.wraithTatters span:nth-child(5) { animation-delay: 1.6s;  height: 70px; }
+
+@keyframes wraithTatterSway {
+  0%, 100% { transform: translateX(-2px) skewX(-2deg); }
+  50%      { transform: translateX(2px) skewX(2deg);  }
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    width: 160px;
+    height: 220px;
+  }
+  .slime    { width: 120px; height: 105px; }
+  .gargoyle { width: 120px; height: 145px; }
+  .wraith   { width: 110px; height: 180px; }
+  .wraithHood { width: 110px; height: 125px; margin-left: -55px; }
+  .wraithTatters { width: 120px; height: 65px; margin-left: -60px; }
+}

@@ -1,0 +1,18 @@
+.number {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow:
+    0 0 8px rgba(233, 69, 96, 0.9),
+    0 2px 0 #6b1424,
+    0 4px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.04em;
+  z-index: 5;
+  white-space: nowrap;
+}
