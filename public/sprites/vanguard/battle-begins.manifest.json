@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "spec_path": "design-factory/archetypes/vanguard.yaml",
+  "stage": "tween",
+  "input_hash": "45d1dac8db29985207baaec0e37d64e01c54f612a175819e294daf485c311158",
+  "input_files": [
+    "docs/design/style-bible/vanguard-v1.aseprite"
+  ],
+  "outputs": [
+    "public/sprites/vanguard/battle-begins.png",
+    "public/sprites/vanguard/battle-begins.json"
+  ],
+  "params": {
+    "anim": "battle-begins",
+    "frames": 3,
+    "fps": 6,
+    "endpoint": "aseprite-lua-tween"
+  },
+  "provider": {
+    "name": "aseprite-cli",
+    "model": "lua-tween",
+    "cost_usd": 0.0
+  },
+  "generated_at": "2026-05-07T17:10:37Z",
+  "generated_by": "design-factory/pipelines/tween.py"
+}

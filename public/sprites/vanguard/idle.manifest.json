@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "spec_path": "design-factory/archetypes/vanguard.yaml",
+  "stage": "animate",
+  "input_hash": "0ca5d3016522e800e2d37a8798d68965960be885595b16c4438d95e1e3081ae5",
+  "input_files": [
+    "public/sprites/vanguard-v1-cropped.png"
+  ],
+  "outputs": [
+    "public/sprites/vanguard/idle.png",
+    "public/sprites/vanguard/idle.json"
+  ],
+  "params": {
+    "anim": "idle",
+    "size": 64,
+    "n_frames": 4,
+    "seed": 0,
+    "endpoint": "animate-with-text",
+    "description_hash": "9edd9e46f0bc36a7"
+  },
+  "provider": {
+    "name": "pixellab",
+    "model": "animate-with-text",
+    "cost_usd": 0.0
+  },
+  "generated_at": "2026-05-07T16:13:09Z",
+  "generated_by": "design-factory/pipelines/animate.py"
+}

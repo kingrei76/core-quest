@@ -1,0 +1,62 @@
+# Template for a world spec. Copy to worlds/{world-slug}.yaml and fill in.
+#
+# Worlds describe per-portal content: enemies, bosses, environments. The
+# 5 stable archetypes (vanguard/mage/rogue/diplomat/scholar) are NOT here —
+# they live in archetypes/ and are reused across every world.
+#
+# Run with:  /forge-world {world-slug}
+
+name: example-world
+slug: example-world                       # matches the filename, used for output paths
+status: draft                              # draft | active | archived
+theme_oneliner: |
+  One-sentence pitch for the world's visual + narrative tone.
+
+# Where this world's assets get written.
+output_dir: public/sprites/worlds/example-world
+
+# Style fragment that every prompt in this world inherits.
+# Should include the global style anchor (Sea of Stars / Octopath HD-2D pixel art)
+# plus this world's specific palette + mood.
+shared_style_fragment: |
+  HD-2D pixel art, twilight lighting, navy + amber palette, painted shading.
+  This world's mood: {fill in — e.g., "tactical horror in fog", "melancholy ruin"}.
+
+# Narrative brief. Not used by the pipeline directly; useful for prompt context.
+narrative:
+  setting: |
+    Where is this? What's it about?
+  inhabitants: |
+    Who lives here? What's their relationship to the player?
+  fall: |
+    Why has it become a portal world that needs the team to fix it?
+
+# Per-asset list. Each gets the full pipeline (concept → cleanup → animate → export).
+assets:
+  - kind: enemy
+    name: example-minion
+    description: |
+      Short visual brief. The pipeline turns this + shared_style_fragment into
+      the generation prompt.
+    animations: [idle, attack, death]
+    sprite:
+      base_resolution: 48x48     # smaller than archetype default; enemies often are
+      display_scale: 3
+
+  - kind: boss
+    name: example-boss
+    description: |
+      Larger, more detailed brief. Bosses get more frames and animations.
+    animations: [idle, attack, hurt, defeat, special]
+    sprite:
+      base_resolution: 96x96
+      display_scale: 2
+
+  - kind: environment
+    name: example-portal
+    description: |
+      Background scene. Layered (parallax-friendly).
+    layers: [background, midground, foreground]
+    sprite:
+      base_resolution: 480x270   # 16:9 letterboxed combat backdrop
+      display_scale: 2

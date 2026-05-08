@@ -1,0 +1,49 @@
+{ "frames": {
+   "work 0.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 148, "h": 268 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 148, "h": 268 },
+    "sourceSize": { "w": 148, "h": 268 },
+    "duration": 167
+   },
+   "work 1.aseprite": {
+    "frame": { "x": 148, "y": 0, "w": 148, "h": 268 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 148, "h": 268 },
+    "sourceSize": { "w": 148, "h": 268 },
+    "duration": 167
+   },
+   "work 2.aseprite": {
+    "frame": { "x": 296, "y": 0, "w": 148, "h": 268 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 148, "h": 268 },
+    "sourceSize": { "w": 148, "h": 268 },
+    "duration": 167
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.17.2-arm64",
+  "image": "battle-begins.png",
+  "format": "RGBA8888",
+  "size": { "w": 444, "h": 268 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "battle-begins", "from": 0, "to": 2, "direction": "forward", "color": "#000000ff" }
+  ],
+  "layers": [
+   { "name": "Body", "opacity": 255, "blendMode": "normal" },
+   { "name": "Front Leg", "opacity": 255, "blendMode": "normal" },
+   { "name": "Back Leg", "opacity": 255, "blendMode": "normal" },
+   { "name": "Gun", "opacity": 255, "blendMode": "normal" },
+   { "name": "Head", "opacity": 255, "blendMode": "normal" },
+   { "name": "Gun Arm", "opacity": 255, "blendMode": "normal" },
+   { "name": "Free Arm", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

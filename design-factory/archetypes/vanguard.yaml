@@ -1,0 +1,118 @@
+# Archetype spec — Vanguard
+# Source of truth for the pipeline. Mirrors the human-readable narrative
+# in docs/design/style-bible.md § "Warrior (archetype 1) — Aspect: The Vanguard".
+# When this YAML changes meaningfully, regenerate the asset.
+
+name: vanguard
+display_name: The Vanguard
+status: locked              # locked | draft | needs_regen
+aspect: warrior              # archetype family per docs/design/magic-system.md
+persona_power: crashing-strike
+
+# Locked reference image (the human-validated portrait we never want to lose).
+# When `cleanup.sh` runs, it reads `reference_image` and writes `clean_image`.
+reference_image: docs/design/style-bible/vanguard-v1.png
+clean_image: public/sprites/vanguard/source-clean.png
+
+# Where the animation pipeline writes finalized sprite sheets.
+output_dir: public/sprites/vanguard
+
+# Path to the rigged Aseprite source (layered character).
+# Used by tween.py — animations are layer transforms over time, no AI per frame.
+rig: docs/design/style-bible/vanguard-v1.aseprite
+# Which frame in the source contains the canonical rest-pose cel positions.
+# (Matt's Vanguard has the actual rig on frame 3; frames 1-2 are empty placeholders.)
+rest_frame: 3
+
+# Tween-based animations. Each entry = N frames; each frame has per-layer (x, y)
+# pixel offsets relative to the layer's rest position in frame 1 of the rig.
+# Positive y = down (Aseprite convention). Positive x = east (forward, since the
+# Vanguard rig faces east per the prompt).
+#
+# Edit these numbers freely — re-run `tween.py` to see the new sheet. No API cost.
+keyframe_anims:
+  battle-begins:
+    description: "Idle → point forward → ready weapon"
+    frames: 3
+    fps: 6
+    offsets:
+      # Frame 1: idle / rest pose. All layers at rest (no offset).
+      "1": {}
+
+      # Frame 2: front arm points forward, head + body subtly up, gun arm/gun drop.
+      "2":
+        Free Arm: { x: 8, y: -2 }     # extend east (forward)
+        Head: { x: 0, y: -1 }          # up 1 pixel
+        Body: { x: 0, y: -1 }
+        Gun Arm: { x: 0, y: 2 }        # drop slightly
+        Gun: { x: 0, y: 2 }            # drop with the arm
+
+      # Frame 3: hand on gun, gun raised to shoulder, legs forward.
+      # NOTE: y=-10 for gun lift is a guess; tweak after first render.
+      "3":
+        Free Arm: { x: 4, y: -8 }      # over to grip the gun (rough)
+        Gun Arm: { x: 0, y: -10 }      # lift to shoulder
+        Gun: { x: 0, y: -10 }          # lift with arm
+        Head: { x: 0, y: 0 }           # stays at idle position
+        Body: { x: 0, y: 0 }
+        Front Leg: { x: 3, y: 0 }      # forward
+        Back Leg: { x: -1, y: 0 }      # slight stance-widen
+
+# Sprite specs. Numbers below are tentative — confirm during first PixelLab pass
+# and lock back into docs/design/style-bible.md § Sprite specs.
+sprite:
+  base_resolution: 64x64
+  display_scale: 3
+  pixel_snap: true
+  background: transparent
+
+# Animation set the encounter spike + Phase 6.4 combat MVP need.
+# Each animation produces {name}.png + {name}.json (frame atlas).
+animations:
+  - name: idle
+    frames: 4
+    fps: 8
+  - name: walk
+    frames: 6
+    fps: 12
+  - name: attack
+    frames: 5
+    fps: 12
+  - name: hurt
+    frames: 2
+    fps: 10
+
+# Prompt building blocks. The pipeline assembles:
+#   {prompt.base_style} + {prompt.archetype} + per-animation modifier
+# `prompt.base_style` should match docs/design/style-bible.md § Base style fragment
+# once that section is locked. For now it duplicates the May-5 Vanguard prompt.
+prompt:
+  base_style: |
+    HD-2D pixel art RPG character sprite. Sea of Stars production polish with
+    Octopath Traveler dramatic lighting and painted depth. Twilight palette: deep
+    navy background with warm amber and gold accent lighting. Earnest-heroic tone,
+    sincere adventure. Modern fantasy aesthetic. Hand-painted gradient shading,
+    no hard outlines.
+  archetype: |
+    Vanguard archetype, frontline warrior class. Modern tactical operator fused
+    with fantasy plate armor: ballistic plate carrier with rune-etched ceramic
+    plates, modern combat helmet with visor flipped up, fingerless tactical
+    gloves, sturdy combat boots. Two-handed greatsword. Battle-scarred but
+    composed expression. Dominant earth and steel grey, gold accent on
+    rune-etched plates.
+  negative: |
+    text, watermark, logo, signature, letters, helmet visor down, mouth covered,
+    second rifle on back, hard cel-shaded outlines
+
+# Provider-specific knobs.
+pixellab:
+  rotation_views: 4               # 4-angle (front, back, left, right) — bump to 8 if combat needs diagonals
+  reference_strength: 0.85        # how strongly to pin to clean_image — high = on-style, low = more variation
+  consistency_anchor: clean_image # which file is the style anchor for all subsequent generations
+
+# If we ever need to regenerate the base ref from scratch (not the default path).
+leonardo:
+  model: pixel-art-xl
+  size: square_hd
+  guidance: 7
+  seed: null                      # set to int to reproduce a specific generation

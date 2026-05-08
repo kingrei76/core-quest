@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://core-quest.local/schemas/asset-manifest.json",
+  "title": "Core Quest Asset Manifest",
+  "description": "Sidecar file committed alongside each generated sprite sheet. Records the inputs that produced the artifact so the pipeline can detect 'unchanged' and skip work.",
+  "type": "object",
+  "required": ["version", "spec_path", "stage", "input_hash", "generated_at"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "description": "Manifest schema version. Bump when schema changes.",
+      "const": 1
+    },
+    "spec_path": {
+      "type": "string",
+      "description": "Path (repo-relative) to the YAML spec that produced this asset."
+    },
+    "stage": {
+      "type": "string",
+      "description": "Which pipeline stage produced this artifact.",
+      "enum": ["cleanup", "animate", "aseprite-export", "world-forge"]
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "SHA-256 of the canonical input bundle (source PNG + relevant spec fields). Used for idempotency."
+    },
+    "input_files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Repo-relative paths of files that were inputs."
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Repo-relative paths of files this stage produced."
+    },
+    "params": {
+      "type": "object",
+      "description": "Stage-specific params (model name, reference strength, frame counts, etc).",
+      "additionalProperties": true
+    },
+    "provider": {
+      "type": "object",
+      "description": "Cloud-API call metadata.",
+      "properties": {
+        "name": { "type": "string", "enum": ["replicate", "pixellab", "leonardo", "aseprite-cli", "pixel-mcp"] },
+        "model": { "type": "string" },
+        "model_version": { "type": "string" },
+        "prediction_id": { "type": "string" },
+        "cost_usd": { "type": "number" }
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp."
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Tool/script that produced this. e.g. 'cleanup.sh@2026-05-06'."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes (e.g., 'manual touchup applied after this run')."
+    }
+  },
+  "additionalProperties": false
+}
