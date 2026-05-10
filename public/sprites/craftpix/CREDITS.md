@@ -28,7 +28,7 @@ CraftPix Free License (per <https://craftpix.net/file-licenses/>):
 - ❌ Do not redistribute as standalone assets (must be embedded in a project)
 - ⚠ Attribution required — credit Craftpix.net visibly somewhere in the project
 
-This file satisfies the attribution requirement for the Core Quest project. The encounter spike UI (`/spike/encounter`) also references this file.
+This file satisfies the attribution requirement for the Core Quest project. The encounter spike UI (`/encounter`) also references this file.
 
 ## Frame format
 

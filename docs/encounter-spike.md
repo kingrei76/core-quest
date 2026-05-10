@@ -62,7 +62,7 @@ src/data/
 Add the route in `src/main.jsx` alongside the existing routes:
 
 ```js
-{ path: '/spike/encounter', element: <EncounterSpike /> }
+{ path: 'encounter', element: <EncounterSpike /> }
 ```
 
 Keep it ungated and absent from the main nav — you reach it by typing
@@ -231,7 +231,7 @@ That's the input to phase-7 planning.
 
 ## Critical files (existing) to be aware of
 
-- `src/main.jsx` — routes; add `/spike/encounter` here
+- `src/main.jsx` — routes; `/encounter` lives here under the App layout
 - `src/components/character/HPMPBar.jsx` — reusable HP bar
 - `src/styles/tokens.css` — palette tokens (`--color-gold`,
   `--color-danger`, etc.)
