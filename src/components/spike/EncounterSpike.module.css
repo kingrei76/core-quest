@@ -40,8 +40,8 @@
   padding: 1rem 0.5rem 2rem;
   border-radius: 0.75rem;
   background:
-    radial-gradient(ellipse at 50% 95%, rgba(244, 162, 97, 0.18) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(15, 52, 96, 0) 0%, rgba(15, 52, 96, 0.5) 100%);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(15, 52, 96, 0.3) 100%),
+    url('/sprites/craftpix/backgrounds/forest-1/2304x1296.png') center bottom / cover no-repeat;
   overflow: hidden;
 }
 
@@ -64,48 +64,8 @@
   justify-content: center;
 }
 
-.sprite {
-  width: auto;
-  height: 240px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.35));
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-.enemyPlaceholder {
-  width: 140px;
-  height: 140px;
-  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
-  background: radial-gradient(circle at 50% 35%, #4a3158 0%, #2a1d3a 70%, #1a1228 100%);
-  border: 2px solid #7d63a1;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: center;
-  gap: 14px 18px;
-  padding-top: 36px;
-  box-shadow:
-    inset 0 -10px 16px rgba(0, 0, 0, 0.4),
-    0 4px 0 rgba(0, 0, 0, 0.35);
-}
-
-.enemyEye {
-  width: 14px;
-  height: 14px;
-  background: #ffd700;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
-}
-
-.enemyMouth {
-  width: 60px;
-  height: 6px;
-  background: #1a1228;
-  border-radius: 4px;
-  margin-top: 8px;
+.actor :global(div) {
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.35));
 }
 
 .flash {
@@ -231,13 +191,9 @@
 }
 
 @media (max-width: 480px) {
-  .sprite {
-    width: auto;
-    height: 200px;
-  }
-  .enemyPlaceholder {
-    width: 110px;
-    height: 110px;
+  .actor {
+    transform: scale(0.8);
+    transform-origin: bottom center;
   }
   .field {
     min-height: 280px;

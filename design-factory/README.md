@@ -1,5 +1,9 @@
 # Design Factory
 
+> **ARCHIVED — 2026-05-10.** Core Quest pivoted to off-the-shelf CraftPix sprite sheets (see `public/sprites/craftpix/`). The custom AI + Aseprite + Lua-tween pipeline documented below was scaffolded as a Phase 6.1 exploration but is not the active path. Files in this directory are kept as a record of what was built and what we learned (notably: `animate-with-text` drifts and is wrong for archetypes; rigging + tween is the right pattern; occlusion holes are the blocker). Plan-of-record for the pivot: `~/.claude/plans/ok-catch-me-up-polished-sedgewick.md`.
+>
+> Resurrect this pipeline only if Core Quest pivots back to custom-rigged characters. The first step then would be to build `complete-rig.py` to AI-inpaint the hidden parts of each rig layer (the occlusion fix that was identified but not implemented).
+
 Asset pipeline for Core Quest. Turns a YAML spec into committed sprite sheets.
 
 > Origin: `~/.claude/plans/core-quest-what-we-ve-lexical-ember.md` — read that for the full reasoning. This file is the operator's reference.

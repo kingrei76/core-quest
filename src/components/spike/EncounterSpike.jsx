@@ -1,15 +1,20 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import SpriteSheet from './SpriteSheet'
 import styles from './EncounterSpike.module.css'
 
-const VANGUARD_MAX_HP = 100
+const HERO_MAX_HP = 100
 const ENEMY_MAX_HP = 80
 const STRIKE_DAMAGE = 18
 
+const HERO_BASE = '/sprites/craftpix/heroes/Shinobi'
+const ENEMY_BASE = '/sprites/craftpix/monsters/Skeleton_Warrior'
+
 export default function EncounterSpike() {
   const [enemyHp, setEnemyHp] = useState(ENEMY_MAX_HP)
-  const [vanguardHp] = useState(VANGUARD_MAX_HP)
+  const [heroHp] = useState(HERO_MAX_HP)
   const [striking, setStriking] = useState(false)
+  const [enemyHurt, setEnemyHurt] = useState(false)
   const [flashId, setFlashId] = useState(0)
 
   const handleStrike = () => {
@@ -18,31 +23,37 @@ export default function EncounterSpike() {
     setFlashId((id) => id + 1)
     setTimeout(() => {
       setEnemyHp((hp) => Math.max(0, hp - STRIKE_DAMAGE))
+      setEnemyHurt(true)
     }, 220)
-    setTimeout(() => setStriking(false), 600)
+    setTimeout(() => {
+      setStriking(false)
+      setEnemyHurt(false)
+    }, 600)
   }
 
   const enemyDefeated = enemyHp <= 0
+  const heroAnim = striking ? 'Attack_1' : 'Idle'
+  const enemyAnim = enemyDefeated ? 'Dead' : enemyHurt ? 'Hurt' : 'Idle'
 
   return (
     <div className={styles.stage}>
       <div className={styles.banner}>
         <span className={styles.bannerLabel}>SPIKE</span>
         <span className={styles.bannerText}>
-          Encounter prototype — Vanguard idle + Crashing Strike
+          Encounter prototype — Shinobi vs Skeleton Warrior
         </span>
       </div>
 
       <div className={styles.field}>
-        {/* Vanguard (left) */}
+        {/* Hero (left) */}
         <div className={styles.actorWrap}>
-          <HpBar label="Vanguard" hp={vanguardHp} max={VANGUARD_MAX_HP} side="left" />
+          <HpBar label="Shinobi" hp={heroHp} max={HERO_MAX_HP} side="left" />
           <motion.div
             className={styles.actor}
             animate={
               striking
-                ? { x: [0, 80, -8, 0], scale: [1, 1.06, 1, 1] }
-                : { y: [0, -4, 0], scale: [1, 1.012, 1] }
+                ? { x: [0, 80, -8, 0], scale: [1, 1.04, 1, 1] }
+                : { y: [0, -3, 0], scale: [1, 1.01, 1] }
             }
             transition={
               striking
@@ -50,40 +61,41 @@ export default function EncounterSpike() {
                 : { duration: 2.6, ease: 'easeInOut', repeat: Infinity }
             }
           >
-            <img
-              src="/sprites/vanguard-v1-cropped.png"
-              alt="Vanguard"
-              className={styles.sprite}
-              draggable={false}
+            <SpriteSheet
+              src={`${HERO_BASE}/${heroAnim}.png`}
+              fps={heroAnim === 'Attack_1' ? 10 : 8}
+              scale={2}
             />
           </motion.div>
         </div>
 
         {/* Enemy (right) */}
         <div className={`${styles.actorWrap} ${styles.actorWrapRight}`}>
-          <HpBar label="Wraith" hp={enemyHp} max={ENEMY_MAX_HP} side="right" />
+          <HpBar label="Skeleton" hp={enemyHp} max={ENEMY_MAX_HP} side="right" />
           <motion.div
             className={styles.actor}
             animate={
               enemyDefeated
-                ? { opacity: 0, y: 24, rotate: -8 }
-                : flashId > 0 && striking
+                ? { opacity: 0.3, y: 24 }
+                : enemyHurt
                   ? { x: [0, -10, 6, 0] }
                   : { y: [0, -3, 0] }
             }
             transition={
               enemyDefeated
                 ? { duration: 0.8, ease: 'easeIn' }
-                : flashId > 0 && striking
-                  ? { duration: 0.4, delay: 0.22 }
+                : enemyHurt
+                  ? { duration: 0.4 }
                   : { duration: 3, ease: 'easeInOut', repeat: Infinity }
             }
           >
-            <div className={styles.enemyPlaceholder}>
-              <div className={styles.enemyEye} />
-              <div className={styles.enemyEye} />
-              <div className={styles.enemyMouth} />
-            </div>
+            <SpriteSheet
+              src={`${ENEMY_BASE}/${enemyAnim}.png`}
+              fps={enemyAnim === 'Dead' ? 6 : 8}
+              loop={enemyAnim !== 'Dead'}
+              flip
+              scale={2}
+            />
           </motion.div>
         </div>
 
@@ -122,8 +134,8 @@ export default function EncounterSpike() {
       </div>
 
       <p className={styles.note}>
-        First proof point of the encounter spike (`docs/encounter-spike.md`):
-        DOM + framer-motion + a single static sprite. No sprite sheet yet.
+        CraftPix sprite sheets — Shinobi (hero) and Skeleton Warrior (enemy) on a forest background.
+        See <code>public/sprites/craftpix/CREDITS.md</code> for licensing.
       </p>
     </div>
   )
