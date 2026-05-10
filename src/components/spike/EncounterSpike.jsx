@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SpriteSheet from './SpriteSheet'
 import styles from './EncounterSpike.module.css'
@@ -10,7 +10,22 @@ const STRIKE_DAMAGE = 18
 const HERO_BASE = '/sprites/craftpix/heroes/Shinobi'
 const ENEMY_BASE = '/sprites/craftpix/monsters/Skeleton_Warrior'
 
+function useSpriteScale() {
+  const mql = () => window.matchMedia('(max-width: 480px)').matches
+  const [isMobile, setIsMobile] = useState(
+    typeof window === 'undefined' ? false : mql(),
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 480px)')
+    const handler = (e) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return isMobile ? 1.3 : 2
+}
+
 export default function EncounterSpike() {
+  const spriteScale = useSpriteScale()
   const [enemyHp, setEnemyHp] = useState(ENEMY_MAX_HP)
   const [heroHp] = useState(HERO_MAX_HP)
   const [striking, setStriking] = useState(false)
@@ -64,7 +79,7 @@ export default function EncounterSpike() {
             <SpriteSheet
               src={`${HERO_BASE}/${heroAnim}.png`}
               fps={heroAnim === 'Attack_1' ? 10 : 8}
-              scale={2}
+              scale={spriteScale}
             />
           </motion.div>
         </div>
@@ -94,7 +109,7 @@ export default function EncounterSpike() {
               fps={enemyAnim === 'Dead' ? 6 : 8}
               loop={enemyAnim !== 'Dead'}
               flip
-              scale={2}
+              scale={spriteScale}
             />
           </motion.div>
         </div>

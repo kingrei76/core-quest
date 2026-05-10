@@ -191,11 +191,20 @@
 }
 
 @media (max-width: 480px) {
-  .actor {
-    transform: scale(0.8);
-    transform-origin: bottom center;
+  .stage {
+    padding: 0.5rem;
+    gap: 1rem;
   }
   .field {
+    padding: 0.5rem 0.25rem 1rem;
+    gap: 0.5rem;
     min-height: 280px;
+  }
+  .hpBar {
+    width: 130px;
+  }
+  .hpLabel,
+  .hpValue {
+    font-size: 0.7rem;
   }
 }
