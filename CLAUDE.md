@@ -16,41 +16,25 @@ Add an entry whenever you discover a non-obvious convention, gotcha, or invarian
 - **Categories**: built-in categories live in `src/config/constants.js` `CATEGORIES`; custom user categories live in `user_categories`. Read the merged list via `useCategories().visible`. Don't lookup `CATEGORIES[quest.category]` directly — use `useCategories().lookup[quest.category]` so user-defined keys resolve.
 - **Difficulty rank** for sort: `{ trivial: 0, easy: 1, medium: 2, hard: 3, epic: 4, legendary: 5 }`. Defined in `src/utils/challenges.js`; if you need it elsewhere, inline the constant rather than restructuring that file.
 
-## Server-change handoff (IMPORTANT)
+## Server-change handoff (LOCAL CLAUDE)
 
-This project's backend lives in Supabase (database + Edge Functions). The web Claude Code sandbox **cannot reach the user's Supabase project** — no `supabase` CLI, no project link, no auth. The local Claude Code on the user's Mac *can*, because it shares the user's authenticated `supabase` CLI session.
+This project's backend lives in Supabase (database + Edge Functions). The **local** Claude Code on the user's Mac has a fully linked Supabase CLI (`supabase projects list` shows Core Quest linked). Schema migrations now live in `supabase/migrations/<timestamp>_<name>.sql` and apply via `supabase db push --linked` — no more dashboard copy-paste.
 
-**Whenever you make a change that requires server-side action** (new SQL block in `supabase-schema.sql`, new or updated function under `supabase/functions/`, secret changes, cron schedule, RLS policy, anything the user can't see by just running `npm run dev`), you MUST end your message with a self-contained handoff block the user can paste verbatim into their local Claude Code session on the Mac.
+**When you make a schema change locally, do this end-to-end yourself:**
 
-Format:
+1. Create a migration: `supabase/migrations/$(date +%Y%m%d%H%M%S)_<short_name>.sql` with the SQL (use `IF NOT EXISTS` / `DROP POLICY IF EXISTS` for idempotency where possible).
+2. Apply: `supabase db push --linked`. If it complains about phantom remote entries, run `supabase migration repair --linked --status reverted <ids>` first.
+3. Verify: `supabase db dump --linked --schema public --data-only=false | grep <new_column_or_table>`.
+4. Commit the migration file along with the code changes that depend on it.
 
-```
-## Local CLI handoff
+For **Edge Function** changes: `supabase functions deploy <name> --linked`.
+For **secrets** changes: never paste secret values into chat or commits; instruct the user to set them via `supabase secrets set <NAME>=<value>` themselves.
 
-Paste this into Claude Code on your Mac (`cd ~/Development/core-quest && claude`):
+**Web Claude (chat.anthropic.com, claude.ai/code) is the exception** — that environment can't reach Supabase. If a web session needs to deliver a schema change, it should write the migration file, commit + push, then end its message with a "Local CLI handoff" block telling the user to pull and run `supabase db push --linked` from their Mac.
 
----
-You are Claude Code running locally on the user's Mac. The web Claude session
-just pushed changes to `main` that need to be applied to Supabase. Do the
-following, in order, and report each step's result:
+## Schema history note
 
-1. `git pull origin main`
-2. <run this SQL>: <paste exact SQL, or reference the new section in supabase-schema.sql by name>
-3. <deploy these functions>: `supabase functions deploy <name>` (one per function added/changed)
-4. <secrets>: only if changed
-5. Verify: <one or two SQL queries or `supabase functions list` to confirm the change took>
-
-If any step errors, stop and paste the error.
----
-```
-
-Include the actual SQL inline (not a file reference) when the block is short, so the user doesn't have to hunt for it. For longer migrations, reference the file by path and section heading. Always tell them what success looks like (a count, a row, a function name in `supabase functions list`).
-
-If a change touches secrets (VAPID keys, etc.), do NOT include them in the handoff — instruct the local CLI to ask the user to paste them in directly.
-
-## Why so much SQL on this project?
-
-Because web Claude can't run `supabase db push`. Every schema change shows up as raw SQL in `supabase-schema.sql` for the user to copy into the dashboard, instead of being auto-applied like a normal migration. The fix is to move to `supabase/migrations/<timestamp>_name.sql` files and have local Claude run `supabase db push` from the handoff. Until that migration happens, accept the friction.
+Pre-2026-05-10 schema lives in `supabase-schema.sql` — an append-only reference file that the user used to copy into the Supabase dashboard manually. As of `20260510175653_phase_6_4_combat_mvp.sql`, all new schema changes go in `supabase/migrations/`. `supabase-schema.sql` is preserved as a historical record of state-before-migrations; new sections should not be appended unless you specifically want a human-readable snapshot of recent changes alongside the proper migration.
 
 ## Critical files
 
