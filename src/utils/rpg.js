@@ -82,6 +82,24 @@ export function getQuestXP(difficulty, streakDays) {
   return Math.floor(base * (1 + bonus))
 }
 
+const AP_BY_DIFFICULTY = {
+  trivial: 1,
+  easy: 2,
+  medium: 4,
+  hard: 8,
+  epic: 16,
+  legendary: 32,
+}
+
+const AP_CRIT_PROBABILITY = 0.15
+
+/** Get AP for completing a quest. Returns { ap, isCrit }. */
+export function getQuestAP(difficulty) {
+  const base = AP_BY_DIFFICULTY[difficulty] ?? 1
+  const isCrit = Math.random() < AP_CRIT_PROBABILITY
+  return { ap: isCrit ? base * 2 : base, isCrit }
+}
+
 /** Get stat gain amount for a difficulty */
 export function getStatGain(difficulty) {
   return DIFFICULTIES[difficulty]?.statGain || 0

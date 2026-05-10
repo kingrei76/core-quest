@@ -39,3 +39,50 @@
   border-radius: var(--radius-md);
   font-size: 0.85rem;
 }
+
+.apCard {
+  display: block;
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.12) 0%, rgba(0, 212, 170, 0.04) 100%);
+  border: 1px solid rgba(0, 212, 170, 0.4);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.1s ease, border-color 0.1s ease;
+}
+
+.apCard:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0, 212, 170, 0.7);
+}
+
+.apHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: 0.25rem;
+}
+
+.apLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.apValue {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-xp, #00d4aa);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.apHint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}

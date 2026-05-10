@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useCharacter } from '../../contexts/CharacterContext'
 import { useStreak } from '../../hooks/useStreak'
 import { useAuth } from '../../contexts/AuthContext'
@@ -40,6 +41,8 @@ export default function CharacterPage() {
         <HPMPBar label="MP" current={currentMp} max={mpMax} color="var(--color-mp)" />
       </div>
 
+      <ActionPointsCard ap={stats?.action_points || 0} />
+
       <StatsGrid stats={stats} />
 
       <StreakDisplay current={streak.current} best={streak.best} />
@@ -62,5 +65,24 @@ export default function CharacterPage() {
         Sign Out
       </button>
     </div>
+  )
+}
+
+const POWER_STRIKE_AP = 5
+
+function ActionPointsCard({ ap }) {
+  const toNext = Math.max(0, POWER_STRIKE_AP - ap)
+  return (
+    <Link to="/combat" className={styles.apCard}>
+      <div className={styles.apHeader}>
+        <span className={styles.apLabel}>Action Points</span>
+        <span className={styles.apValue}>{ap}</span>
+      </div>
+      <p className={styles.apHint}>
+        {toNext > 0
+          ? `${toNext} more AP to unleash a Crashing Strike`
+          : 'Crashing Strike ready — tap to enter combat'}
+      </p>
+    </Link>
   )
 }

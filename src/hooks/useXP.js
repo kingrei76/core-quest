@@ -2,7 +2,7 @@ import { supabase } from '../config/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useCharacter } from '../contexts/CharacterContext'
 import { useVitals } from './useVitals'
-import { getQuestXP, getStatGain, getCategoryStat } from '../utils/rpg'
+import { getQuestXP, getStatGain, getCategoryStat, getQuestAP } from '../utils/rpg'
 
 export function useXP() {
   const { user } = useAuth()
@@ -16,6 +16,7 @@ export function useXP() {
     const xpEarned = getQuestXP(quest.difficulty, streakDays)
     const statGain = getStatGain(quest.difficulty)
     const targetStat = getCategoryStat(quest.category)
+    const { ap: apEarned, isCrit: apIsCrit } = getQuestAP(quest.difficulty)
 
     // Insert XP event
     const { error: xpError } = await supabase
@@ -39,12 +40,14 @@ export function useXP() {
 
     if (profileError) return { error: profileError }
 
-    // Update character stat
+    // Update character stat + bank AP
     const newStatVal = (stats[targetStat] || 10) + statGain
+    const newAP = (stats.action_points || 0) + apEarned
     const { error: statsError } = await supabase
       .from('character_stats')
       .update({
         [targetStat]: newStatVal,
+        action_points: newAP,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id)
@@ -55,7 +58,7 @@ export function useXP() {
     await refresh()
     await rewardForCompletion()
 
-    return { xpEarned, statGain, targetStat }
+    return { xpEarned, statGain, targetStat, apEarned, apIsCrit }
   }
 
   return { awardQuestXP }
