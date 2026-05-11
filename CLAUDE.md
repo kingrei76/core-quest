@@ -30,7 +30,12 @@ This project's backend lives in Supabase (database + Edge Functions). The **loca
 For **Edge Function** changes: `supabase functions deploy <name> --linked`.
 For **secrets** changes: never paste secret values into chat or commits; instruct the user to set them via `supabase secrets set <NAME>=<value>` themselves.
 
-**Web Claude (chat.anthropic.com, claude.ai/code) is the exception** — that environment can't reach Supabase. If a web session needs to deliver a schema change, it should write the migration file, commit + push, then end its message with a "Local CLI handoff" block telling the user to pull and run `supabase db push --linked` from their Mac.
+**Web Claude (claude.ai/code) also has the Supabase CLI** as of 2026-05-11. The SessionStart hook at `.claude/hooks/session-start.sh` installs the binary and re-links the project on every web session. For schema/function pushes from web sessions to work, these env vars must be set in Claude Code web settings:
+
+- `SUPABASE_ACCESS_TOKEN` — from supabase.com/dashboard/account/tokens
+- `SUPABASE_DB_PASSWORD` — Core Quest db password (required for `db push`)
+
+If those aren't set, the hook still installs the CLI but skips linking and prints a warning. Pinned version: `2.98.2` in the hook script — bump it there if needed.
 
 ## Schema history note
 

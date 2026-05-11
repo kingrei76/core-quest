@@ -24,3 +24,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI runtime state (link target, version cache)
+supabase/.temp/
+supabase/.branches/
