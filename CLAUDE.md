@@ -50,6 +50,7 @@ Pre-2026-05-10 schema lives in `supabase-schema.sql` — an append-only referenc
 - `supabase-schema.sql` — append-only schema reference, sectioned by phase
 - `supabase/functions/dispatch-reminders/` — cron-triggered Web Push dispatcher
 - `supabase/functions/import-from-device/` — token-auth endpoint for iPhone Shortcut imports
+- `supabase/functions/core-quest-mcp/` — Streamable HTTP MCP server (OAuth 2.1) exposing quests/inbox/character to Claude Cowork + Claude Code. See its README for deploy + connector setup.
 
 ## Known gotchas
 
@@ -59,6 +60,8 @@ Pre-2026-05-10 schema lives in `supabase-schema.sql` — an append-only referenc
 - **`vite-plugin-pwa` strategy is `injectManifest`** (not `generateSW`). The custom service worker at `src/sw.js` must reference the manifest as `self.__WB_MANIFEST` exactly — it's a literal string replacement.
 - **Quest category CHECK constraint was dropped in Phase 5.3** so user-defined categories work. Do not re-add it.
 - **Stats charts** use `recharts`, which depends on `react-is`. Both are pinned. Don't accidentally remove either.
+- **MCP server mirrors `src/utils/rpg.js`** in `supabase/functions/core-quest-mcp/mcp.ts` (`calculateLevel` and the HP/MP formulas) because Edge Functions can't import from `src/`. If you change the formula in `rpg.js`, mirror it there.
+- **`device_import_tokens` table is referenced by `supabase/functions/import-from-device/index.ts` but does not exist in the deployed database** — only in `supabase-schema.sql`. The iPhone-Shortcut endpoint would 500 today. Fix is to migrate the table when next touching that feature.
 
 ## Phases shipped
 
