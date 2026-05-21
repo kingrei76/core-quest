@@ -306,6 +306,9 @@ to avoid:
 This is what tonight's decisions trigger. Each step is gated by the previous one. Replaces the prior speculative roadmap.
 
 ### 6.1 — Art direction lock-in (this week)
+
+> **May 21, 2026 — Soft pivot in progress.** Artist (via brother) now in scope; trialing Unicorn Overlord-style for the 5 archetypes. HD-2D pixel kept as fallback — Vanguard v1 design intent stays locked, only the rendering is being re-trialed. See `docs/design/artist-kickoff.md`. Two follow-up sessions queued: archetype character design, then art exploration.
+
 - Next Claude Design session: produce concept art per the prompts above
 - Outputs: 5 archetype portraits, 1 home-base scene, 1 portal entrance, 1 sample boss, 1 combat-scene mockup
 - Lock canonical reference images into `docs/design/style-bible.md`

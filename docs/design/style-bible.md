@@ -1,6 +1,10 @@
 # CORE Quest — Style Bible
 
-> Status: **stub**. Populated during Phase 6.1 Claude Design sessions.
+> Status: **HD-2D pixel paused; Unicorn Overlord-style trial in progress
+> (May 21, 2026).** Artist now in scope via the user's brother — see
+> `docs/design/artist-kickoff.md`. Vanguard v1 below stays as the locked
+> design intent; rendering is being re-trialed. Style anchor section
+> below reflects the prior May 4 lock and is preserved as fallback.
 > See `vision.md` § "Decisions locked (May 4, 2026)" for the high-level
 > art direction this bible operationalizes.
 

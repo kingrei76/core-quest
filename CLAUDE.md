@@ -72,7 +72,7 @@ Pre-2026-05-10 schema lives in `supabase-schema.sql` — an append-only referenc
 
 CORE Quest is becoming a **modern-day portal RPG** where a team of specialists tackles real-life goals as monster-world dungeons. The full brief lives in `vision.md`. Key invariants for any session that touches gameplay-adjacent code:
 
-- **Art direction:** modern HD-2D pixel art (Octopath Traveler / Sea of Stars references). Decided May 4, 2026.
+- **Art direction:** HD-2D pixel art (Octopath / Sea of Stars) was locked May 4, 2026; **soft-pivot in progress May 21, 2026** to trial Unicorn Overlord-style with an artist (via brother) — pixel kept as fallback. Vanguard v1 design intent stays locked; only rendering is being re-trialed. See `docs/design/artist-kickoff.md`.
 - **Setting:** modern-day team at a home base; portals open into themed monster worlds.
 - **Team model:** fixed small roster of 5 archetypes (Warrior / Mage / Rogue / Diplomat / Scholar). Each archetype maps to a quest category cluster.
 - **Combat model:** action-point economy. Quests award AP to the matching archetype; user spends AP in on-demand combat from a portal screen. Combat is *manual*, not auto-resolve.
