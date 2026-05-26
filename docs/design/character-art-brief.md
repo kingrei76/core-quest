@@ -35,64 +35,77 @@ Style fundamentals:
 
 ## The Five Characters
 
-Each character has a **super power phrase** — a short phrase that captures their core energy. This is the design north star; everything in the costume, posture, palette, and expression should reinforce it.
+**Team composition**: 3 men (Hero, Sage, Jester) + 2 women (Magician, Creator).
+
+Each character has an **initial-form tagline** — a short phrase that captures their core energy *in their starting form*. This is the design north star for this round; everything in the costume, posture, palette, and expression should reinforce it. (Each character will later have shadow + integrated forms with evolved taglines, but those are out of scope here — design only the initial form.)
+
+A general framing that runs through all five: **modern fashion × fantasy archetype**. Each character should read instantly as their fantasy class (warrior, scholar, wizard, charmer, artisan) by silhouette and props, while every garment is executed in contemporary modern fashion rather than medieval cloth. The Magician leans hardest on the fantasy side (full wizard silhouette); the Jester leans hardest on the modern side (bohemian musician with magical-feeling jewelry only).
 
 ---
 
-### 1. The Hero — "Move through fear"
+### 1. The Hero — "Stand and fight"
 
 **Domain**: Physical. Workouts, walks, sleep discipline, nutrition.
-**Personality**: Confident, action-oriented, has been broken and rebuilt. Fights not to prove himself but to protect something real.
+**Personality**: Confident, action-oriented, still in his proving phase. Ready stance, eyes forward, jaw set with quiet determination.
 **Closest Vanillaware refs**: Alain (UO protagonist), Lex (UO Hoplite), Mortimer, Dragon's Crown Fighter.
 
 **Visual hooks**:
 - Athletic late-20s build, defined musculature
-- Modern athletic wear *fused with* classical armor pieces — training shirt + one ornate engraved pauldron, athletic shorts → leather greaves
-- Hand-wraps, sun-warmed skin, sandy hair tied back
-- Simple forged steel longsword
+- Modern athletic wear *fused with* classical armor pieces — fitted training shirt + one ornate engraved bronze pauldron (sun motif), athletic shorts → leather-strapped greaves over weathered boots
+- Hand-wraps over knuckles, sun-warmed skin, sandy-blond hair tied back at the nape, clear unmarked features
+- Simple forged steel longsword resting easy against his shoulder, hilt wrapped in worn leather
 - Warm gold and bronze palette, deep crimson accent
-- Stance: relaxed-confident, weight on back foot
+- Stance: ready-confident, weight balanced, eyes forward
+- Soft golden hour lighting from upper left
 
 ---
 
-### 2. The Sage — "Know, then unknow"
+### 2. The Sage — "Light the way"
 
 **Domain**: Mental / Learning. Reading, courses, research, skill-building.
-**Personality**: Curious, kind, knowing. Holds knowledge lightly. Knows when to apply it and when to release it.
+**Personality**: Curious, kind, confident in what he knows. A born teacher — certain of his framework and eager to share it.
 **Closest Vanillaware refs**: Yahna (UO Sorceress), Travis (UO Wizard), Magellan, Dragon's Crown Wizard.
 
 **Visual hooks**:
-- Early-30s scholar, round wire-rim glasses
+- Early-30s scholar, round wire-rim glasses, dark hair slightly tousled
 - Modern tweed academic jacket in deep forest-green, embroidered with subtle glowing amber arcane sigils on lapels and cuffs
 - High-collared white shirt + cream knit waistcoat
 - Worn leather satchel overflowing with rolled scrolls and bound books
-- Holding an open tome with luminous golden pages
-- Other hand raised mid-explanation, index finger extended
-- Amber + forest-green + parchment palette
+- Holding an open tome with luminous golden pages, warm light catching his glasses and casting upward on his face
+- Other hand raised mid-explanation, index finger extended in a teaching gesture
+- Confident generous smile, bright intelligent eyes
+- Amber + forest-green + parchment palette, soft warm library lighting from above
 
 ---
 
-### 3. The Magician — "Become what you transform"
+### 3. The Magician — "Bend the world"
 
 **Domain**: Spiritual / Inner. Journaling, meditation, reflection, prayer.
-**Personality**: Mysterious, ambiguous, transformative. Most ethereal of the five.
+**Personality**: Confident reality-shaper, ethereal, otherworldly. Has not yet found a reality she could not reshape. The most magical-looking of the five.
 **Closest Vanillaware refs**: Scarlett (UO Witch), Hilda (UO Necromancer), Odin Sphere Mercedes, Dragon's Crown Sorceress.
 
+**Design framing**: This character is the **strongest fantasy lean** in the roster. The framing for her design is **"classic fantasy wizard archetype, executed in modern fashion-house couture."** All the iconic wizard silhouette pieces (tall hat, long coat, staff, glowing magic) must be present so she reads as "wizard" instantly — but every garment is cut and tailored as contemporary designer fashion. NOT medieval cloth, NOT Renaissance robes, NOT generic D&D wizard, NOT Halloween witch costume. Imagine a Paris fashion house's couture interpretation of "wizard."
+
 **Visual hooks**:
-- Ambiguous age and gender — deliberately androgynous
-- Long dark hooded cloak draped asymmetrically over contemporary clothing (high-necked black tunic, tailored trousers visible beneath)
-- Cloak hem/cuffs/hood edge embroidered in intricate silver thread depicting crescent moons, watchful eyes, unknown sigils
-- Holding a single softly glowing tarot card between elegant fingertips
-- Sharp cheekbones, pale moonlit skin
-- Hood half-shadows the face; one piercing violet eye visible, slight knowing smile
-- Deep indigo + midnight blue + silver palette, strong chiaroscuro
+- Late-20s woman, ethereal/otherworldly presence
+- **Silver-white hair with faint violet undertones**, long and straight, almost luminous quality
+- **Large luminous violet eyes** that seem to glow softly from within
+- Pale luminous skin, sharp feminine cheekbones, full lips painted deep berry, subtle smoky eye makeup
+- **Tall wide-brim structured felt hat** in deep indigo with silver embroidered band, worn at a confident angle — fashion-house elegant
+- **Floor-length architectural wizard's coat** in heavy midnight-blue wool, sharply tailored: high collar, asymmetric front closure, structured shoulders, dramatic sweeping movement at the hem. Collar / lapels / cuffs / hem densely embroidered with intricate silver thread (crescent moons, watchful eyes, arcane sigils)
+- Beneath the coat: fitted modern silk turtleneck in black + slim high-waisted tailored trousers + pointed-toe modern leather boots with subtle silver heel detailing
+- **Tall slender wizard's staff** — sleek polished blackwood shaft topped with a softly glowing violet crystal set in silver
+- Other hand raised, conjuring a softly glowing tarot card hovering between her fingertips (illustration indistinct and shifting)
+- Delicate silver chain choker, stacked silver signet rings on slender fingers, black-painted nails, small modern leather designer satchel embossed with sigils
+- Deep indigo + midnight blue + silver palette, strong painterly chiaroscuro
+- Self-assured knowing smile
 
 ---
 
-### 4. The Jester — "The joke that frees"
+### 4. The Jester — "Disarm with a smile"
 
 **Domain**: Connection. Family time, networking, acts of service, hard conversations.
-**Personality**: Charming, expressive, playful — but with depth underneath. Tells hard truths through humor.
+**Personality**: Magnetic, expressive, theatrical. Has learned exactly how to make a room come to him — practiced charm, quick wit, generous energy.
 **Closest Vanillaware refs**: Travis (UO Wizard — for charm/energy), Dragon's Crown Elf (color/vibe), 13S Yuki Takamiya.
 
 **Visual hooks**:
@@ -102,27 +115,30 @@ Each character has a **super power phrase** — a short phrase that captures the
 - Multiple layered colorful scarves around the neck (silk + wool, jewel tones)
 - Mismatched silver and brass rings on every finger
 - Dark curly hair, expressive eyebrows, warm olive skin
-- **Pose**: mid-laugh, dynamic mid-motion — one hand thrown wide, weight on one leg, body twisted toward viewer
-- Vibrant warm palette: corals, golden yellows, warm reds against rich earth tones
+- **Pose**: caught mid-gesture working the room — one hand thrown wide in a flourish, the other tipping an imaginary hat; weight on one leg in theatrical swagger, body twisted dynamically toward viewer
+- Practiced charming smile, eyes alight and locked on the viewer
+- Vibrant warm palette: corals, golden yellows, warm reds against rich earth tones, bright midday lighting
 
 ---
 
-### 5. The Creator — "Build and release"
+### 5. The Creator — "Make it real"
 
 **Domain**: Work / Wealth. Client work, business building, revenue-generating tasks.
-**Personality**: Focused, capable, builds with detachment. Finishes things and releases them.
+**Personality**: Focused, capable, certain. Halfway through making the thing she pictured this morning and certain she can finish it by nightfall.
 **Closest Vanillaware refs**: Berenice (UO Alchemist — closest match), Chloe (UO Alchemist), Odin Sphere Velvet, *Atelier series* protagonists.
 
 **Visual hooks**:
-- Early-30s artisan, gender open to artist's interpretation
+- Early-30s woman artisan
+- **Dark auburn hair gathered into a practical messy bun**, loose strands framing her face
+- Brass-rimmed glasses pushed up onto her forehead
+- **Small smudge of charcoal on one cheekbone** (signature character detail)
 - Heavy leather maker's apron in warm tan over crisp white collared shirt, sleeves rolled to elbows
-- Forearms dusted with charcoal and ink stains
+- Forearms toned and capable, dusted with charcoal and faint ink stains
 - Tool belt: engraving styluses, fine sable brushes, small brass hammer, polished caliper
-- One hand holds a half-finished mechanical-magical invention — exposed copper gears around a glowing blue gemstone core
-- Other arm has a rolled blueprint tucked under it
-- Brass-rimmed glasses pushed up onto forehead, hair gathered practically
-- Focused intent expression, slight crease between brows
-- Copper + warm white + aged-paper palette
+- One hand holds a half-finished mechanical-magical invention — exposed copper gears around a glowing blue gemstone core (gemstone visibly responding to her touch)
+- Other arm has a rolled blueprint with curling edges tucked under it
+- Focused alight expression with a slight private smile
+- Copper + warm white + aged-paper palette, soft afternoon workshop lighting from a side window, workshop dust motes catch the warm light
 
 ---
 
