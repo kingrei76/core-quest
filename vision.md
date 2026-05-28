@@ -37,6 +37,11 @@ constrained by the answer.
 After tonight's itch.io browsing and reflection, the following are no longer open. They become the constraints for the next design session and everything downstream.
 
 ### Art direction: modern HD-2D pixel art (Style A — winner)
+
+> **Superseded May 28, 2026.** See "Decisions revised (May 28, 2026)" below.
+> Section kept for history — the May-4 reasoning is still useful context for
+> why a visual lock was needed, even though the chosen lock has changed.
+
 - References: **Octopath Traveler**, **Sea of Stars**, **Chained Echoes**.
 - Detailed pixel sprites, hand-painted backgrounds, modern lighting.
 - Layout / input simplicity influence from **Shogun Showdown** (sideways feel, single-button-friendly, phone-readable scale).
@@ -112,13 +117,78 @@ Each Persona power is **mechanically skin-agnostic**. Fighter's "Crashing Strike
 
 ---
 
-## The next big rock: execute the chosen direction
+## Decisions revised (May 28, 2026)
 
-The art-direction question has shifted from "choose between candidates" to "execute on Style A and validate it works for our specific setup."
+### Art direction: hand-illustrated 2D (Alex's v1 roster — locked)
 
-**Next Claude Design session goal (revised):** produce concept art in HD-2D pixel for **the 5-archetype roster**, **at least one portal background**, **a home-base scene**, **a sample boss**, and **a combat scene mockup** — all in our modern-day-portal frame. Walk out with locked reference images for the style bible (`docs/design/style-bible.md`).
+The May-4 lock (HD-2D pixel art, Style A) is **superseded**. After a first
+delivery from Alex (the commissioned artist), the canonical visual is now
+**hand-illustrated 2D** rather than pixel sprites. Attributes (not a
+reference game):
 
-Combat mechanics now have a known shape (action-point economy). Skill trees, gear systems, and story remain open but will be informed by the locked art.
+- Clean line art with hand-painted gradient shading on skin and fabric
+- Soft cel-shaded highlights; no hard outlines on volume forms
+- Earnest, lived-in faces — visible scars, blue eyes, expressive but
+  composed (not anime-cute, not grimdark)
+- Character-portrait quality across the whole roster — no "background
+  character" tier
+- Modern-day clothing + fantasy accent fusion (still in force from May 4
+  setting decisions; clothing variations are an open question for Alex's
+  v2 delivery)
+
+**Canonical reference:** `docs/design/style-bible/alex-v1-roster.png`
+(v1 sheet: bald anatomy body study + four shirtless head variations on
+one face structure).
+
+**What's locked from v1:** the face structure / anatomy across heads,
+the rendering style and tone, the scarred-but-earnest character feel.
+
+**What's still open** (decide on Alex's v2 review):
+
+- Which of the four head variations map to which of the five archetypes
+- Full body designs for the four non-Warrior archetypes
+- Modern-day-clothing + fantasy-accent fusion per archetype
+- Whether the team should include non-male characters (currently all
+  four heads read male; the user hasn't specified either way)
+
+**CraftPix sprites in the combat spike** (`src/components/spike/`) remain
+in place as **explicit placeholder art** for the Phase 6.4 MVP. They will
+be replaced when Alex's in-game character + monster assets land. The
+design-factory pipeline (PixelLab / Aseprite tween) is fully archived —
+all future asset work flows through Alex.
+
+---
+
+## The next big rock: execute on Alex's direction
+
+The art-direction question has shifted again: from "execute Style A pixel
+art" to "ship Alex's illustration direction across the full roster and
+the supporting scenes."
+
+**Next deliverables from Alex (May 28+):**
+
+1. Full body finished design for each of the four non-Warrior archetypes
+   (Mage, Rogue, Diplomat, Scholar). Each should answer modern-day
+   clothing + fantasy accent fusion in a way that reads at a glance.
+2. Home-base scene — modern-day team hideout / safehouse, evening light.
+3. One portal entrance — modern environment with a magical rift opening
+   into a fantasy world. Contrast between concrete/steel and fantasy is
+   the point.
+4. One sample boss — pick a category-flavored creature (e.g., "Boss of
+   Procrastination").
+5. Combat scene mockup — letterboxed sideways strip, one archetype
+   mid-attack on the sample boss.
+
+**Open decisions for the next review with Alex:**
+
+- Which v1 head maps to which archetype
+- Whether to broaden the roster's gender mix
+- Where the modern-fantasy fusion language lives (clothing, accessory
+  motifs, weapon styling)
+
+Combat mechanics still hold the same shape (action-point economy). Skill
+trees, gear systems, and story remain open but will be informed by the
+locked art.
 
 ---
 
@@ -167,7 +237,7 @@ Four distinct directions, ordered roughly from cheapest-to-produce
 to most-expensive. Each has a reference game so you can scroll
 screenshots in 30 seconds.
 
-### A. Modern detailed pixel art (HD-2D-adjacent) — **CHOSEN (May 4, 2026)**
+### A. Modern detailed pixel art (HD-2D-adjacent) — chosen May 4, 2026; **superseded May 28**
 **References:** *Sea of Stars*, *Chained Echoes*, *Octopath Traveler*,
 *Triangle Strategy*. Bigger pixels (32×32 sprites), modern lighting,
 hand-painted backgrounds.
@@ -240,47 +310,42 @@ combat cut-ins.
 
 ---
 
-## Next session — concrete Claude Design prompts (revised for Style A)
+## Brief for Alex's next delivery
 
-Style is locked. The next session is about producing **the actual reference images** that lock in HD-2D pixel for our specific roster + setting, not exploring alternatives. Each prompt assumes "Sea of Stars / Octopath Traveler / Chained Echoes" as the base style anchor.
+> Superseded successor to the May-4 "concrete Claude Design prompts" section
+> (those were AI-generation prompts for Style A pixel art; no longer applicable).
+> The brief below is what to commission from Alex once the v1 roster review is
+> closed out — anchor everything against `docs/design/style-bible/alex-v1-roster.png`.
 
-Generate these views, in order:
+Deliveries, in priority order:
 
-1. **The 5 archetype portraits** — one per character, full body, idle pose, transparent background. **The most important deliverable** — these become canonical reference images for every later asset.
-2. **Home-base scene** — modern-day room or hideout where the team rests between portals. Establishes the modern-day frame.
-3. **One portal entrance** — modern-day environment with a glowing rift opening into a fantasy world. Establishes the portal visual language.
-4. **One sample boss** — a creature inside a portal. Pick a category (e.g., "Boss of Procrastination" for the Mage's portal) to make it concrete.
-5. **Combat scene mockup** — sideways letterboxed strip showing one archetype mid-attack on the sample boss, with an AP indicator UI element.
-
-### Suggested seed prompts (iterate from these)
-
-> "HD-2D pixel art RPG character portrait, 64x64 base sprite scaled up, modern detailed pixel art in the style of Sea of Stars and Octopath Traveler, hand-painted lighting. **Warrior archetype:** modern-day clothing with athletic / gym cues, fantasy weapon as accent, frontline melee energy"
-
-> "Same style and character grammar. **Mage archetype:** modern-day scholar / student clothing, glasses or book motif, arcane accent, mental / cognitive theme"
-
-> "Same style and character grammar. **Rogue archetype:** modern-day business-casual or street look, tactical / strategic accents, finesse"
-
-> "Same style and character grammar. **Diplomat archetype:** modern-day professional / social look, charisma and approachability cues"
-
-> "Same style and character grammar. **Scholar archetype:** modern-day artist / writer / creative look, reflective and patient demeanor"
-
-> "HD-2D pixel art interior scene: modern-day urban hideout / safehouse for a team of specialists. Evening lighting. Walls hint at past portal adventures (trophies, notes, a closed portal frame). Sea of Stars composition style"
-
-> "HD-2D pixel art portal entrance: modern-day rooftop or alley with a swirling magical rift opening into a fantasy world. Dramatic lighting. The contrast between concrete / steel and fantasy is the point"
-
-> "HD-2D pixel art boss creature: 'Boss of Procrastination' — a sluggish, comfortable monster surrounded by unfinished objects. Pixel art, Octopath Traveler boss-pose composition, intimidating but lazy"
-
-> "HD-2D pixel art sideways combat scene, letterboxed view (wide, short aspect ratio): mage on left mid-cast, boss on right, AP gauge UI element in corner. Shogun Showdown layout influence + Sea of Stars rendering"
+1. **The remaining four archetypes** — Mage, Rogue, Diplomat, Scholar — full
+   body, finished design at the same rendering quality as the v1 head sheet.
+   Each design needs to read its archetype at a glance via clothing +
+   accessory + posture (not via overt weapon iconography). The Warrior /
+   Vanguard slot is filled by the v1 sheet pending a clothed full-body pass.
+2. **Home-base scene** — modern-day team hideout / safehouse, evening light,
+   character-portrait quality. Walls can hint at past portal adventures
+   (trophies, notes, a closed portal frame).
+3. **One portal entrance** — modern environment (rooftop / alley / interior)
+   with a magical rift opening into a fantasy world. The contrast between
+   concrete / steel and fantasy *is* the point.
+4. **One sample boss** — pick a category-flavored creature (e.g., "Boss of
+   Procrastination" — sluggish, comfortable, surrounded by unfinished things).
+5. **Combat scene mockup** — letterboxed sideways strip, one archetype
+   mid-attack on the sample boss, AP gauge UI element in corner.
 
 ### What to bring back into the style bible
 
-For each generated image you keep:
-- The image itself (downloaded, named clearly e.g. `warrior-v1.png`)
-- The exact prompt that produced it
-- Any seed / parameter values
-- Notes on what to *change* on the next pass (e.g., "cooler palette," "less detail in background")
+For each delivered piece:
+- The file itself, committed under `docs/design/style-bible/` with a clear
+  name (`mage-v1.png`, `home-base-v1.png`, etc.)
+- A short note: what the brief was, what landed, what's open for v2
+- Lock decision: is this the canonical reference for that subject, or
+  awaiting a revision?
 
-These all go into `docs/design/style-bible.md`.
+All notes consolidate in `docs/design/style-bible.md` under the corresponding
+reference-gallery section.
 
 ---
 
@@ -305,13 +370,12 @@ to avoid:
 
 This is what tonight's decisions trigger. Each step is gated by the previous one. Replaces the prior speculative roadmap.
 
-### 6.1 — Art direction lock-in (this week)
-- Next Claude Design session: produce concept art per the prompts above
-- Outputs: 5 archetype portraits, 1 home-base scene, 1 portal entrance, 1 sample boss, 1 combat-scene mockup
-- Lock canonical reference images into `docs/design/style-bible.md`
-- Pick AI tooling subscription: **PixelLab** (~$10/mo) for sprite production
-- Acquire **Aseprite** ($20 one-time) for cleanup and sprite-sheet export
-- **Done when:** style bible exists with locked reference images and a documented prompt recipe per archetype
+### 6.1 — Art direction lock-in (in progress)
+- ✓ Style locked May 28 from Alex's v1 roster sheet (see "Decisions revised")
+- Commission remaining deliverables from Alex per "Brief for Alex's next delivery" above (4 archetypes + home-base + portal + boss + combat mockup)
+- File each delivery into `docs/design/style-bible/` and append a reference-gallery entry in `docs/design/style-bible.md`
+- AI-pipeline subscriptions (PixelLab / Aseprite) — **dropped**. design-factory/ is archived.
+- **Done when:** all 5 archetypes plus the 4 scene deliverables are locked in the style bible
 
 ### 6.2 — Encounter spike (1-2 days, throwaway branch)
 - Already specced in detail at `docs/encounter-spike.md` — DOM + framer-motion + sprite sheets approach
@@ -477,18 +541,19 @@ These are conversations to have *with art on screen*.
   re-read at session start
 - `docs/encounter-spike.md` — the prototype that validates the
   DOM-only combat architecture (Phase 6.2)
-- `docs/design/style-bible.md` — locked reference images, palette,
-  typography, sprite specs (populated during Phase 6.1 design session)
+- `docs/design/style-bible.md` — locked roster reference (Alex's v1
+  sheet), palette, typography, per-archetype delivery briefs
 
 ---
 
 ## Verification — when each phase is "done"
 
 ### Phase 6.1 (art lock-in) is done when:
-1. ✓ Primary art style chosen — **DONE (May 4): Style A**
-2. Reference image generated for each: 5 archetype portraits, 1 home-base scene, 1 portal entrance, 1 sample boss, 1 combat-scene mockup
-3. `docs/design/style-bible.md` exists with palette + typography + sprite specs + reference gallery
-4. Each reference image has its prompt + parameters recorded next to it
+1. ✓ Primary art style chosen — **re-locked May 28: Alex's hand-illustrated 2D** (May-4 Style A pixel-art lock superseded)
+2. ✓ Roster v1 reference locked — `docs/design/style-bible/alex-v1-roster.png`
+3. Full body finished design delivered for each archetype (Mage, Rogue, Diplomat, Scholar — Warrior covered by v1 sheet pending clothed full-body pass)
+4. Home-base scene, portal entrance, sample boss, combat-scene mockup delivered
+5. `docs/design/style-bible.md` reference gallery has an entry per deliverable with the brief, what landed, and what's open
 
 ### Phase 6.2 (encounter spike) is done when (per `docs/encounter-spike.md`):
 1. Orientation strategy locked from real-device testing (not theory)

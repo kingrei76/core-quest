@@ -1,7 +1,10 @@
 # Archetype spec — Vanguard
-# Source of truth for the pipeline. Mirrors the human-readable narrative
-# in docs/design/style-bible.md § "Warrior (archetype 1) — Aspect: The Vanguard".
-# When this YAML changes meaningfully, regenerate the asset.
+#
+# SUPERSEDED 2026-05-28. The design-factory pipeline this YAML fed is already
+# archived (see design-factory/README.md, May 10 note). The Vanguard
+# "tactical-operator + fantasy plate" concept is no longer the canonical
+# Warrior visual — that's now defined by Alex's illustrated roster at
+# docs/design/style-bible/alex-v1-roster.png. Kept for history; don't act on it.
 
 name: vanguard
 display_name: The Vanguard

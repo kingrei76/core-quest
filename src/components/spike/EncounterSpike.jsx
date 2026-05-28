@@ -7,6 +7,8 @@ const HERO_MAX_HP = 100
 const ENEMY_MAX_HP = 80
 const STRIKE_DAMAGE = 18
 
+// Placeholder art — CraftPix off-the-shelf sprites pending Alex's in-game
+// character + monster assets. See docs/design/style-bible.md.
 const HERO_BASE = '/sprites/craftpix/heroes/Shinobi'
 const ENEMY_BASE = '/sprites/craftpix/monsters/Skeleton_Warrior'
 

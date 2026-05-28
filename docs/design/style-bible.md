@@ -1,33 +1,42 @@
 # CORE Quest — Style Bible
 
-> Status: **stub**. Populated during Phase 6.1 Claude Design sessions.
-> See `vision.md` § "Decisions locked (May 4, 2026)" for the high-level
+> Status: **v2 — re-baselined May 28, 2026** after the pivot from
+> Style A pixel art to Alex's hand-illustrated 2D direction. See
+> `vision.md` § "Decisions revised (May 28, 2026)" for the high-level
 > art direction this bible operationalizes.
 
-The point of this doc: every later asset (sprite frames, animations, UI
-chrome, environments) refers back to *one* canonical reference per
-character / scene. Without a locked reference set, AI-generated art
-drifts and the game looks like a deepfake of itself. This doc is the
-lock.
+The point of this doc: every later asset (character art, scene
+backgrounds, UI chrome, in-game sprites) refers back to *one* canonical
+reference per character / scene. Without a locked reference set, art
+direction drifts and the game looks like a deepfake of itself. This doc
+is the lock.
 
 ---
 
 ## Style anchor
 
-- **Direction:** Modern HD-2D pixel art (Style A — chosen May 4, 2026)
-- **Reference games:** *Octopath Traveler*, *Sea of Stars*,
-  *Chained Echoes*. Layout / input feel from *Shogun Showdown*.
-- **Resolution:** TBD — likely 64×64 base sprites scaled 2-3× for
-  display. Confirm during first generation pass.
-- **Lighting:** Hand-painted, mood-driven, not flat.
+Hand-illustrated 2D. Described by attributes, not by reference game —
+locked May 28, 2026 from Alex's v1 roster sheet.
+
+- Clean line art with hand-painted gradient shading on skin and fabric
+- Soft cel-shaded highlights; no hard outlines on volume forms
+- Earnest, lived-in faces — visible scars, blue eyes, expressive but
+  composed (not anime-cute, not grimdark)
+- Character-portrait quality across the whole roster — no "background
+  character" tier
+- Modern-day clothing + fantasy accent fusion (carried over from the
+  May-4 setting decisions; clothing variations are a v2 open question)
+- **Lighting / mood:** painterly, mood-driven, not flat
+
+**Canonical anchor:** `docs/design/style-bible/alex-v1-roster.png`
 
 ---
 
 ## Color palette
 
-> Anchored to existing tokens in `src/styles/tokens.css`. New palette
-> must coexist with current navy / gold / teal so the menu shell
-> doesn't have to be rewritten.
+> Anchored to existing tokens in `src/styles/tokens.css`. The new
+> illustration direction coexists cleanly with current navy / gold /
+> teal — the menu shell does not have to be rewritten.
 
 | Role | Token | Hex | Notes |
 |------|-------|-----|-------|
@@ -38,169 +47,151 @@ lock.
 | Cyan | `--color-cyan` | `#00d4aa` | Existing — XP |
 | HP red | `--color-danger` | `#e94560` | Existing — HP |
 | MP blue | `--color-mp` | `#4a90d9` | Existing — MP |
-| Sprite fill 1-N | TBD | TBD | Per archetype, picked in design |
-
-**Picked during design session:**
-- _(populate per archetype: dominant hue, accent hue, outline color)_
+| Per-archetype accents | TBD | TBD | Pulled per archetype from Alex's v2 deliveries |
 
 ---
 
 ## Typography
 
 > Current fonts: `Cinzel` (display), `Cormorant Garamond` (body),
-> `Caveat` (handwritten). Pixel art typically wants pixel or grotesk
-> faces. Decision pending — Cinzel may not survive the pivot.
+> `Caveat` (handwritten). Pivoting away from pixel art *helps* this —
+> Cinzel + Cormorant reads more native against painted illustration
+> than against pixel sprites.
 
-**Candidates to test:**
-- Keep Cinzel for menu chrome, swap to a pixel face only inside
-  combat / portal viewport (lowest disruption).
-- Replace globally with a modern grotesk + a pixel display face.
-- Replace globally with a curated pixel font (e.g., `Press Start 2P`,
-  `m6x11`, `PixelOperator`).
-
-**Final pick:** _(decide after first sprite mockups)_
+**Working assumption:** keep the current trio. Revisit only if a
+specific Alex delivery makes them feel wrong in context.
 
 ---
 
-## Sprite specs
+## In-game render specs
 
-Lock these before generating any sprite — changing later means
-re-generating every asset.
+> Re-baselined May 28, 2026. The old "Sprite specs" section (64×64
+> base, 3× display scale, pixel-snap, Aseprite atlas) reflected the
+> superseded pixel-art pipeline.
 
-- **Character base resolution:** _(e.g., 64×64 px)_
-- **Display scale:** _(e.g., 3× → 192×192 rendered)_
-- **Pixel snap:** integer scaling only (no subpixel)
-- **Animation frame counts:**
-  - Idle: 4-6 frames @ 8-12 fps
-  - Walk: 6-8 frames @ 12 fps
-  - Attack: 4-6 frames + hold
-  - Hurt: 2-3 frames
-- **Sprite sheet format:** PNG + JSON atlas (Aseprite default export)
-- **Naming convention:** `{archetype}-{action}-{frame}.png` inside
-  `{archetype}/` directories under `public/sprites/`
+For the combat / encounter screen, in-game character renders will
+likely be a downscaled / composited derivative of Alex's full-quality
+illustration. Exact resolution, frame counts, animation pipeline, and
+file format are **TBD per first Alex delivery of an in-game-ready
+asset**. The current `EncounterSpike` runs on CraftPix off-the-shelf
+sprite sheets as explicit placeholder until that decision lands.
+
+What's portable across whatever we pick:
+- Character art lives under `public/sprites/<archetype>/` (current
+  CraftPix placeholders under `public/sprites/craftpix/`)
+- Sheets export with a JSON atlas next to the PNG
+- Naming: `<archetype>-<action>.png` + `<archetype>-<action>.json`
 
 ---
 
 ## Reference image gallery
 
-> One section per canonical asset. For each, paste the image link,
-> the exact prompt that produced it, generation parameters, and
-> notes for the next iteration pass. Locked images become the
-> reference for *every* later derivative.
+### Roster reference v1 — **LOCKED May 28, 2026 (Alex)**
 
-### Warrior (archetype 1) — Aspect: *The Vanguard*
+- **Image:** `docs/design/style-bible/alex-v1-roster.png`
+- **Contents:** nude anatomy body study (bald, neutral pose) plus
+  four shirtless male head variations rendered on the same face
+  structure. Red-hair-with-earring, gray-with-green-streaks,
+  brown-wavy, and spiky-purple variants. Scarring across neck,
+  shoulders, chest. Blue eyes across all four.
+- **What's locked:**
+  - Face structure / anatomy across the roster
+  - Rendering style and tone (line + soft cel + painted skin)
+  - Scarred-but-earnest character feel
+  - Quality bar for every later character delivery
+- **What's open (decide at v2 review with Alex):**
+  - Which of the four head variations maps to which archetype
+  - Full body finished designs for the four non-Warrior archetypes
+  - Modern-day-clothing + fantasy-accent fusion per archetype
+  - Whether the team should include non-male characters
 
-- **Status:** v1 locked (May 5, 2026). Awaiting Aseprite cleanup pass.
-- **Image:** `docs/design/style-bible/vanguard-v1.png`
-- **Aspect:** The Vanguard (per `docs/design/magic-system.md`)
-- **Persona power (Phase 6.4):** *Crashing Strike*
-- **Modern-weapon variant:** Tactical Operator (rifle + greatsword)
-- **Tool:** Leonardo.AI (model — fill in: e.g., Pixel Art XL)
-- **Parameters:** _(fill in: aspect ratio, guidance, seed)_
-- **Prompt that produced v1:**
+### Warrior (archetype 1) — Aspect: *The Vanguard* — SUPERSEDED
 
-  ```
-  HD-2D pixel art RPG character portrait, 64×64 base sprite scaled 3× for display.
-  Sea of Stars production polish with Octopath Traveler dramatic lighting and
-  painted depth. Twilight palette: deep navy background with warm amber and gold
-  accent lighting. Earnest-heroic tone, sincere adventure. Modern fantasy
-  aesthetic. Hand-painted gradient shading, no hard outlines.
-
-  Vanguard archetype, frontline warrior class. Full body idle pose, confident
-  weight-bearing stance, slight smirk, eye contact with viewer. Modern tactical
-  operator fused with fantasy plate armor: ballistic plate carrier with
-  rune-etched ceramic plates, modern combat helmet with visor flipped up,
-  fingerless tactical gloves, sturdy combat boots. Two-handed greatsword slung
-  diagonally across back, modern assault rifle held at low ready. Military
-  patches replaced with arcane sigils. Battle-scarred but composed expression.
-  Dominant earth and steel grey, gold accent on rune-etched plates, deep navy
-  background.
-  ```
-
-- **What landed (keep):**
-  - Silhouette reads at thumbnail
-  - Earnest-heroic facial expression (smile, eye contact, beard)
-  - Gold rune on left pauldron — the canonical "fantasy magic on modern gear" anchor
-  - Olive-and-steel palette with gold accent on navy background
-  - Full body idle pose, confident stance
-
-- **What to fix in Aseprite (next pass — not in Leonardo):**
-  - Remove watermark / hallucinated text artifacts ("Sea of Stars" upper-left, "HODERTL ZART" bottom-left)
-  - Slung weapon on back reads as a second rifle — paint over with a clear two-handed greatsword silhouette if dual-weapon vibe is desired
-  - Optionally simplify chest gear (remove 1-2 pouches/straps) for cleaner silhouette
-  - Lock final canvas size + pixel density (decide 64×64 vs. 96×96 base during cleanup)
-  - Ensure transparent background for compositing into game scenes
-
-- **Notes for v2 (only if Aseprite cleanup can't fix what's wrong):**
-  - Tighten prompt — long prompts caused Leonardo to drop instructions on subsequent generations
-  - Add aggressive negative prompt: `text, watermark, logo, signature, letters, helmet visor down, mouth covered`
+> Superseded May 28, 2026 by the roster reference above. The previous
+> Vanguard v1 was an AI-generated pixel-art portrait from the May-4
+> Style A pipeline (Leonardo + Aseprite). Source files remain at
+> `docs/design/style-bible/vanguard-v1*.{png,aseprite}` for history.
+> The Warrior slot will be re-anchored to a clothed full-body design
+> from Alex (likely derived from one of the v1 heads — pending
+> archetype-mapping decision).
 
 ### Mage (archetype 2)
 
-_(same template)_
+_Awaiting delivery from Alex (see `vision.md` § "Brief for Alex's next
+delivery")._
 
 ### Rogue (archetype 3)
 
-_(same template)_
+_Awaiting delivery from Alex (see `vision.md` § "Brief for Alex's next
+delivery")._
 
 ### Diplomat (archetype 4)
 
-_(same template)_
+_Awaiting delivery from Alex (see `vision.md` § "Brief for Alex's next
+delivery")._
 
 ### Scholar (archetype 5)
 
-_(same template)_
+_Awaiting delivery from Alex (see `vision.md` § "Brief for Alex's next
+delivery")._
 
 ### Home-base scene
 
-_(same template — modern-day team safehouse)_
+_Awaiting delivery from Alex — modern-day team hideout / safehouse,
+evening light._
 
 ### Portal entrance
 
-_(same template — modern-day rift to fantasy world)_
+_Awaiting delivery from Alex — modern-day environment with a magical
+rift opening into a fantasy world._
 
 ### Sample boss
 
-_(same template — e.g., "Boss of Procrastination")_
+_Awaiting delivery from Alex — pick a category-flavored creature (e.g.,
+"Boss of Procrastination")._
 
 ### Combat scene mockup
 
-_(same template — sideways letterboxed strip with AP UI)_
+_Awaiting delivery from Alex — letterboxed sideways strip with one
+archetype mid-attack on the sample boss + AP gauge UI element._
 
 ---
 
-## Prompt recipes
+## Briefs for Alex
 
-A "recipe" is a base prompt + a parameter table that reliably produces
-on-style output. Build these up as you find prompts that work.
+When commissioning new work, point Alex at:
 
-### Base style fragment (paste into every prompt)
+1. The **roster reference v1** (`alex-v1-roster.png`) as the canonical
+   anchor — match face structure / rendering / tone.
+2. The **attributes list** in § "Style anchor" above as the description
+   of the style. Don't translate it into a reference-game label.
+3. The **outstanding deliveries** in `vision.md` § "Brief for Alex's
+   next delivery" for what to make next.
+4. The **open questions** above (under each archetype's gallery entry)
+   that this delivery is meant to close out.
 
-> _(populate after first session — e.g., "HD-2D pixel art, 64×64 base
-> scaled 3×, Sea of Stars / Octopath Traveler painted lighting, navy
-> + gold + teal palette, ...")_
-
-### Per-archetype clothing recipe
-
-_(table of: archetype → modern-day clothing keywords → fantasy accent
-keywords)_
-
-### Per-scene composition recipe
-
-_(home-base / portal / combat → camera angle + framing notes)_
+For each delivery, capture:
+- The brief sent to Alex
+- What landed (what's locked from this delivery)
+- What's still open for v2 / next iteration
+- File path under `docs/design/style-bible/` (committed alongside this
+  doc update)
 
 ---
 
 ## What "done" looks like for Phase 6.1
 
-This file is "done enough" for Phase 6.2 (encounter spike) when:
+This file is "done" for Phase 6.2+ (encounter spike already merged as
+Phase 6.4-lite; full art-driven rebuild blocked on Alex's deliveries) when:
 
-1. All 5 archetype portraits have locked reference images + prompt recipes
-2. Home-base scene + portal entrance + sample boss all locked
-3. Combat scene mockup exists (even if rough)
-4. Color palette table is complete
-5. Typography decision is made
-6. Sprite specs are committed (resolution, scale, frame counts)
+1. ✓ Style anchor locked (v1 roster)
+2. Each of the 5 archetypes has a locked, finished-design reference
+3. Home-base scene, portal entrance, sample boss, combat-scene mockup
+   are all locked
+4. Color palette table has per-archetype accent colors filled in
+5. Typography decision confirmed against painted illustration context
+6. In-game render specs (resolution / format / animation pipeline)
+   locked once first Alex in-game-ready asset arrives
 
-Once those six are filled in, Phase 6.2 can start with confidence that
-the spike is animating *the right thing* visually.
+Until then: the encounter spike runs on CraftPix placeholder sprites,
+which keep the combat loop alive but don't represent the final visual.
