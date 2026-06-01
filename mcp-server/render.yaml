@@ -12,7 +12,7 @@ services:
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true
-    branch: claude/task-management-research-AKtam
+    branch: main
     envVars:
       - key: SUPABASE_URL
         value: https://yatgxollnwplztbnrfjx.supabase.co
