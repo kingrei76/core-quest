@@ -27,18 +27,11 @@ export const noStreamError = {
   id: null,
 }
 
-// Handle a POST /mcp request. `body` is the already-parsed JSON-RPC payload.
-// Works with both Express and Vercel `res` objects (both expose status()/json()
-// and are Node ServerResponse instances the SDK can stream to).
-export async function handleMcp(req, res, body) {
-  if (!authorized(req)) {
-    res.status(401).json({
-      jsonrpc: '2.0',
-      error: { code: -32001, message: 'Unauthorized' },
-      id: null,
-    })
-    return
-  }
+// Run a stateless MCP request — builds a fresh server+transport and replies.
+// Assumes the caller has already authorized. `body` is the parsed JSON-RPC
+// payload. Works with both Express and Vercel `res` objects (both expose
+// status()/json() and are Node ServerResponse instances the SDK streams to).
+export async function runMcp(req, res, body) {
   try {
     const server = buildServer()
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
@@ -58,4 +51,21 @@ export async function handleMcp(req, res, body) {
       })
     }
   }
+}
+
+// Header/query-secret gated entry (Authorization: Bearer / x-mcp-key / ?key=).
+// Used by curl + local dev. NOTE: Claude's desktop custom-connector UI drops
+// query params and can't set headers, so it can't use this path — it must use
+// the path-embedded secret route (api/mcp/[secret].js → /mcp/<secret>), which
+// returns 404 (never 401) on a bad secret so the connector won't try OAuth.
+export async function handleMcp(req, res, body) {
+  if (!authorized(req)) {
+    res.status(401).json({
+      jsonrpc: '2.0',
+      error: { code: -32001, message: 'Unauthorized' },
+      id: null,
+    })
+    return
+  }
+  return runMcp(req, res, body)
 }
