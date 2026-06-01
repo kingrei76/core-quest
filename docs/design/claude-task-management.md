@@ -51,7 +51,9 @@ quests(approval_status='rejected')   ← hidden from board, kept for audit
 
 ## Components
 
-- **`mcp-server/`** — single-tenant MCP server (Node, Streamable-HTTP, on Render), pinned to Matt's
+- **`mcp-server/`** — single-tenant MCP server (Node, stateless Streamable-HTTP, deployed on **Vercel**
+  as serverless functions in `api/` — same platform as the frontend, no third vendor; the `src/index.js`
+  Express entry is local-dev only), pinned to Matt's
   uid. Tools: `list_tasks`, `get_inbox`, `propose_task`, `approve_task`, `reject_task`,
   `complete_task`, `reschedule_task`, `dismiss_inbox`, `morning_briefing`. Sends approval/ reminder
   pushes directly via `web-push` (same VAPID triplet as the frontend / `dispatch-reminders`).

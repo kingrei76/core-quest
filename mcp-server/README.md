@@ -33,7 +33,7 @@ enters the normal reminder loop. Reject → `'rejected'` (kept for audit, hidden
 cd mcp-server
 cp .env.example .env   # fill in SUPABASE_SERVICE_ROLE_KEY, MCP_SHARED_SECRET, VAPID_*
 npm install
-npm start              # POST http://localhost:8080/mcp
+npm start              # POST http://localhost:8080/mcp (Express; local-only)
 ```
 
 Smoke test (initialize handshake):
@@ -46,21 +46,34 @@ curl -sS http://localhost:8080/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"0"}}}'
 ```
 
-## Deploy (Render)
+## Deploy (Vercel)
 
-The repo ships a `render.yaml` blueprint (`rootDir: mcp-server`). Set the `sync:false` secrets in the
-Render dashboard:
+The server runs as **stateless serverless functions** on Vercel — the same platform as the frontend,
+so no third vendor and no free-tier cold-sleep. `src/index.js` (the Express `app.listen`) is local-only;
+in production `api/mcp.js` and `api/health.js` call the shared handler in `src/handler.js`.
 
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `MCP_SHARED_SECRET` (a long random string)
-- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (same triplet as the frontend / `dispatch-reminders`)
+1. **New Project** in Vercel → import `kingrei76/core-quest` → set **Root Directory = `mcp-server`**.
+   (Keep it as its own project, separate from the frontend at `core-quest.vercel.app`.)
+2. Framework preset: **Other**. No build command needed — `api/*.js` are auto-detected as Node functions.
+3. Set env vars (Project → Settings → Environment Variables):
+   - `SUPABASE_URL` = `https://yatgxollnwplztbnrfjx.supabase.co`
+   - `CORE_QUEST_USER_ID` = Matt's uid
+   - `USER_TZ` = `America/New_York`, `APP_URL` = `https://core-quest.vercel.app`
+   - `SUPABASE_SERVICE_ROLE_KEY` (secret)
+   - `MCP_SHARED_SECRET` (a long random string; reused in the connector URL)
+   - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (same triplet as the frontend /
+     `dispatch-reminders` — mismatch silently breaks push)
+4. Deploy. Verify `https://<project>.vercel.app/health` → `{"ok":true}`.
+
+`vercel.json` rewrites `/mcp` → `/api/mcp` and `/health` → `/api/health`, so both `/mcp` and `/api/mcp`
+work as the endpoint.
 
 ## Register as a Claude connector
 
 In Claude (Settings → Connectors → Add custom connector) add:
 
 ```
-https://<your-render-host>/mcp?key=<MCP_SHARED_SECRET>
+https://<your-vercel-project>.vercel.app/mcp?key=<MCP_SHARED_SECRET>
 ```
 
 The `?key=` carries the shared secret (claude.ai preserves the URL across requests). Auth is also
