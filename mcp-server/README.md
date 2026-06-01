@@ -73,7 +73,7 @@ work as the endpoint.
 In Claude (Settings → Connectors → Add custom connector) add:
 
 ```
-https://<your-vercel-project>.vercel.app/mcp?key=<MCP_SHARED_SECRET>
+https://core-quest-at9i.vercel.app/mcp?key=<MCP_SHARED_SECRET>
 ```
 
 The `?key=` carries the shared secret (claude.ai preserves the URL across requests). Auth is also
