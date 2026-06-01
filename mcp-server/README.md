@@ -65,16 +65,22 @@ in production `api/mcp.js` and `api/health.js` call the shared handler in `src/h
      `dispatch-reminders` — mismatch silently breaks push)
 4. Deploy. Verify `https://<project>.vercel.app/health` → `{"ok":true}`.
 
-`vercel.json` rewrites `/mcp` → `/api/mcp` and `/health` → `/api/health`, so both `/mcp` and `/api/mcp`
-work as the endpoint.
+`vercel.json` rewrites `/mcp/:secret` → `/api/mcp/:secret`, `/mcp` → `/api/mcp`, and `/health` →
+`/api/health`.
 
 ## Register as a Claude connector
 
-In Claude (Settings → Connectors → Add custom connector) add:
+In Claude (Settings → Connectors → Add custom connector) add — note the secret is in the **path**:
 
 ```
-https://core-quest-at9i.vercel.app/mcp?key=<MCP_SHARED_SECRET>
+https://core-quest-at9i.vercel.app/mcp/<MCP_SHARED_SECRET>
 ```
 
-The `?key=` carries the shared secret (claude.ai preserves the URL across requests). Auth is also
-accepted via `Authorization: Bearer <secret>` or the `x-mcp-key` header.
+**Why the path, not `?key=`:** Claude's desktop custom-connector UI strips query strings and can't set
+custom headers, so it can only authenticate via what's in the URL path. The `/mcp/<secret>` route
+(`api/mcp/[secret].js`) returns **404** (never 401) on a wrong/missing secret — a 401 is what makes the
+connector try an OAuth discovery flow this server doesn't implement, which surfaces as "Couldn't
+connect." Effectively the full URL *is* the credential (treat it like a private share link).
+
+Header/query auth (`Authorization: Bearer <secret>`, `x-mcp-key`, or `?key=`) still works on the plain
+`/mcp` route for curl and local dev — it just can't be used from the Claude connector UI.
