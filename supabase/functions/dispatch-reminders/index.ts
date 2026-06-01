@@ -50,6 +50,9 @@ Deno.serve(async (req) => {
     .lte('reminder_at', now.toISOString())
     .gte('reminder_at', staleCutoff.toISOString())
     .in('status', ['available', 'in_progress'])
+    // Only official (approved) tasks fire reminders — Claude-proposed tasks
+    // awaiting approval must never ping the user.
+    .eq('approval_status', 'approved')
     .limit(500)
 
   if (qErr) {

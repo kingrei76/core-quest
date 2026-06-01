@@ -66,7 +66,17 @@ Pre-2026-05-10 schema lives in `supabase-schema.sql` — an append-only referenc
 - 3.1 Push subscription infra · 3.2 Reminder dispatcher Edge Function · 3.3 Notifications toggle UI
 - 4.1 HP/MP combat loop · 4.2 Boss + sub-quests · 4.3 Daily/weekly challenges · 4.4 Achievements
 - 5.1 Onboarding · 5.2 Note tags + quest links · 5.3 Custom categories · 5.4 Stats charts
-- iPhone reminder auto-import (most recent)
+- iPhone reminder auto-import
+- **Task-management hub (most recent)** — Claude gathers/proposes/approves/reminds on tasks via an MCP server (`mcp-server/`). See `docs/design/claude-task-management.md`.
+
+## Task-management track (game-parked)
+
+A standalone task-manager built on the existing quest infra, kept separate from the game layer:
+
+- **`quests.approval_status`** (`proposed`|`approved`|`rejected`, default `approved`): Claude-created tasks start `proposed` and are hidden from the board (shown in a "Pending approval" section) until Matt approves; **only `approved` tasks fire reminders**. Don't surface `proposed`/`rejected` in normal quest views.
+- **`mcp-server/`** is a single-tenant MCP server (Node, on Render) pinned to Matt's uid. It has **no game logic** — completing a task there awards no XP. The game (XP/AP/combat) is **parked** until task management is proven; don't wire game side-effects into this track.
+- **`dispatch-reminders` previously errored** — it referenced `quests.last_reminded_at`, which didn't exist until the `20260601000000` migration added it. The dispatcher now also filters `approval_status='approved'`.
+- Provenance: Claude-written tasks stamp `external_source` + `metadata.created_by='claude'`; actions are logged to `public.claude_actions`.
 
 ## Game design direction
 

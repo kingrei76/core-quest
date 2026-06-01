@@ -1,0 +1,21 @@
+{
+  "name": "core-quest-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Core Quest task-management MCP server — lets Claude gather, propose, approve, and remind on Matt's tasks.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "express": "^4.19.2",
+    "web-push": "^3.6.7",
+    "zod": "^3.23.8"
+  }
+}

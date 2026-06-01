@@ -10,6 +10,7 @@ import QuestSection from './QuestSection'
 import QuestFilters from './QuestFilters'
 import QuestEditor from './QuestEditor'
 import SubQuestModal from './SubQuestModal'
+import PendingApproval from './PendingApproval'
 import EmptyState from '../shared/EmptyState'
 import { groupQuestsByBucket, BUCKET_LABELS } from '../../utils/buckets'
 import styles from './QuestsPage.module.css'
@@ -53,9 +54,19 @@ export default function QuestsPage() {
     }, {})
   }, [notes])
 
+  // Claude-proposed tasks awaiting approval. They're real quest rows
+  // (approval_status='proposed') but must stay out of the normal board until
+  // Matt approves them. This is the tap-target for the approval push.
+  const pendingTasks = quests.filter(
+    q => q.approval_status === 'proposed' && !q.parent_quest_id,
+  )
+
   const topLevel = quests.filter(q => !q.parent_quest_id)
 
   const filteredQuests = topLevel.filter(q => {
+    // Only official (approved) tasks appear in the standard views; proposed
+    // tasks live in the pending section, rejected ones are hidden entirely.
+    if (q.approval_status && q.approval_status !== 'approved') return false
     if (categoryFilter !== 'all' && q.category !== categoryFilter) return false
     if (statusFilter === 'active') return q.status === 'available' || q.status === 'in_progress'
     if (statusFilter === 'completed') return q.status === 'completed'
@@ -97,6 +108,16 @@ export default function QuestsPage() {
     await deleteQuest(quest.id)
   }
 
+  // Approving a proposed task makes it official; rejecting hides it (kept for
+  // audit). Both flip approval_status — no XP/game side-effects.
+  const handleApprove = async (quest) => {
+    await updateQuest(quest.id, { approval_status: 'approved' })
+  }
+
+  const handleReject = async (quest) => {
+    await updateQuest(quest.id, { approval_status: 'rejected' })
+  }
+
   return (
     <div className={styles.page}>
       <h2 className={styles.title}>Quest Board</h2>
@@ -108,7 +129,14 @@ export default function QuestsPage() {
         onStatusChange={setStatusFilter}
       />
 
+      <PendingApproval
+        tasks={pendingTasks}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
+
       {loading ? null : filteredQuests.length === 0 ? (
+        pendingTasks.length > 0 ? null : (
         <EmptyState
           icon="⚔️"
           title="No quests found"
@@ -116,6 +144,7 @@ export default function QuestsPage() {
             ? 'Process inbox items to create quests'
             : 'Complete some quests to see them here'}
         />
+        )
       ) : (
         <div className={styles.sections}>
           {sections.map(section => (

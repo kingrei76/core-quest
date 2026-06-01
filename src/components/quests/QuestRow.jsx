@@ -149,6 +149,11 @@ export default function QuestRow({
                 {isRecurring(quest) && (
                   <span className={styles.tag}>↻ {RECURRENCES[quest.recurrence].label}</span>
                 )}
+                {quest.metadata?.created_by === 'claude' && (
+                  <span className={styles.tag} title={`Added by Claude${quest.metadata.source ? ` via ${quest.metadata.source}` : ''}`}>
+                    ✨ Claude
+                  </span>
+                )}
                 {hasChildren && (
                   <span className={styles.tag}>
                     {completedChildren}/{children.length} subtasks
