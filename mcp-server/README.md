@@ -1,0 +1,67 @@
+# Core Quest MCP Server
+
+A single-tenant [MCP](https://modelcontextprotocol.io) server that lets Claude act as Matt's
+task-management hub for Core Quest. It **gathers** tasks (iOS Reminders inbox + existing Core Quest
+tasks), lets Claude **propose** new tasks that Matt **approves via a push notification**, and surfaces
+the **morning digest** (pending + overdue + due today). No game logic lives here — see the
+"game parked" decision in `docs/design/claude-task-management.md`.
+
+## Tools
+
+| Tool | What it does |
+|------|--------------|
+| `list_tasks(view)` | List tasks by view: `today`, `overdue`, `upcoming`, `pending`, `active`, `all`. |
+| `get_inbox` | Unprocessed inbox items (iOS Reminders etc.) awaiting triage. |
+| `propose_task(...)` | Create a **proposed** task + fire an approval push. `inbox_source_id` promotes an inbox item. |
+| `approve_task(task_id)` | Promote proposed → approved (official; enters the reminder loop). |
+| `reject_task(task_id)` | Dismiss a proposed task. |
+| `complete_task(task_id)` | Mark a task done. |
+| `reschedule_task(task_id, due_date?, reminder_at?)` | Change due date / reminder time. |
+| `dismiss_inbox(inbox_id)` | Clear a non-actionable inbox item. |
+| `morning_briefing()` | Daily digest: awaiting-approval + overdue + due-today. |
+
+## Approval model
+
+Claude-created tasks are written `approval_status = 'proposed'` and are **not** official: they're
+excluded from due-reminders and shown in a separate "Pending approval" section in the app. Matt
+approves (tap the push → app, or "approve" in chat) → `approval_status = 'approved'` → the task
+enters the normal reminder loop. Reject → `'rejected'` (kept for audit, hidden from the board).
+
+## Run locally
+
+```bash
+cd mcp-server
+cp .env.example .env   # fill in SUPABASE_SERVICE_ROLE_KEY, MCP_SHARED_SECRET, VAPID_*
+npm install
+npm start              # POST http://localhost:8080/mcp
+```
+
+Smoke test (initialize handshake):
+
+```bash
+curl -sS http://localhost:8080/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Authorization: Bearer $MCP_SHARED_SECRET" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"0"}}}'
+```
+
+## Deploy (Render)
+
+The repo ships a `render.yaml` blueprint (`rootDir: mcp-server`). Set the `sync:false` secrets in the
+Render dashboard:
+
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `MCP_SHARED_SECRET` (a long random string)
+- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (same triplet as the frontend / `dispatch-reminders`)
+
+## Register as a Claude connector
+
+In Claude (Settings → Connectors → Add custom connector) add:
+
+```
+https://<your-render-host>/mcp?key=<MCP_SHARED_SECRET>
+```
+
+The `?key=` carries the shared secret (claude.ai preserves the URL across requests). Auth is also
+accepted via `Authorization: Bearer <secret>` or the `x-mcp-key` header.
