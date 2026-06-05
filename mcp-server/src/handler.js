@@ -9,15 +9,28 @@
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { buildServer } from './server.js'
 import { config } from './config.js'
+import { verifyAccessToken } from './oauth.js'
 
 // Shared-secret gate. Accepts `Authorization: Bearer <secret>`, the
-// `x-mcp-key` header, or a `?key=` query param. Open if no secret configured.
+// `x-mcp-key` header, a `?key=` query param, or a valid OAuth-issued access
+// token (Bearer) minted by api/oauth.js. Open if no secret configured.
 export function authorized(req) {
   if (!config.sharedSecret) return true // open mode (testing only)
   const header = req.headers['authorization'] || ''
   const bearer = header.match(/^Bearer\s+(.+)$/i)?.[1]?.trim()
   const provided = bearer || req.headers['x-mcp-key'] || req.query?.key
-  return provided === config.sharedSecret
+  if (provided === config.sharedSecret) return true
+  if (bearer && verifyAccessToken(bearer)) return true
+  return false
+}
+
+// Build the WWW-Authenticate header that points a connector at our OAuth
+// protected-resource metadata (RFC 9728) — this is what makes Claude's
+// connector start the sign-in flow instead of giving up.
+function wwwAuthenticate(req) {
+  const proto = req.headers['x-forwarded-proto'] || 'https'
+  const host = req.headers['x-forwarded-host'] || req.headers.host
+  return `Bearer resource_metadata="${proto}://${host}/.well-known/oauth-protected-resource"`
 }
 
 // Method-not-allowed body for GET/DELETE on a stateless server (no SSE stream).
@@ -60,6 +73,7 @@ export async function runMcp(req, res, body) {
 // returns 404 (never 401) on a bad secret so the connector won't try OAuth.
 export async function handleMcp(req, res, body) {
   if (!authorized(req)) {
+    res.setHeader('WWW-Authenticate', wwwAuthenticate(req))
     res.status(401).json({
       jsonrpc: '2.0',
       error: { code: -32001, message: 'Unauthorized' },

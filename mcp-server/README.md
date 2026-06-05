@@ -89,20 +89,30 @@ in production `api/mcp.js` and `api/health.js` call the shared handler in `src/h
 `vercel.json` rewrites `/mcp/:secret` → `/api/mcp?pathsecret=:secret`, `/mcp` → `/api/mcp`,
 `/slack/interactivity` → `/api/slack-interactivity`, and `/health` → `/api/health`.
 
-## Register as a Claude connector
+## Register as a Claude connector (OAuth)
 
-In Claude (Settings → Connectors → Add custom connector) add — note the secret is in the **path**:
+In Claude (Settings → Connectors → Add custom connector) add the **plain** URL:
 
 ```
-https://core-quest-at9i.vercel.app/mcp/<MCP_SHARED_SECRET>
+https://core-quest-at9i.vercel.app/mcp
 ```
 
-**Why the path, not `?key=`:** Claude's desktop custom-connector UI strips query strings and can't set
-custom headers, so it can only authenticate via what's in the URL path. The `/mcp/<secret>` route
-(handled by `api/mcp.js` via the `?pathsecret=` rewrite) returns **404** (never 401) on a wrong/missing
-secret — a 401 is what makes the
-connector try an OAuth discovery flow this server doesn't implement, which surfaces as "Couldn't
-connect." Effectively the full URL *is* the credential (treat it like a private share link).
+Claude's connector UI **requires OAuth** — it can't send a custom header or use a path secret, and a
+no-auth/path-secret server makes it fail with *"Couldn't register with the sign-in service."* So the
+server speaks a minimal, stateless OAuth 2.1 layer (`src/oauth.js` + `api/oauth.js`):
 
-Header/query auth (`Authorization: Bearer <secret>`, `x-mcp-key`, or `?key=`) still works on the plain
-`/mcp` route for curl and local dev — it just can't be used from the Claude connector UI.
+1. `POST /mcp` with no token → **401 + `WWW-Authenticate: Bearer resource_metadata="…"`** (handler.js).
+2. `GET /.well-known/oauth-protected-resource` (RFC 9728) → points at this server as the auth server.
+3. `GET /.well-known/oauth-authorization-server` (RFC 8414) → authorize/token/register endpoints.
+4. `POST /register` (Dynamic Client Registration) → an opaque `client_id`.
+5. `GET /authorize` → a **password gate** (the password **is** `MCP_SHARED_SECRET`) → 302 back with `?code=`.
+6. `POST /token` → verifies the code + PKCE (S256) → returns a Bearer access token.
+7. `POST /mcp` with that Bearer token → connected.
+
+Codes and access tokens are HMAC-signed blobs keyed by `MCP_SHARED_SECRET` (no store needed between
+stateless calls). The password gate exists because this server can **write** to Matt's tasks, so we
+never auto-approve anonymously — when Claude opens the sign-in page, paste `MCP_SHARED_SECRET` once.
+
+**Other auth paths still work** for curl / local dev / Claude Code CLI: `Authorization: Bearer
+<MCP_SHARED_SECRET>`, the `x-mcp-key` header, `?key=`, or the path form `/mcp/<MCP_SHARED_SECRET>`
+(which returns 404, not 401, on a bad secret).
