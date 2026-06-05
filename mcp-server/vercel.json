@@ -3,6 +3,7 @@
   "rewrites": [
     { "source": "/mcp/:secret", "destination": "/api/mcp?pathsecret=:secret" },
     { "source": "/mcp", "destination": "/api/mcp" },
+    { "source": "/slack/interactivity", "destination": "/api/slack-interactivity" },
     { "source": "/health", "destination": "/api/health" }
   ]
 }

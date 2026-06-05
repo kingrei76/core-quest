@@ -15,6 +15,7 @@ import {
   todayStr,
 } from './supabase.js'
 import { sendPushToUser } from './push.js'
+import { postApprovalCard } from './slack.js'
 
 const short = (id) => (id ? String(id).slice(0, 8) : '?')
 
@@ -139,17 +140,22 @@ export function buildServer() {
         await markInboxProcessed(args.inbox_source_id)
       }
 
-      const push = await sendPushToUser({
-        title: 'Approve task?',
-        body: task.title,
-        url: '/quests',
-        tag: `approve-${task.id}`,
-      })
+      // Fire the approval push and the Slack card in parallel — both are
+      // best-effort surfaces for the same approve/reject decision.
+      const [push, slack] = await Promise.all([
+        sendPushToUser({
+          title: 'Approve task?',
+          body: task.title,
+          url: '/quests',
+          tag: `approve-${task.id}`,
+        }),
+        postApprovalCard(task),
+      ])
 
       await logAction('propose', {
         questId: task.id,
         summary: task.title,
-        payload: { ...row, push },
+        payload: { ...row, push, slack },
       })
 
       const pushNote = push.skipped
@@ -157,7 +163,8 @@ export function buildServer() {
         : push.noDevices
           ? ' (no registered devices)'
           : ` (pushed to ${push.sent} device${push.sent === 1 ? '' : 's'})`
-      return text(`Proposed "${task.title}" (${short(task.id)}) — awaiting approval${pushNote}.`)
+      const slackNote = slack.posted ? ' + Slack card' : ''
+      return text(`Proposed "${task.title}" (${short(task.id)}) — awaiting approval${pushNote}${slackNote}.`)
     },
   )
 

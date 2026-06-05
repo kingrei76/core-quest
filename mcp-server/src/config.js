@@ -29,6 +29,14 @@ export const config = {
   vapidPrivate: process.env.VAPID_PRIVATE_KEY || null,
   vapidSubject: process.env.VAPID_SUBJECT || 'mailto:hello@corequest.app',
 
+  // Slack interactive approvals. When SLACK_BOT_TOKEN + SLACK_APPROVAL_CHANNEL
+  // are set, propose_task also posts an Approve/Reject card to Slack; tapping a
+  // button hits /slack/interactivity, which is verified with SLACK_SIGNING_SECRET.
+  // All three absent → Slack is simply skipped (propose_task still works).
+  slackBotToken: process.env.SLACK_BOT_TOKEN || null,
+  slackSigningSecret: process.env.SLACK_SIGNING_SECRET || null,
+  slackApprovalChannel: process.env.SLACK_APPROVAL_CHANNEL || null,
+
   // Timezone used to resolve "today" / "overdue" against date-only due_dates.
   userTz: process.env.USER_TZ || 'America/New_York',
 
