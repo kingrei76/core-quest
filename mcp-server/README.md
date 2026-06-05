@@ -12,7 +12,7 @@ the **morning digest** (pending + overdue + due today). No game logic lives here
 |------|--------------|
 | `list_tasks(view)` | List tasks by view: `today`, `overdue`, `upcoming`, `pending`, `active`, `all`. |
 | `get_inbox` | Unprocessed inbox items (iOS Reminders etc.) awaiting triage. |
-| `propose_task(...)` | Create a **proposed** task + fire an approval push. `inbox_source_id` promotes an inbox item. |
+| `propose_task(...)` | Create a **proposed** task + fire an approval push (and a Slack Approve/Reject card if Slack is configured). `inbox_source_id` promotes an inbox item. |
 | `approve_task(task_id)` | Promote proposed → approved (official; enters the reminder loop). |
 | `reject_task(task_id)` | Dismiss a proposed task. |
 | `complete_task(task_id)` | Mark a task done. |
@@ -24,8 +24,28 @@ the **morning digest** (pending + overdue + due today). No game logic lives here
 
 Claude-created tasks are written `approval_status = 'proposed'` and are **not** official: they're
 excluded from due-reminders and shown in a separate "Pending approval" section in the app. Matt
-approves (tap the push → app, or "approve" in chat) → `approval_status = 'approved'` → the task
-enters the normal reminder loop. Reject → `'rejected'` (kept for audit, hidden from the board).
+approves (tap the push → app, **tap Approve in Slack**, or "approve" in chat) → `approval_status =
+'approved'` → the task enters the normal reminder loop. Reject → `'rejected'` (kept for audit, hidden
+from the board). All three surfaces flip the same column via `updateTask`.
+
+## Slack interactive approvals (optional)
+
+When `SLACK_BOT_TOKEN` + `SLACK_APPROVAL_CHANNEL` are set, `propose_task` also posts an Approve/Reject
+card to Slack. Tapping a button calls **`POST /slack/interactivity`** (`api/slack-interactivity.js`),
+which verifies the request with `SLACK_SIGNING_SECRET` (HMAC-SHA256 over `v0:${ts}:${rawBody}`, 5-min
+replay window), flips `approval_status`, logs to `claude_actions` (`payload.via = 'slack'`), and
+replaces the Slack message with the outcome. If Slack env is absent the whole feature is a no-op.
+
+**One-time Slack app setup:**
+1. <https://api.slack.com/apps> → **Create New App** → *From scratch* → pick Matt's workspace.
+2. **OAuth & Permissions** → Bot Token Scopes → add **`chat:write`** → *Install to Workspace* → copy
+   the **Bot User OAuth Token** (`xoxb-…`) → `SLACK_BOT_TOKEN`.
+3. **Basic Information** → copy the **Signing Secret** → `SLACK_SIGNING_SECRET`.
+4. **Interactivity & Shortcuts** → toggle **On** → Request URL =
+   `https://core-quest-at9i.vercel.app/slack/interactivity` → Save.
+5. Invite the bot to the target channel (`/invite @YourApp`) and set `SLACK_APPROVAL_CHANNEL` to that
+   channel id (`C0…`), or a user id for a DM.
+6. Add the three env vars to the **mcp-server** Vercel project and redeploy.
 
 ## Run locally
 
@@ -63,10 +83,11 @@ in production `api/mcp.js` and `api/health.js` call the shared handler in `src/h
    - `MCP_SHARED_SECRET` (a long random string; reused in the connector URL)
    - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (same triplet as the frontend /
      `dispatch-reminders` — mismatch silently breaks push)
+   - *(optional)* `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET`, `SLACK_APPROVAL_CHANNEL` (see Slack section)
 4. Deploy. Verify `https://<project>.vercel.app/health` → `{"ok":true}`.
 
-`vercel.json` rewrites `/mcp/:secret` → `/api/mcp/:secret`, `/mcp` → `/api/mcp`, and `/health` →
-`/api/health`.
+`vercel.json` rewrites `/mcp/:secret` → `/api/mcp?pathsecret=:secret`, `/mcp` → `/api/mcp`,
+`/slack/interactivity` → `/api/slack-interactivity`, and `/health` → `/api/health`.
 
 ## Register as a Claude connector
 
@@ -78,7 +99,8 @@ https://core-quest-at9i.vercel.app/mcp/<MCP_SHARED_SECRET>
 
 **Why the path, not `?key=`:** Claude's desktop custom-connector UI strips query strings and can't set
 custom headers, so it can only authenticate via what's in the URL path. The `/mcp/<secret>` route
-(`api/mcp/[secret].js`) returns **404** (never 401) on a wrong/missing secret — a 401 is what makes the
+(handled by `api/mcp.js` via the `?pathsecret=` rewrite) returns **404** (never 401) on a wrong/missing
+secret — a 401 is what makes the
 connector try an OAuth discovery flow this server doesn't implement, which surfaces as "Couldn't
 connect." Effectively the full URL *is* the credential (treat it like a private share link).
 
