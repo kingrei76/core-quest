@@ -9,7 +9,7 @@
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { buildServer } from './server.js'
 import { config } from './config.js'
-import { verifyAccessToken } from './oauth.js'
+import { verifyAccessToken, oauthDebug } from './oauth.js'
 
 // Shared-secret gate. Accepts `Authorization: Bearer <secret>`, the
 // `x-mcp-key` header, a `?key=` query param, or a valid OAuth-issued access
@@ -73,6 +73,9 @@ export async function runMcp(req, res, body) {
 // returns 404 (never 401) on a bad secret so the connector won't try OAuth.
 export async function handleMcp(req, res, body) {
   if (!authorized(req)) {
+    const header = req.headers['authorization'] || ''
+    const hasBearer = /^Bearer\s+/i.test(header)
+    await oauthDebug(hasBearer ? 'mcp_401_bad_token' : 'mcp_401_no_token', { method: body?.method })
     res.setHeader('WWW-Authenticate', wwwAuthenticate(req))
     res.status(401).json({
       jsonrpc: '2.0',
@@ -81,5 +84,6 @@ export async function handleMcp(req, res, body) {
     })
     return
   }
+  await oauthDebug('mcp_authorized', { method: body?.method })
   return runMcp(req, res, body)
 }
