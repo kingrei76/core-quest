@@ -18,7 +18,6 @@
 
 import crypto from 'crypto'
 import { config } from './config.js'
-import { logAction } from './supabase.js'
 
 const KEY = config.sharedSecret || 'dev-insecure-key'
 const CODE_TTL_MS = 10 * 60 * 1000 // 10 minutes
@@ -109,18 +108,6 @@ export function passwordOk(input) {
   const a = Buffer.from(String(input))
   const b = Buffer.from(config.sharedSecret)
   return a.length === b.length && crypto.timingSafeEqual(a, b)
-}
-
-// TEMPORARY diagnostic trail: writes each OAuth step to claude_actions so we can
-// see (via Supabase) exactly where a connector handshake fails — without needing
-// Vercel logs. Logs only non-sensitive metadata (booleans, hosts), never tokens,
-// codes, or passwords. Remove once the connector is confirmed working.
-export async function oauthDebug(step, details = {}) {
-  try {
-    await logAction('oauth_debug', { summary: step, payload: { step, ...details, at: new Date().toISOString() } })
-  } catch {
-    /* best-effort */
-  }
 }
 
 // Only allow redirecting back to https endpoints or localhost loopbacks.

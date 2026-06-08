@@ -19,16 +19,7 @@ import {
   pkceMatches,
   passwordOk,
   redirectAllowed,
-  oauthDebug,
 } from '../src/oauth.js'
-
-const host = (uri) => {
-  try {
-    return new URL(uri).host
-  } catch {
-    return null
-  }
-}
 
 function baseUrl(req) {
   const proto = req.headers['x-forwarded-proto'] || 'https'
@@ -102,7 +93,6 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return json(res, 405, { error: 'method_not_allowed' })
     const meta = req.body || {}
     const redirectUris = Array.isArray(meta.redirect_uris) ? meta.redirect_uris : []
-    await oauthDebug('register', { redirect_uri_hosts: redirectUris.map(host), client_name: meta.client_name })
     // Single-tenant: we don't persist clients, so issue an opaque id and echo back.
     return json(res, 201, {
       client_id: 'cq_' + crypto.randomBytes(12).toString('hex'),
@@ -122,11 +112,6 @@ export default async function handler(req, res) {
 
     // Show the login form on GET (or re-show with an error on bad POST).
     if (req.method === 'GET') {
-      await oauthDebug('authorize_get', {
-        has_challenge: Boolean(values.code_challenge),
-        redirect_host: host(values.redirect_uri),
-        client_id: values.client_id,
-      })
       cors(res)
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
       return res.status(200).send(loginPage(values))
@@ -140,19 +125,15 @@ export default async function handler(req, res) {
     }
 
     if (!values.redirect_uri || !redirectAllowed(values.redirect_uri)) {
-      await oauthDebug('authorize_post_bad_redirect', { redirect_host: host(values.redirect_uri) })
       return renderError('Invalid redirect URI.')
     }
     if (!values.code_challenge) {
-      await oauthDebug('authorize_post_no_challenge', {})
       return renderError('Missing PKCE challenge from the client.')
     }
     if (!passwordOk(src.password)) {
-      await oauthDebug('authorize_post_bad_password', { password_provided: Boolean(src.password) })
       return renderError('Incorrect password. Try again.')
     }
 
-    await oauthDebug('authorize_post_ok', { redirect_host: host(values.redirect_uri) })
     const code = issueCode({ codeChallenge: values.code_challenge, redirectUri: values.redirect_uri })
     const dest = new URL(values.redirect_uri)
     dest.searchParams.set('code', code)
@@ -166,23 +147,16 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return json(res, 405, { error: 'method_not_allowed' })
     const body = req.body || {}
     if (body.grant_type !== 'authorization_code') {
-      await oauthDebug('token_bad_grant', { grant_type: body.grant_type })
       return json(res, 400, { error: 'unsupported_grant_type' })
     }
     const code = verifyCode(body.code)
-    if (!code) {
-      await oauthDebug('token_invalid_code', { has_code: Boolean(body.code) })
-      return json(res, 400, { error: 'invalid_grant' })
-    }
+    if (!code) return json(res, 400, { error: 'invalid_grant' })
     if (body.redirect_uri && body.redirect_uri !== code.ru) {
-      await oauthDebug('token_redirect_mismatch', { sent_host: host(body.redirect_uri), expected_host: host(code.ru) })
       return json(res, 400, { error: 'invalid_grant', error_description: 'redirect_uri mismatch' })
     }
     if (!pkceMatches(body.code_verifier, code.cc)) {
-      await oauthDebug('token_pkce_fail', { has_verifier: Boolean(body.code_verifier) })
       return json(res, 400, { error: 'invalid_grant', error_description: 'PKCE verification failed' })
     }
-    await oauthDebug('token_ok', {})
     return json(res, 200, {
       access_token: issueAccessToken(),
       token_type: 'Bearer',
