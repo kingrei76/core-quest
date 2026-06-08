@@ -24,6 +24,7 @@ function fmtTask(q) {
   if (q.due_date) bits.push(`due ${q.due_date}`)
   if (q.category) bits.push(q.category)
   if (q.difficulty) bits.push(q.difficulty)
+  if (q.priority) bits.push(`${q.priority} priority`)
   if (q.approval_status && q.approval_status !== 'approved') bits.push(`[${q.approval_status}]`)
   if (q.status && q.status !== 'available') bits.push(q.status)
   const src = q.external_source ? ` ⟨${q.external_source}⟩` : ''
@@ -99,6 +100,7 @@ export function buildServer() {
         description: z.string().optional(),
         category: z.enum(VALID_CATEGORIES).default('household'),
         difficulty: z.enum(['trivial', 'easy', 'medium', 'hard', 'epic', 'legendary']).default('medium'),
+        priority: z.enum(['low', 'medium', 'high']).optional(),
         due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
         reminder_at: z.string().optional(),
         inbox_source_id: z.string().uuid().optional(),
@@ -122,6 +124,7 @@ export function buildServer() {
           ...(args.reasoning ? { reasoning: args.reasoning } : {}),
         },
       }
+      if (args.priority) row.priority = args.priority
       if (args.due_date) row.due_date = args.due_date
       if (args.reminder_at) row.reminder_at = args.reminder_at
       if (args.inbox_source_id) row.inbox_source_id = args.inbox_source_id
@@ -243,6 +246,32 @@ export function buildServer() {
       if (!task) return text(`No task ${short(task_id)} found.`)
       await logAction('reschedule', { questId: task_id, summary: task.title, payload: updates })
       return text(`Rescheduled "${task.title}" (${short(task_id)}).`)
+    },
+  )
+
+  // --- set_priority --------------------------------------------------------
+  server.registerTool(
+    'set_priority',
+    {
+      title: 'Set task priority',
+      description:
+        'Set or clear a task\'s priority — "high", "medium", "low", or null to ' +
+        'clear it. Use this to surface what matters most; the board and briefing ' +
+        'weight higher-priority tasks.',
+      inputSchema: {
+        task_id: z.string().uuid(),
+        priority: z.enum(['low', 'medium', 'high']).nullable(),
+      },
+    },
+    async ({ task_id, priority }) => {
+      const task = await updateTask(task_id, { priority })
+      if (!task) return text(`No task ${short(task_id)} found.`)
+      await logAction('set_priority', { questId: task_id, summary: task.title, payload: { priority } })
+      return text(
+        priority
+          ? `Set "${task.title}" (${short(task_id)}) to ${priority} priority.`
+          : `Cleared priority on "${task.title}" (${short(task_id)}).`,
+      )
     },
   )
 

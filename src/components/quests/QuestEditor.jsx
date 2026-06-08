@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { DIFFICULTIES } from '../../config/constants'
+import { DIFFICULTIES, PRIORITIES } from '../../config/constants'
 import { difficultyOptions } from '../../utils/categories'
 import { useCategories } from '../../hooks/useCategories'
 import { recurrenceOptions } from '../../utils/recurrence'
@@ -22,6 +22,7 @@ export default function QuestEditor({ quest, onSave, onClose }) {
   const [description, setDescription] = useState(quest.description || '')
   const [category, setCategory] = useState(quest.category || 'health')
   const [difficulty, setDifficulty] = useState(quest.difficulty || 'easy')
+  const [priority, setPriority] = useState(quest.priority || '')
   const [recurrence, setRecurrence] = useState(quest.recurrence || 'none')
   const [dueDate, setDueDate] = useState(quest.due_date || '')
   const initialReminder = splitReminder(quest.reminder_at)
@@ -45,6 +46,7 @@ export default function QuestEditor({ quest, onSave, onClose }) {
       category,
       difficulty,
       xp_value: DIFFICULTIES[difficulty].xp,
+      priority: priority || null,
       recurrence,
       due_date: dueDate || null,
       reminder_at: reminderDate && reminderTime ? new Date(`${reminderDate}T${reminderTime}`).toISOString() : null,
@@ -86,6 +88,12 @@ export default function QuestEditor({ quest, onSave, onClose }) {
               ))}
             </select>
           </div>
+          <select value={priority} onChange={(e) => setPriority(e.target.value)} className={styles.select}>
+            <option value="">No priority</option>
+            {Object.entries(PRIORITIES).map(([value, { label }]) => (
+              <option key={value} value={value}>{label} priority</option>
+            ))}
+          </select>
           <select value={recurrence} onChange={(e) => setRecurrence(e.target.value)} className={styles.select}>
             {recurrenceOptions.map(opt => (
               <option key={opt.value} value={opt.value}>
