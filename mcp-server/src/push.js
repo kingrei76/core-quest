@@ -8,8 +8,14 @@ import { config } from './config.js'
 
 let configured = false
 if (config.vapidPublic && config.vapidPrivate) {
-  webpush.setVapidDetails(config.vapidSubject, config.vapidPublic, config.vapidPrivate)
-  configured = true
+  try {
+    webpush.setVapidDetails(config.vapidSubject, config.vapidPublic, config.vapidPrivate)
+    configured = true
+  } catch (err) {
+    // Malformed VAPID keys must NOT crash the whole server at import time — that
+    // would 500 every /mcp request. Disable push instead; propose still works.
+    console.error('[push] invalid VAPID config — push disabled:', err?.message)
+  }
 } else {
   console.warn('[push] VAPID keys not set — push notifications disabled')
 }
