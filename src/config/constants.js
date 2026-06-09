@@ -17,6 +17,13 @@ export const CATEGORIES = {
   household:     { label: 'Household',     stat: 'vitality',  color: 'var(--color-household)' },
 }
 
+// Optional task priority (null = unset). Sortable, weighted by Claude.
+export const PRIORITIES = {
+  low:    { label: 'Low',    color: '#6b7280' },
+  medium: { label: 'Medium', color: '#f59e0b' },
+  high:   { label: 'High',   color: '#ef4444' },
+}
+
 // Quest statuses
 export const QUEST_STATUSES = {
   available:   { label: 'Available' },

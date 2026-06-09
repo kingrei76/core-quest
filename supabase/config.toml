@@ -5,3 +5,10 @@
 # JWT auth as of 2026-04). Function still uses SERVICE_ROLE internally
 # to read/write the database.
 verify_jwt = false
+
+[functions.morning-digest]
+# Cron-driven (0 9 * * * and 0 10 * * * UTC = 5am America/New_York across
+# EDT/EST). Same rationale as dispatch-reminders: pg_cron calls it with the
+# service-role key, so platform JWT verification is off and the function
+# uses SERVICE_ROLE internally.
+verify_jwt = false

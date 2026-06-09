@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
-import { DIFFICULTIES, RECURRENCES } from '../../config/constants'
+import { DIFFICULTIES, RECURRENCES, PRIORITIES } from '../../config/constants'
 import { isRecurring } from '../../utils/recurrence'
 import { useCategories } from '../../hooks/useCategories'
 import { startOfToday } from '../../utils/buckets'
@@ -44,6 +44,7 @@ export default function QuestRow({
 
   const category = categoryLookup[quest.category]
   const difficulty = DIFFICULTIES[quest.difficulty]
+  const priority = PRIORITIES[quest.priority]
   const isActive = quest.status === 'available' || quest.status === 'in_progress'
   const isCompleted = quest.status === 'completed'
   const isFailed = quest.status === 'failed'
@@ -144,6 +145,11 @@ export default function QuestRow({
                 {difficulty && (
                   <span className={styles.chip} style={{ '--chip-color': difficulty.color }}>
                     {difficulty.label}
+                  </span>
+                )}
+                {priority && (
+                  <span className={styles.chip} style={{ '--chip-color': priority.color }}>
+                    {quest.priority === 'high' ? '⏫ ' : quest.priority === 'medium' ? '↑ ' : ''}{priority.label}
                   </span>
                 )}
                 {isRecurring(quest) && (
