@@ -1,0 +1,37 @@
+# Continuous Integration — the automatic "robot checklist".
+# Runs on every pull request and on every push to main. If lint or tests fail,
+# the run goes red and the PR shows it can't be safely merged.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Lint & test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Lint is advisory for now: the existing codebase has pre-existing
+      # warnings we haven't cleaned up yet, so we don't want them blocking the
+      # test gate. `continue-on-error` lets the step report issues without
+      # failing the whole run. Flip this to blocking once lint is clean.
+      - name: Lint (advisory)
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Run tests
+        run: npm test
