@@ -25,6 +25,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install mcp-server dependencies
+        run: npm ci
+        working-directory: mcp-server
+
       # Lint is advisory for now: the existing codebase has pre-existing
       # warnings we haven't cleaned up yet, so we don't want them blocking the
       # test gate. `continue-on-error` lets the step report issues without
