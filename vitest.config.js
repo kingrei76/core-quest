@@ -7,6 +7,6 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['src/**/*.{test,spec}.{js,jsx}'],
+    include: ['src/**/*.{test,spec}.{js,jsx}', 'mcp-server/src/**/*.{test,spec}.{js,jsx}'],
   },
 })
