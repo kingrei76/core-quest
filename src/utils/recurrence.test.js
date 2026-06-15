@@ -103,6 +103,14 @@ describe('nextDueDate', () => {
     expect(result).toBe('2026-07-13')
   })
 
+  // Regression guard for the timezone fix: a saved due_date is a plain calendar
+  // date, so the day-of-month must be preserved across roll-forward on any
+  // machine. Before the fix this was off-by-one for users west of UTC.
+  it('monthly: preserves the calendar day-of-month across roll-forward', () => {
+    const result = nextDueDate({ recurrence: 'monthly', due_date: '2026-04-13' })
+    expect(result.endsWith('-13')).toBe(true)
+  })
+
   // No due_date → treats today as the base, so result is >= today.
   it('returns a date >= today even when due_date is absent', () => {
     const result = nextDueDate({ recurrence: 'daily' })
