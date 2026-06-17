@@ -191,7 +191,7 @@ describe('propose_task', () => {
   })
 
   it('marks the inbox source item processed when inbox_source_id is provided', async () => {
-    const inboxId = 'eeeeeeee-0000-0000-0000-000000000005'
+    const inboxId = 'eeeeeeee-0000-4000-8000-000000000005'
     markInboxProcessed.mockResolvedValue(undefined)
 
     await withClient((c) =>
@@ -239,7 +239,7 @@ describe('propose_task', () => {
 // ---------------------------------------------------------------------------
 
 describe('approve_task', () => {
-  const taskId = 'ffffffff-0000-0000-0000-000000000006'
+  const taskId = 'ffffffff-0000-4000-8000-000000000006'
 
   it('sets approval_status to approved and returns a confirmation', async () => {
     getTask.mockResolvedValue({ id: taskId, title: 'Pay electricity bill' })
@@ -280,7 +280,7 @@ describe('approve_task', () => {
 // ---------------------------------------------------------------------------
 
 describe('complete_task', () => {
-  const taskId = '11111111-0000-0000-0000-000000000007'
+  const taskId = '11111111-0000-4000-8000-000000000007'
 
   it('marks the task completed and returns a confirmation', async () => {
     updateTask.mockResolvedValue({ id: taskId, title: 'Mow the lawn' })
