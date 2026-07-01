@@ -21,6 +21,17 @@ export function todayStr() {
   }).format(new Date())
 }
 
+// The Monday (YYYY-MM-DD) of the week containing today, in the user's timezone.
+// This is the value the weekly PLAN stamps into quests.focus_week; the daily
+// read and DEBRIEF filter on focus_week = mondayStr().
+export function mondayStr() {
+  const d = new Date(todayStr() + 'T00:00:00Z') // anchor at UTC midnight; date-only math
+  const dow = d.getUTCDay()                      // 0=Sun … 6=Sat
+  const diff = dow === 0 ? -6 : 1 - dow          // days back to Monday
+  d.setUTCDate(d.getUTCDate() + diff)
+  return d.toISOString().slice(0, 10)
+}
+
 const ACTIVE = ['available', 'in_progress']
 
 // --- reads -----------------------------------------------------------------
@@ -43,6 +54,16 @@ export async function listTasks(view = 'active', limit = 50) {
     case 'upcoming':
       q = q.eq('approval_status', 'approved').in('status', ACTIVE).gt('due_date', today)
         .order('due_date', { ascending: true })
+      break
+    case 'planned_today':
+      // Day-slotted for today (set during the Monday plan). The daily read.
+      q = q.eq('approval_status', 'approved').in('status', ACTIVE).eq('planned_day', today)
+        .order('reminder_at', { ascending: true, nullsFirst: false })
+      break
+    case 'focus':
+      // This week's focus list (stamped by the Monday plan).
+      q = q.eq('approval_status', 'approved').in('status', ACTIVE).eq('focus_week', mondayStr())
+        .order('planned_day', { ascending: true, nullsFirst: false })
       break
     case 'all':
       q = q.order('created_at', { ascending: false })
@@ -80,6 +101,48 @@ export async function getTask(taskId) {
     .maybeSingle()
   if (error) throw new Error(error.message)
   return data
+}
+
+// Rank Matt's open tasks to answer "what's next?" — returns them ordered most-
+// urgent-first, each tagged with a short reason. The ranking mirrors how Matt
+// works the day: the time block he's in now > today's day-slots > overdue >
+// this week's focus > due today > everything else. Within a tier, higher
+// priority and earlier dates win.
+export async function getRankedNext() {
+  const today = todayStr()
+  const monday = mondayStr()
+  const now = new Date()
+
+  const { data, error } = await admin
+    .from('quests')
+    .select('*')
+    .eq('user_id', UID)
+    .eq('approval_status', 'approved')
+    .in('status', ACTIVE)
+  if (error) throw new Error(error.message)
+
+  const prioRank = { high: 0, medium: 1, low: 2 }
+  const pr = (t) => (t.priority in prioRank ? prioRank[t.priority] : 3)
+
+  const classify = (t) => {
+    const slotDue = t.reminder_at && new Date(t.reminder_at) <= now
+    if (slotDue) return { tier: 1, reason: 'in your time-slot now' }
+    if (t.planned_day === today) return { tier: 2, reason: 'slotted for today' }
+    if (t.due_date && t.due_date < today) return { tier: 3, reason: `overdue (due ${t.due_date})` }
+    if (t.focus_week === monday) return { tier: 4, reason: 'this week’s focus' }
+    if (t.due_date === today) return { tier: 5, reason: 'due today' }
+    return { tier: 6, reason: 'available' }
+  }
+
+  const tiebreak = (t) => t.reminder_at || (t.due_date ? t.due_date + 'T23:59' : '9999')
+
+  return (data ?? [])
+    .map((t) => ({ ...t, ...classify(t) }))
+    .sort((a, b) =>
+      a.tier - b.tier ||
+      pr(a) - pr(b) ||
+      (tiebreak(a) < tiebreak(b) ? -1 : tiebreak(a) > tiebreak(b) ? 1 : 0),
+    )
 }
 
 // --- writes ----------------------------------------------------------------

@@ -34,6 +34,8 @@ vi.mock('./supabase.js', () => ({
   markInboxProcessed: vi.fn(),
   logAction: vi.fn(),
   todayStr: vi.fn(() => '2026-06-14'),
+  mondayStr: vi.fn(() => '2026-06-08'), // the Monday of 2026-06-14's week
+  getRankedNext: vi.fn(),
 }))
 
 vi.mock('./push.js', () => ({
@@ -55,6 +57,7 @@ import {
   logAction,
   markInboxProcessed,
   getInbox,
+  getRankedNext,
 } from './supabase.js'
 
 // Wire a fresh server + in-memory client pair, run fn(client), then close.
@@ -373,5 +376,89 @@ describe('get_inbox', () => {
     const text = await withClient((c) => c.callTool({ name: 'get_inbox', arguments: {} }).then(resultText))
 
     expect(text).toContain('empty')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// slot_task
+// ---------------------------------------------------------------------------
+
+describe('slot_task', () => {
+  const taskId = '33333333-0000-4000-8000-000000000009'
+
+  it('updates planned_day, reminder_at and priority together', async () => {
+    updateTask.mockResolvedValue({ id: taskId, title: 'Call Travis', planned_day: '2026-06-16' })
+
+    await withClient((c) =>
+      c.callTool({
+        name: 'slot_task',
+        arguments: {
+          task_id: taskId,
+          planned_day: '2026-06-16',
+          reminder_at: '2026-06-16T14:00:00-06:00',
+          priority: 'high',
+        },
+      }),
+    )
+
+    expect(updateTask).toHaveBeenCalledWith(taskId, {
+      planned_day: '2026-06-16',
+      reminder_at: '2026-06-16T14:00:00-06:00',
+      priority: 'high',
+    })
+    expect(logAction).toHaveBeenCalledWith('slot', expect.objectContaining({ questId: taskId }))
+  })
+
+  it('resolves focus_week="auto" to the current Monday', async () => {
+    updateTask.mockResolvedValue({ id: taskId, title: 'Plan me' })
+
+    await withClient((c) =>
+      c.callTool({ name: 'slot_task', arguments: { task_id: taskId, focus_week: 'auto' } }),
+    )
+
+    expect(updateTask).toHaveBeenCalledWith(taskId, { focus_week: '2026-06-08' })
+  })
+
+  it('reports when nothing was passed to slot', async () => {
+    const text = await withClient((c) =>
+      c.callTool({ name: 'slot_task', arguments: { task_id: taskId } }).then(resultText),
+    )
+
+    expect(updateTask).not.toHaveBeenCalled()
+    expect(text).toContain('Nothing to slot')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// whats_next
+// ---------------------------------------------------------------------------
+
+describe('whats_next', () => {
+  it('returns the top-ranked task plus alternates with reasons', async () => {
+    getRankedNext.mockResolvedValue([
+      { id: 'aaaaaaaa-0000-4000-8000-000000000101', title: 'Ship Leavitt demo', reason: 'slotted for today', category: 'leavitt' },
+      { id: 'bbbbbbbb-0000-4000-8000-000000000102', title: 'Call Josh about insurance', reason: 'overdue (due 2026-05-10)' },
+      { id: 'cccccccc-0000-4000-8000-000000000103', title: 'Draft Tu Clean invoice', reason: 'this week’s focus' },
+    ])
+
+    const text = await withClient((c) =>
+      c.callTool({ name: 'whats_next', arguments: {} }).then(resultText),
+    )
+
+    expect(text).toContain('Next: Ship Leavitt demo')
+    expect(text).toContain('slotted for today')
+    // default alternates = 2
+    expect(text).toContain('Call Josh about insurance')
+    expect(text).toContain('Draft Tu Clean invoice')
+  })
+
+  it('returns an all-clear message when nothing is open', async () => {
+    getRankedNext.mockResolvedValue([])
+
+    const text = await withClient((c) =>
+      c.callTool({ name: 'whats_next', arguments: {} }).then(resultText),
+    )
+
+    expect(text).toContain('clear')
   })
 })

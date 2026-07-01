@@ -3,7 +3,7 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { DIFFICULTY_XP, VALID_CATEGORIES, config } from './config.js'
+import { DIFFICULTY_XP, config } from './config.js'
 import {
   listTasks,
   getInbox,
@@ -13,14 +13,29 @@ import {
   markInboxProcessed,
   logAction,
   todayStr,
+  mondayStr,
+  getRankedNext,
 } from './supabase.js'
 import { sendPushToUser } from './push.js'
 import { postApprovalCard } from './slack.js'
 
 const short = (id) => (id ? String(id).slice(0, 8) : '?')
 
+// HH:MM (user tz) for a reminder timestamp, used to show the time-slot.
+function slotTime(reminderAt) {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: config.userTz, hour: 'numeric', minute: '2-digit',
+    }).format(new Date(reminderAt))
+  } catch {
+    return null
+  }
+}
+
 function fmtTask(q) {
   const bits = []
+  if (q.planned_day) bits.push(`slot ${q.planned_day}`)
+  if (q.reminder_at) { const t = slotTime(q.reminder_at); if (t) bits.push(`@ ${t}`) }
   if (q.due_date) bits.push(`due ${q.due_date}`)
   if (q.category) bits.push(q.category)
   if (q.difficulty) bits.push(q.difficulty)
@@ -52,10 +67,13 @@ export function buildServer() {
       title: 'List tasks',
       description:
         'List Matt\'s tasks by view: "today" (due today), "overdue", "upcoming", ' +
-        '"pending" (proposed, awaiting his approval), "active" (all approved & open), ' +
-        'or "all". Use this to see what is on his plate.',
+        '"planned_today" (day-slotted for today — the daily read), "focus" (this ' +
+        'week\'s focus list), "pending" (proposed, awaiting his approval), "active" ' +
+        '(all approved & open), or "all". Use this to see what is on his plate.',
       inputSchema: {
-        view: z.enum(['today', 'overdue', 'upcoming', 'pending', 'active', 'all']).default('active'),
+        view: z
+          .enum(['today', 'overdue', 'upcoming', 'planned_today', 'focus', 'pending', 'active', 'all'])
+          .default('active'),
         limit: z.number().int().min(1).max(200).default(50),
       },
     },
@@ -100,7 +118,11 @@ export function buildServer() {
       inputSchema: {
         title: z.string().min(1),
         description: z.string().optional(),
-        category: z.enum(VALID_CATEGORIES).default('household'),
+        // "Area" = a business/client (e.g. leavitt, tu-clean, mtk, ezcoupons,
+        // saasless) OR a personal life category (health, money, relationships,
+        // intelligence, household). Free-form so Claude can route to the right
+        // business; unknown keys still render (the app falls back gracefully).
+        category: z.string().default('household'),
         difficulty: z.enum(['trivial', 'easy', 'medium', 'hard', 'epic', 'legendary']).default('medium'),
         priority: z.enum(['low', 'medium', 'high']).optional(),
         due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -326,6 +348,73 @@ export function buildServer() {
         sec('📅 Due today', today),
       ].join('\n')
       return text(body)
+    },
+  )
+
+  // --- slot_task -----------------------------------------------------------
+  server.registerTool(
+    'slot_task',
+    {
+      title: 'Slot a task into the week',
+      description:
+        'Place a task into Matt\'s week during planning. Set planned_day (YYYY-MM-DD, ' +
+        'the day he\'ll do it), reminder_at (ISO-8601 with offset — the time block, which ' +
+        'makes his phone ping at that time), focus_week (the Monday YYYY-MM-DD to add it to ' +
+        'this week\'s focus list; omit and pass focus_week="auto" to use the current week), ' +
+        'and/or priority. Pass any subset; null clears a field. This is how the Monday PLAN ' +
+        'builds the week and how tasks get their intraday reminders.',
+      inputSchema: {
+        task_id: z.string().uuid(),
+        planned_day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+        reminder_at: z.string().nullable().optional(),
+        focus_week: z.union([z.literal('auto'), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).nullable().optional(),
+        priority: z.enum(['low', 'medium', 'high']).nullable().optional(),
+      },
+    },
+    async ({ task_id, planned_day, reminder_at, focus_week, priority }) => {
+      const updates = {}
+      if (planned_day !== undefined) updates.planned_day = planned_day
+      if (reminder_at !== undefined) updates.reminder_at = reminder_at
+      if (priority !== undefined) updates.priority = priority
+      if (focus_week !== undefined) updates.focus_week = focus_week === 'auto' ? mondayStr() : focus_week
+      if (Object.keys(updates).length === 0) {
+        return text('Nothing to slot — pass planned_day, reminder_at, focus_week, or priority.')
+      }
+      const task = await updateTask(task_id, updates)
+      if (!task) return text(`No task ${short(task_id)} found.`)
+      await logAction('slot', { questId: task_id, summary: task.title, payload: updates })
+      return text(`Slotted "${task.title}" (${short(task_id)}):\n` + fmtTask(task))
+    },
+  )
+
+  // --- whats_next ----------------------------------------------------------
+  server.registerTool(
+    'whats_next',
+    {
+      title: 'What should I do next?',
+      description:
+        'Answer "what\'s next?" with the single best task to do right now, plus a ' +
+        'couple of alternates. Ranks by where Matt is in the day: the time-slot he\'s ' +
+        'in now > today\'s day-slots > overdue > this week\'s focus > due today. Use ' +
+        'this whenever Matt asks what to work on.',
+      inputSchema: {
+        alternates: z.number().int().min(0).max(5).default(2),
+      },
+    },
+    async ({ alternates }) => {
+      const ranked = await getRankedNext()
+      if (ranked.length === 0) return text('Nothing open right now — you\'re clear. 🎉')
+      const top = ranked[0]
+      const rest = ranked.slice(1, 1 + alternates)
+      const lines = [
+        `▶️ Next: ${top.title} (${short(top.id)}) — ${top.reason}`,
+        `   ${fmtTask(top).replace(/^• /, '')}`,
+      ]
+      if (rest.length) {
+        lines.push('', 'Then:')
+        for (const t of rest) lines.push(`  • ${t.title} (${short(t.id)}) — ${t.reason}`)
+      }
+      return text(lines.join('\n'))
     },
   )
 
