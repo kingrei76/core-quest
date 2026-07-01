@@ -88,13 +88,15 @@ export function buildServer() {
   server.registerTool(
     'propose_task',
     {
-      title: 'Propose a task',
+      title: 'Create a task',
       description:
-        'Create a task for Matt to approve. It is saved as PROPOSED (not official) ' +
-        'and immediately pushes an approval notification to his phone. He approves ' +
-        'or rejects it. Pass inbox_source_id when promoting an inbox item (it will ' +
-        'be marked processed). Dates: due_date is YYYY-MM-DD; reminder_at is full ' +
-        'ISO-8601 with offset, e.g. 2026-06-01T14:30:00-04:00.',
+        'Create a task for Matt. By default it is added DIRECTLY (approved, no ' +
+        'approval step) and pushes a "task added" notification to his phone — this ' +
+        'is what Matt wants. Set auto_approve=false only if you want him to approve ' +
+        'it first (saved PROPOSED, sends an Approve/Reject card). Pass inbox_source_id ' +
+        'when promoting an inbox item (it will be marked processed). Dates: due_date ' +
+        'is YYYY-MM-DD; reminder_at is full ISO-8601 with offset, e.g. ' +
+        '2026-07-01T14:30:00-06:00 (a reminder_at makes the task ping him at that time).',
       inputSchema: {
         title: z.string().min(1),
         description: z.string().optional(),
@@ -103,12 +105,14 @@ export function buildServer() {
         priority: z.enum(['low', 'medium', 'high']).optional(),
         due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
         reminder_at: z.string().optional(),
+        auto_approve: z.boolean().default(true),
         inbox_source_id: z.string().uuid().optional(),
         source: z.string().default('chat'),
         reasoning: z.string().optional(),
       },
     },
     async (args) => {
+      const direct = args.auto_approve !== false
       const row = {
         title: args.title,
         description: args.description ?? null,
@@ -116,7 +120,7 @@ export function buildServer() {
         difficulty: args.difficulty,
         xp_value: DIFFICULTY_XP[args.difficulty] ?? 25,
         status: 'available',
-        approval_status: 'proposed',
+        approval_status: direct ? 'approved' : 'proposed',
         external_source: args.source,
         metadata: {
           created_by: 'claude',
@@ -143,19 +147,19 @@ export function buildServer() {
         await markInboxProcessed(args.inbox_source_id)
       }
 
-      // Fire the approval push and the Slack card in parallel — both are
-      // best-effort surfaces for the same approve/reject decision.
+      // Direct-add: one "task added" FYI push, no approval card.
+      // auto_approve=false: the legacy approve/reject flow (push + Slack card).
       const [push, slack] = await Promise.all([
         sendPushToUser({
-          title: 'Approve task?',
+          title: direct ? '✅ Task added' : 'Approve task?',
           body: task.title,
           url: '/quests',
-          tag: `approve-${task.id}`,
+          tag: direct ? `task-${task.id}` : `approve-${task.id}`,
         }),
-        postApprovalCard(task),
+        direct ? Promise.resolve({ posted: false }) : postApprovalCard(task),
       ])
 
-      await logAction('propose', {
+      await logAction(direct ? 'create' : 'propose', {
         questId: task.id,
         summary: task.title,
         payload: { ...row, push, slack },
@@ -167,7 +171,11 @@ export function buildServer() {
           ? ' (no registered devices)'
           : ` (pushed to ${push.sent} device${push.sent === 1 ? '' : 's'})`
       const slackNote = slack.posted ? ' + Slack card' : ''
-      return text(`Proposed "${task.title}" (${short(task.id)}) — awaiting approval${pushNote}${slackNote}.`)
+      return text(
+        direct
+          ? `Added "${task.title}" (${short(task.id)})${pushNote}.`
+          : `Proposed "${task.title}" (${short(task.id)}) — awaiting approval${pushNote}${slackNote}.`,
+      )
     },
   )
 

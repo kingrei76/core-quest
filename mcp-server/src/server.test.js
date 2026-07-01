@@ -161,7 +161,9 @@ describe('propose_task', () => {
     logAction.mockResolvedValue(undefined)
   })
 
-  it('creates a proposed task and returns a confirmation with the title', async () => {
+  it('creates a task directly (approved) by default and confirms it was added', async () => {
+    insertProposed.mockResolvedValue({ ...newTask, approval_status: 'approved' })
+
     const text = await withClient((c) =>
       c
         .callTool({
@@ -174,9 +176,25 @@ describe('propose_task', () => {
     expect(insertProposed).toHaveBeenCalledOnce()
     const inserted = insertProposed.mock.calls[0][0]
     expect(inserted.title).toBe('Fix leaky faucet')
-    expect(inserted.approval_status).toBe('proposed')
+    // Default is direct-add: task is created approved, no approval step.
+    expect(inserted.approval_status).toBe('approved')
     expect(inserted.xp_value).toBe(10) // easy = 10 XP per DIFFICULTY_XP
     expect(text).toContain('Fix leaky faucet')
+    expect(text).toContain('Added')
+  })
+
+  it('creates a PROPOSED task awaiting approval when auto_approve is false', async () => {
+    const text = await withClient((c) =>
+      c
+        .callTool({
+          name: 'propose_task',
+          arguments: { title: 'Fix leaky faucet', auto_approve: false },
+        })
+        .then(resultText),
+    )
+
+    const inserted = insertProposed.mock.calls[0][0]
+    expect(inserted.approval_status).toBe('proposed')
     expect(text).toContain('awaiting approval')
   })
 
@@ -212,9 +230,17 @@ describe('propose_task', () => {
     expect(markInboxProcessed).not.toHaveBeenCalled()
   })
 
-  it('logs the propose action after creating the task', async () => {
+  it('logs the create action after adding the task directly', async () => {
     await withClient((c) =>
       c.callTool({ name: 'propose_task', arguments: { title: 'Log me' } }),
+    )
+
+    expect(logAction).toHaveBeenCalledWith('create', expect.objectContaining({ questId: newTask.id }))
+  })
+
+  it('logs the propose action when auto_approve is false', async () => {
+    await withClient((c) =>
+      c.callTool({ name: 'propose_task', arguments: { title: 'Log me', auto_approve: false } }),
     )
 
     expect(logAction).toHaveBeenCalledWith('propose', expect.objectContaining({ questId: newTask.id }))

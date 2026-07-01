@@ -38,7 +38,8 @@ export const config = {
   slackApprovalChannel: process.env.SLACK_APPROVAL_CHANNEL || null,
 
   // Timezone used to resolve "today" / "overdue" against date-only due_dates.
-  userTz: process.env.USER_TZ || 'America/New_York',
+  // Matt is in Mountain time; the USER_TZ env var can still override.
+  userTz: process.env.USER_TZ || 'America/Denver',
 
   // Deep-link base path the app opens when a push is tapped.
   appUrl: process.env.APP_URL || 'https://core-quest.vercel.app',

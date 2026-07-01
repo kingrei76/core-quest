@@ -21,8 +21,8 @@ const VAPID_PUBLIC = Deno.env.get('VAPID_PUBLIC_KEY')!
 const VAPID_PRIVATE = Deno.env.get('VAPID_PRIVATE_KEY')!
 const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') || 'mailto:hello@corequest.app'
 // Effectively single-tenant, but kept user-scoped to match the rest of the
-// schema. America/New_York mirrors the MCP server's `config.userTz`.
-const USER_TZ = Deno.env.get('USER_TZ') || 'America/New_York'
+// schema. America/Denver mirrors the MCP server's `config.userTz` (Matt = Mountain).
+const USER_TZ = Deno.env.get('USER_TZ') || 'America/Denver'
 
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE)
 
