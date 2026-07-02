@@ -124,10 +124,20 @@ export async function getRankedNext() {
   const prioRank = { high: 0, medium: 1, low: 2 }
   const pr = (t) => (t.priority in prioRank ? prioRank[t.priority] : 3)
 
+  // The local (user-tz) calendar date of a timestamp — so a *today* time-slot is
+  // distinguished from a stale reminder left over from a past day.
+  const localDate = (iso) =>
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: config.userTz, year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(new Date(iso))
+
   const classify = (t) => {
-    const slotDue = t.reminder_at && new Date(t.reminder_at) <= now
-    if (slotDue) return { tier: 1, reason: 'in your time-slot now' }
+    const remIsToday = t.reminder_at && localDate(t.reminder_at) === today
+    // A time block that has ARRIVED today — the thing you should be doing right now.
+    if (remIsToday && new Date(t.reminder_at) <= now) return { tier: 1, reason: 'in your time-slot now' }
     if (t.planned_day === today) return { tier: 2, reason: 'slotted for today' }
+    if (remIsToday) return { tier: 2, reason: 'time-slotted later today' }
+    // Stale reminders (from a past day) correctly fall through to overdue here.
     if (t.due_date && t.due_date < today) return { tier: 3, reason: `overdue (due ${t.due_date})` }
     if (t.focus_week === monday) return { tier: 4, reason: 'this week’s focus' }
     if (t.due_date === today) return { tier: 5, reason: 'due today' }
