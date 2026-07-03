@@ -16,6 +16,16 @@ Add an entry whenever you discover a non-obvious convention, gotcha, or invarian
 - **Categories**: built-in categories live in `src/config/constants.js` `CATEGORIES`; custom user categories live in `user_categories`. Read the merged list via `useCategories().visible`. Don't lookup `CATEGORIES[quest.category]` directly — use `useCategories().lookup[quest.category]` so user-defined keys resolve.
 - **Difficulty rank** for sort: `{ trivial: 0, easy: 1, medium: 2, hard: 3, epic: 4, legendary: 5 }`. Defined in `src/utils/challenges.js`; if you need it elsewhere, inline the constant rather than restructuring that file.
 
+## Working style — how to approach non-trivial work
+
+Meta-principles behind the `.claude/` skills. These apply **even when no skill fires** — they're the durable working method, captured in prose (not pinned to any model) so they survive a model swap.
+
+- **Explore cheaply and in parallel before committing.** On unfamiliar work, do a blindspot pass first (`.claude/agents/blindspot-pass.md`); generate several *divergent* directions (`brainstorm`) and throwaway HTML mocks (`prototype`, in `public/prototypes/`) before wiring anything real. Diverge before you converge.
+- **Reference source, not memory.** Point at the file / line / commit / doc that is the real source of truth (e.g. cite `1f49491` for the realtime fix, the migration file for a schema fact). If you can't cite it, flag it as an assumption to verify.
+- **Deviate conservatively, and log it.** When reality contradicts the plan, pick the smallest-blast-radius reversible option, record it under "Deviations" in the feature's `docs/design/<feature>-implementation-notes.md`, and keep going. Escalate (`interview`, one question at a time) only when the conservative choice is itself architecture-changing.
+- **Verify before merge.** A green automated check is not proof — see the checker's known UTC/env blind spot (`automation/charters/work-checker.md`). End substantial sessions with a what-changed report + quiz the user passes before merge (`quiz`).
+- **Mechanism:** these live as skills/subagents under `.claude/`. Prefer invoking them — `deliberate-build` orchestrates the whole chain and says which stages to skip for small tasks — over improvising a workflow.
+
 ## Server-change handoff (LOCAL CLAUDE)
 
 This project's backend lives in Supabase (database + Edge Functions). The **local** Claude Code on the user's Mac has a fully linked Supabase CLI (`supabase projects list` shows Core Quest linked). Schema migrations now live in `supabase/migrations/<timestamp>_<name>.sql` and apply via `supabase db push --linked` — no more dashboard copy-paste.

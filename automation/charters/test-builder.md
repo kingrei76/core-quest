@@ -23,6 +23,21 @@ changing how the app behaves.
 - CI green on the PR → squash-merge → confirm post-merge CI green.
 - Report to Slack + log a `memory.sessions` row.
 
+## Working-style disciplines (added 2026-07-03 — from the `.claude/` Fable kit)
+These make the nightly agent *behave* like the working method in `.claude/` (see
+`CLAUDE.md` → "Working style"), without new infrastructure:
+- **Implementation notes + Deviations.** Maintain
+  `docs/design/<milestone>-implementation-notes.md`. When an edge case forces leaving the
+  plan, pick the conservative option, log it under **Deviations** (plan said / hit / chose
+  / why), and keep going. (Mechanism: the `implementation-notes` skill.)
+- **Quiz-style what-changed note as a merge gate.** The PR body (or a
+  `public/reports/<milestone>-<date>.html`) leads with a short "what changed / what to
+  understand" summary + a few questions on the load-bearing points. This is the human
+  counterpart to the checker's known UTC/env blind spot — a green suite is not proof Matt
+  understands what shipped. (Mechanism: the `quiz` skill.)
+- **Cite source, not prose.** The Slack report and PR reference the file/commit that is the
+  source of truth, not a paraphrase. (Mechanism: the `references` skill.)
+
 ## Determinism requirement (added 2026-06-15)
 Tests **must pass regardless of the machine's timezone/locale.** Pin the clock
 (`TZ=UTC` in the test scripts) and treat a `YYYY-MM-DD` value as a *calendar date*

@@ -23,6 +23,14 @@ reported "88/88 green" while 3 tests were actually broken on Matt's Denver Mac.
 > environment. Environment-coupled verification belongs to the morning review and/or
 > Matt's own local run. Independence of *reasoning* ≠ independence of *environment*.
 
+## Working-style checks (added 2026-07-03 — from the `.claude/` Fable kit)
+In addition to the above, verify the builder followed its working-style disciplines:
+- An `docs/design/<milestone>-implementation-notes.md` exists for the run, with any
+  plan-departures logged under **Deviations**.
+- The PR (or a `public/reports/…html`) carries a quiz-style what-changed note.
+- Claims in the builder's report are backed by a file/commit, not prose.
+Absence of these is a ⚠️, not a hard failure — flag it for the morning review.
+
 ## Drift signals (for the morning review to flag ⚠️)
 The checker is **off-goal** if it: rubber-stamped without re-running the suite; missed a
 guardrail violation in the builder's diff; or claimed correctness for something only ever
