@@ -1,0 +1,129 @@
+# Blindspot Scout — the "after you build, look for what's next" robot.
+#
+# Fires every time something new lands on `main` (your deploy-as-test moment).
+# It does a READ-ONLY blindspot + brainstorm pass over just the files that
+# changed, then files a GitHub issue with 0-3 suggested follow-ups. It never
+# touches your code — see the `permissions:` block below, which is the real
+# guardrail (it literally cannot push commits).
+#
+# SAFE BY DEFAULT: this whole thing no-ops until you add an ANTHROPIC_API_KEY
+# repository secret. Until then every run skips instantly and costs nothing.
+# Setup steps are in docs/design/blindspot-scout-implementation-notes.md.
+name: Blindspot Scout
+
+on:
+  push:
+    branches: [main]
+    # Don't re-trigger on the scout's own outputs or on pure design docs —
+    # otherwise it would chase its own tail.
+    paths-ignore:
+      - 'public/reports/**'
+      - 'public/prototypes/**'
+      - 'public/pitches/**'
+
+# If two merges land close together, only scout the newest.
+concurrency:
+  group: blindspot-scout-${{ github.ref }}
+  cancel-in-progress: true
+
+# The hard guarantee that this is read-only w.r.t. your code: `contents: read`
+# means no commit it makes could ever be pushed. `issues: write` is the ONLY
+# mutation it's allowed — filing the follow-up issue.
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scout:
+    name: Blindspot + brainstorm on the merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code (with a bit of history for the diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Decide whether to run at all: skip when the API key is missing, or when
+      # the commit message says [skip scout].
+      - name: Should the scout run?
+        id: gate
+        env:
+          KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "No ANTHROPIC_API_KEY secret set — skipping (this is expected until you opt in)."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif printf '%s' "$MSG" | grep -qi '\[skip scout\]'; then
+            echo "Commit asked to skip the scout."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Work out which files this merge actually changed, so the scout looks at
+      # the right area instead of the whole repo (cheaper + more relevant).
+      - name: What changed in this merge?
+        id: diff
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          BEFORE='${{ github.event.before }}'
+          if [ -z "$BEFORE" ] || printf '%s' "$BEFORE" | grep -qE '^0+$'; then
+            RANGE="HEAD~1..HEAD"
+          else
+            RANGE="$BEFORE..${{ github.sha }}"
+          fi
+          FILES="$(git diff --name-only $RANGE | grep -vE '^(public/reports|public/prototypes|public/pitches)/' || true)"
+          {
+            echo "files<<EOF"
+            echo "$FILES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          if [ -z "$FILES" ]; then echo "code=false" >> "$GITHUB_OUTPUT"; else echo "code=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Run the blindspot scout
+        if: steps.gate.outputs.run == 'true' && steps.diff.outputs.code == 'true'
+        uses: anthropics/claude-code-action@v1
+        env:
+          # `gh` (used to file the issue) reads this. Scoped by the permissions
+          # block above to issues-only.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Read-only tools + Bash (needed only so `gh issue create` can run).
+          # File edits are impossible: no Write/Edit here AND contents:read above.
+          # To run this cheaper, add e.g. `--model claude-haiku-4-5-20251001`.
+          claude_args: "--allowedTools Read,Grep,Glob,Bash --max-turns 12"
+          prompt: |
+            A new build just merged to `main`. Run the blindspot-scout follow-up
+            described in automation/charters/blindspot-scout.md, following the
+            method in .claude/agents/blindspot-pass.md and .claude/agents/brainstorm.md.
+
+            You are READ-ONLY on the codebase. Do not edit files, do not commit,
+            do not push. Your only allowed mutation is filing ONE GitHub issue.
+
+            Files changed in this merge:
+            ${{ steps.diff.outputs.files }}
+
+            Steps:
+            1. Read the changed files and the area around them. Cross-reference
+               CLAUDE.md "Known gotchas" and any relevant docs/design/*.md.
+            2. Do a brief blindspot pass (what a follow-up should watch out for)
+               and a brainstorm of concrete follow-up work, cheapest to most
+               ambitious. Respect the repo boundaries: the game/combat layer is
+               PARKED (don't propose game work); flag anything needing a schema
+               migration (this runs in CI and can't reach Supabase).
+            3. Propose 0-3 follow-ups. Quality over quantity — if nothing is
+               worth doing, file nothing and stop.
+            4. If there is at least one worthwhile follow-up, file ONE issue with:
+                 gh issue create \
+                   --title "Scout: follow-ups after <short description of the merge>" \
+                   --label "blindspot-scout" \
+                   --body "<markdown: what merged, then each follow-up with effort
+                            (small/med/large), why, and the file/commit that
+                            motivates it — cite source, not prose>"
+               If the "blindspot-scout" label doesn't exist, create it first with
+               `gh label create blindspot-scout -c FBCA04 -d "Auto-filed follow-up scouting" || true`.
+            5. End with a one-line summary of what you filed (or that you filed
+               nothing and why).

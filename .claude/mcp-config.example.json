@@ -1,0 +1,12 @@
+{
+  "__comment": "OPTIONAL upgrade for .github/workflows/blindspot-scout.yml. By default the scout files a GitHub issue (no extra secrets). To instead land follow-ups in the Core Quest task inbox via propose_task (approval_status='proposed'), copy this to .claude/mcp-config.json, set an MCP_SHARED_SECRET repo secret, and in the workflow: (a) add `--mcp-config .claude/mcp-config.json` to claude_args, (b) add `--allowedTools ...,mcp__core-quest__propose_task`, (c) set `env: MCP_SHARED_SECRET: ${{ secrets.MCP_SHARED_SECRET }}` on the Claude step, and (d) change the prompt's step 4 to call propose_task instead of `gh issue create`. Host is public (see mcp-server/README.md); only the shared secret is sensitive. Claude Code expands ${MCP_SHARED_SECRET} from env.",
+  "mcpServers": {
+    "core-quest": {
+      "type": "http",
+      "url": "https://core-quest-at9i.vercel.app/mcp",
+      "headers": {
+        "x-mcp-key": "${MCP_SHARED_SECRET}"
+      }
+    }
+  }
+}
