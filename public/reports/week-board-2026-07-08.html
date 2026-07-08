@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week Board — What Changed + Quiz (v2)</title>
+<style>
+  :root {
+    --bg: #1a1a2e; --bg2: #16213e; --card: #0f3460;
+    --ink: #e8e8e8; --ink2: #a0a0b0; --muted: #6a6a7a;
+    --gold: #ffd700; --green: #00d4aa; --red: #e94560; --border: #2a3a5e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem 1rem 4rem; background: var(--bg); color: var(--ink);
+         font: 16px/1.6 system-ui, -apple-system, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; color: var(--gold); line-height: 1.25; margin: 0 0 .3rem; }
+  h2 { font-size: .95rem; text-transform: uppercase; letter-spacing: .07em; color: var(--gold);
+       border-bottom: 1px solid var(--border); padding-bottom: .3rem; margin: 2rem 0 .8rem; }
+  p, li { color: var(--ink); }
+  .sub { color: var(--ink2); margin: 0 0 1rem; }
+  .gate { background: var(--bg2); border: 1px solid var(--red); border-radius: 8px;
+          padding: .8rem 1rem; font-weight: 600; }
+  .new { color: var(--green); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em;
+         border: 1px solid var(--green); border-radius: 999px; padding: 0 .5em; margin-right: .4em; }
+  ul { padding-left: 1.25rem; } li { margin-bottom: .5rem; }
+  b { color: var(--gold); font-weight: 600; }
+  .q { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+       padding: .8rem 1rem; margin-bottom: .7rem; }
+  .q p { margin: 0 0 .5rem; font-weight: 600; }
+  details { margin-top: .3rem; }
+  summary { cursor: pointer; color: var(--green); font-size: .85rem; }
+  details p { font-weight: 400; color: var(--ink2); margin: .5rem 0 0; }
+  code { background: var(--card); border-radius: 4px; padding: .05em .35em; font-size: .85em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Week Board — v2, with your changes</h1>
+  <p class="sub">Updated after your feedback: editable cards, backlog on the board, unfinished-task pressing, timezone that travels. July 8, 2026.</p>
+
+  <div class="gate">⛔ Merge gate: ships to your phone after you've read this and answered the quiz in chat, in your own words.</div>
+
+  <h2>What changed since v1 (your four asks)</h2>
+  <ul>
+    <li><span class="new">New</span><b>Tap a card to move it.</b> Any card — on a day, unslotted, or backlog — opens a sheet: pick a day (Mon–Fri or "no day"), pick a block (🌅/🌆/anytime), tap Move. It updates the task's day and reminder instantly. I chose tap-over-drag because dragging on a scrolling phone screen misfires constantly; tap is reliable. Drag can still come later.
+      <br><b>One honest catch:</b> the app can't touch your Google Calendar, so when YOU move a card, the 🔨 calendar block doesn't move at that instant — the next routine check-in (7am daily) now has a reconcile step that finds every mismatched 🔨 event and moves it to match the board. Task, reminder, and board are instant; the calendar mirror catches up by morning.</li>
+    <li><span class="new">New</span><b>Backlog on the board.</b> Below the week you now see "Backlog — not in this week": every open task that isn't in the focus week. Tap one → "Add to this week" with a day and block. The Quests tab remains the full-management view; the board's backlog is for slotting.</li>
+    <li><span class="new">New</span><b>Unfinished tasks get pressed, not shuffled.</b> Done tasks show grayed with a ✓ (unchanged). But now, when the 7am routine finds yesterday's task still open, it doesn't just quietly roll it — the DM names it, says where it was tentatively re-slotted, and asks you straight: <i>"when will you actually finish this?"</i> Reply in the Claude app to lock a real time. If something slips twice, it says so.</li>
+    <li><span class="new">New</span><b>Timezone travels with you.</b> Blocks and times on the board now display in whatever timezone your phone is in — this was easy, one-line-per-function easy, because a reminder is an absolute moment and the board just renders it locally. Your <b>meetings need nothing</b>: Google Calendar events shift automatically when your phone changes timezone; that's built into how calendars work. The one thing that stays Denver-pinned is <i>which Monday a week belongs to</i>, so the board and the routines never disagree about what "this week" means. The routines also still CREATE reminders anchored to Denver 9am/1pm — making them schedule around your travel location is the genuinely hard part (they'd need to know where you are), so that's not in this build.</li>
+  </ul>
+
+  <h2>Unchanged from v1</h2>
+  <ul>
+    <li>Weekend shows the week that just ended (next week doesn't exist until Monday 7am); ▸ peeks ahead.</li>
+    <li>Mon–Fri swipe columns opening on today, area colors, priority flags, live updates when a routine or chat moves something.</li>
+    <li>No database changes. 120 automated tests green (24 new for this feature), production build clean.</li>
+  </ul>
+
+  <h2>Quiz — 6 questions (3 changed)</h2>
+
+  <div class="q"><p>1. You tap "Fix Phones" and move it from Tuesday morning to Wednesday afternoon on the board. What's true immediately, and what's true only after the next 7am check-in?</p>
+    <details><summary>Check your answer</summary><p>Immediately: the task's day and reminder change — your phone will now ping Wednesday ~1pm, and the board shows it Wednesday 🌆. By next 7am: the routine notices the 🔨 calendar event still sits on Tuesday and moves it to Wednesday 1–3pm. The calendar mirror lags; the task never does.</p></details></div>
+
+  <div class="q"><p>2. Where do you find a task that ISN'T part of this week's plan, and how do you get it onto Thursday morning?</p>
+    <details><summary>Check your answer</summary><p>Scroll below the week to "Backlog — not in this week." Tap the task → pick Thu → 🌅 Morning → "Add to this week." It joins the focus week with a Thursday 9am reminder.</p></details></div>
+
+  <div class="q"><p>3. What single thing decides a task's block, and what else does that same thing control?</p>
+    <details><summary>Check your answer</summary><p>The reminder time: before noon = 🌅, noon+ = 🌆. It's also when your phone pings — moving blocks moves the ping.</p></details></div>
+
+  <div class="q"><p>4. Tuesday's task didn't get done. What exactly does Wednesday 7am look like now?</p>
+    <details><summary>Check your answer</summary><p>The DM has a "🔁 Unfinished" section: it names the task, says it was planned Tuesday and is still open, says where it was tentatively moved (e.g. today 9am), and asks you directly when you'll actually finish it — you reply in the Claude app to commit to a time. It won't slide by silently, and a second slip gets called out.</p></details></div>
+
+  <div class="q"><p>5. You're in New York. A task has a 9:00am Denver reminder, and you have a 4pm Denver meeting. What does each show on your phone?</p>
+    <details><summary>Check your answer</summary><p>The task shows 11:00a New York time on the board (and pings at that moment) — the board renders in your phone's timezone. The meeting shows 6pm — Google Calendar does that shift natively, nothing we built. Both are the same absolute moment they always were.</p></details></div>
+
+  <div class="q"><p>6. It's Saturday. Which week does the board show and why — and what stays pinned to Denver even when you travel?</p>
+    <details><summary>Check your answer</summary><p>The week that just ended, because next week's plan doesn't exist until Monday 7am (▸ peeks ahead). "Which Monday a week belongs to" stays Denver-pinned so the board and routines always agree on what "this week" means — only the display of times follows your phone.</p></details></div>
+
+  <p class="sub" style="margin-top:1.5rem">Reply in chat with your answers, or "quiz passed, merge it." Anything surprising — say which and I'll re-explain before shipping.</p>
+</main>
+</body>
+</html>

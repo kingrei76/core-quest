@@ -8,6 +8,7 @@ import AuthCallback from './components/auth/AuthCallback'
 import OnboardingPage from './components/onboarding/OnboardingPage'
 import InboxPage from './components/inbox/InboxPage'
 import QuestsPage from './components/quests/QuestsPage'
+import WeekPage from './components/week/WeekPage'
 import CharacterPage from './components/character/CharacterPage'
 import NotesPage from './components/notes/NotesPage'
 import EncounterSpike from './components/spike/EncounterSpike'
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="/inbox" replace /> },
       { path: 'inbox', element: <InboxPage /> },
       { path: 'quests', element: <QuestsPage /> },
+      { path: 'week', element: <WeekPage /> },
       { path: 'character', element: <CharacterPage /> },
       { path: 'notes', element: <NotesPage /> },
       { path: 'combat', element: <CombatPage /> },

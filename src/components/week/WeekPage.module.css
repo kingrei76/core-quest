@@ -1,0 +1,78 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--color-gold);
+  margin: 0;
+}
+
+.weekNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.chevron {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  line-height: 1;
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
+}
+
+.chevron:hover {
+  border-color: var(--color-gold);
+}
+
+.chevron:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 1px;
+}
+
+.weekLabel {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.thisWeek {
+  color: var(--color-text-muted);
+}
+
+/* Mobile: horizontal snap track of day columns; page never scrolls sideways */
+.track {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 calc(-1 * var(--space-md));
+  padding: 0 var(--space-md) var(--space-xs);
+}
+
+.rail {
+  margin-top: var(--space-sm);
+}
+
+@media (min-width: 769px) {
+  .track {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    overflow-x: visible;
+    margin: 0;
+    padding: 0;
+  }
+}
