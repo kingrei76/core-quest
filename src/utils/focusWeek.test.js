@@ -5,9 +5,12 @@ import {
   addDays,
   weekdayDates,
   blockFor,
+  blockReminderISO,
   reminderLabel,
   boardQuests,
+  splitBoard,
   groupFocusWeek,
+  deviceTz,
 } from './focusWeek'
 
 // These tests guard the Week board's date semantics, which MUST match the MCP
@@ -83,6 +86,37 @@ describe('blockFor', () => {
   it('no reminder_at means anytime', () => {
     expect(blockFor({ reminder_at: null }, DENVER)).toBe('anytime')
     expect(blockFor({}, DENVER)).toBe('anytime')
+  })
+})
+
+describe('blockReminderISO', () => {
+  it('round-trips: a morning drop buckets back to morning in the device tz', () => {
+    // Environment-agnostic: the anchor is written in device-local time, so
+    // reading it back in the device tz must land in the same block — whether
+    // this runs under CI's TZ=UTC or on a Denver Mac.
+    const tz = deviceTz()
+    expect(blockFor({ reminder_at: blockReminderISO('2026-07-08', 'morning') }, tz)).toBe('morning')
+    expect(blockFor({ reminder_at: blockReminderISO('2026-07-08', 'afternoon') }, tz)).toBe('afternoon')
+  })
+
+  it('anytime means no reminder', () => {
+    expect(blockReminderISO('2026-07-08', 'anytime')).toBeNull()
+  })
+})
+
+describe('splitBoard', () => {
+  it('separates this week from the active backlog, excluding completed backlog', () => {
+    const monday = '2026-07-06'
+    const rows = [
+      { id: 'wk-open', status: 'available', focus_week: monday },
+      { id: 'wk-done', status: 'completed', focus_week: monday },
+      { id: 'bl-open', status: 'available', focus_week: null },
+      { id: 'bl-other-week', status: 'in_progress', focus_week: '2026-06-29' },
+      { id: 'bl-done', status: 'completed', focus_week: null }, // old history — hidden
+    ]
+    const { week, backlog } = splitBoard(rows, monday)
+    expect(week.map(q => q.id)).toEqual(['wk-open', 'wk-done'])
+    expect(backlog.map(q => q.id)).toEqual(['bl-open', 'bl-other-week'])
   })
 })
 

@@ -21,6 +21,16 @@
   background: var(--area-color, var(--color-border));
 }
 
+.tappable {
+  cursor: pointer;
+}
+
+.tappable:hover,
+.tappable:focus-visible {
+  border-color: var(--color-gold);
+  outline: none;
+}
+
 .done {
   opacity: 0.55;
 }

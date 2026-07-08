@@ -12,6 +12,14 @@
 
 export const FOCUS_TZ = 'America/Denver' // paired with mcp-server/src/config.js userTz
 
+// The device's timezone — block DISPLAY follows the phone (a reminder pings at
+// an absolute moment; the board shows that moment in local time wherever Matt
+// is). Week IDENTITY (focusMonday) stays pinned to FOCUS_TZ so the board always
+// agrees with slot_task about which Monday a week belongs to.
+export function deviceTz() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || FOCUS_TZ
+}
+
 export const BLOCK_ORDER = ['morning', 'afternoon', 'anytime']
 
 export const BLOCK_LABELS = {
@@ -63,13 +71,24 @@ function localHour(timestamp, tz) {
 
 // Block convention (shared with the cloud routines): reminder_at before noon
 // local = morning block, noon or later = afternoon, no reminder = anytime.
-export function blockFor(quest, tz = FOCUS_TZ) {
+// Defaults to the DEVICE timezone so the board travels with the phone.
+export function blockFor(quest, tz = deviceTz()) {
   if (!quest.reminder_at) return 'anytime'
   return localHour(quest.reminder_at, tz) < 12 ? 'morning' : 'afternoon'
 }
 
+// Reminder timestamp for dropping a task into a block on `dateStr`, using the
+// DEVICE'S local 9:00 / 13:00 anchors (per the CLAUDE.md reminder rule:
+// new Date('YYYY-MM-DDTHH:mm').toISOString() carries the local offset).
+// 'anytime' means no reminder.
+export function blockReminderISO(dateStr, block) {
+  if (block === 'anytime') return null
+  const anchor = block === 'morning' ? '09:00' : '13:00'
+  return new Date(`${dateStr}T${anchor}`).toISOString()
+}
+
 // Short time label for a card, e.g. "9:00a" / "1:30p", in tz.
-export function reminderLabel(quest, tz = FOCUS_TZ) {
+export function reminderLabel(quest, tz = deviceTz()) {
   if (!quest.reminder_at) return null
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: tz,
@@ -93,13 +112,24 @@ export function boardQuests(quests) {
   )
 }
 
+// Split a mixed fetch into this focus week's rows vs the active backlog
+// (approved active tasks NOT in this week — shown on the board so Matt can
+// slot them into the week himself).
+export function splitBoard(quests, monday) {
+  const board = boardQuests(quests)
+  return {
+    week: board.filter(q => q.focus_week === monday),
+    backlog: board.filter(q => q.focus_week !== monday && q.status !== 'completed'),
+  }
+}
+
 // Group a focus week's quests into day columns + rails.
 // Returns {
 //   days: [{ date, blocks: { morning: [], afternoon: [], anytime: [] } } ×5],
 //   unslotted: [],  // in the focus week but no planned_day
 //   offWeek: [],    // planned_day outside this Mon–Fri (e.g. weekend)
 // }
-export function groupFocusWeek(quests, monday, tz = FOCUS_TZ) {
+export function groupFocusWeek(quests, monday, tz = deviceTz()) {
   const days = weekdayDates(monday).map(date => ({
     date,
     blocks: { morning: [], afternoon: [], anytime: [] },

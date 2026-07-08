@@ -13,7 +13,7 @@ function dateChipLabel(dateStr) {
   })
 }
 
-export default function WeekCard({ quest, showDate = false }) {
+export default function WeekCard({ quest, showDate = false, onClick }) {
   const { lookup } = useCategories()
   const category = lookup[quest.category]
   const priority = quest.priority ? PRIORITIES[quest.priority] : null
@@ -22,8 +22,12 @@ export default function WeekCard({ quest, showDate = false }) {
 
   return (
     <div
-      className={`${styles.card} ${done ? styles.done : ''}`}
+      className={`${styles.card} ${done ? styles.done : ''} ${onClick ? styles.tappable : ''}`}
       style={category ? { '--area-color': category.color } : undefined}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } } : undefined}
     >
       <span className={`${styles.check} ${done ? styles.checkDone : ''}`}>
         {done ? '✓' : ''}

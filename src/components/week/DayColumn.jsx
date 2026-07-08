@@ -5,7 +5,7 @@ import styles from './DayColumn.module.css'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-export default function DayColumn({ date, blocks, isToday, columnRef }) {
+export default function DayColumn({ date, blocks, isToday, columnRef, onCardClick }) {
   const d = new Date(date + 'T00:00:00Z')
   const dayName = DAY_NAMES[d.getUTCDay()]
   const dayNum = d.getUTCDate()
@@ -36,7 +36,9 @@ export default function DayColumn({ date, blocks, isToday, columnRef }) {
                 tone={key === 'anytime' ? 'muted' : 'default'}
                 count={blocks[key].length}
               >
-                {blocks[key].map(q => <WeekCard key={q.id} quest={q} />)}
+                {blocks[key].map(q => (
+                  <WeekCard key={q.id} quest={q} onClick={() => onCardClick(q)} />
+                ))}
               </QuestSection>
             </div>
           )

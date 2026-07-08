@@ -40,6 +40,25 @@
   effect even after matching `useQuests` — verified the rule flags `useQuests`
   and `useCategories` identically (pre-existing, lint is advisory in CI). Left
   as-is for consistency rather than restructuring every data hook in one PR.
+- 2026-07-08 · Matt rejected read-only v1 at the quiz gate. Added tap-to-move
+  (MoveSheet: day + block chips) instead of drag — more reliable on touch, no
+  new dependency. Board writes only focus_week/planned_day/reminder_at (the
+  slot_task fields); the [core-quest] calendar event is reconciled by the daily
+  routine's new STEP 4 on its next run (the app has no Calendar access). Known
+  lag: board edit → calendar catches up next morning at 7am.
+- 2026-07-08 · Matt wants backlog visible on the board. Widened the hook query
+  with `.or(focus_week.eq.<monday>,status.in.(available,in_progress))` — week
+  rows (incl. completed) plus all open tasks; completed history outside the
+  week stays excluded. `splitBoard()` divides them client-side.
+- 2026-07-08 · Timezone follows the phone for block DISPLAY (blockFor /
+  reminderLabel default to `deviceTz()`), while week IDENTITY (focusMonday)
+  stays pinned to Denver so the board and slot_task always agree on which
+  Monday a week is. MoveSheet anchors (9:00/13:00) are device-local per the
+  CLAUDE.md reminder rule. Google Calendar meetings shift timezone natively —
+  nothing to build there.
+- 2026-07-08 · Daily read prompt now (a) presses for a commitment on unfinished
+  tasks instead of silently rolling, and (b) reconciles all [core-quest] events
+  against current task state, catching up board edits.
 
 ## Open questions
 

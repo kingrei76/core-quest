@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback, useId } from 'react'
 import { supabase } from '../config/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
-// Week-scoped read for the Week board: only rows the Monday routine stamped
-// into this focus week (rides the (user_id, focus_week) partial index).
-// Deliberately separate from useQuests, which fetches everything and carries
-// mutation logic the board doesn't need. Approval/parent filtering happens
-// client-side in boardQuests() to stay null-tolerant like QuestsPage.
+// Data for the Week board: this focus week's rows (including completed, shown
+// checked-off) PLUS the active backlog, so tasks can be slotted from the board.
+// Deliberately separate from useQuests, which carries quest-lifecycle mutation
+// logic the board doesn't need. Approval/parent filtering happens client-side
+// in boardQuests()/splitBoard() to stay null-tolerant like QuestsPage.
 export function useFocusWeek(weekMonday) {
   const { user } = useAuth()
   const id = useId()
@@ -19,8 +19,10 @@ export function useFocusWeek(weekMonday) {
       .from('quests')
       .select('*')
       .eq('user_id', user.id)
-      .eq('focus_week', weekMonday)
       .in('status', ['available', 'in_progress', 'completed'])
+      // this week's rows (any board status) OR still-open rows from any week —
+      // completed history outside this week stays excluded
+      .or(`focus_week.eq.${weekMonday},status.in.(available,in_progress)`)
       .order('planned_day', { ascending: true, nullsFirst: false })
       .order('reminder_at', { ascending: true, nullsFirst: false })
     if (data) setQuests(data)
@@ -51,5 +53,20 @@ export function useFocusWeek(weekMonday) {
     return () => supabase.removeChannel(channel)
   }, [user, id, fetchWeek])
 
-  return { quests, loading, refresh: fetchWeek }
+  // Board edits: move a task between days/blocks or in/out of the focus week.
+  // Writes scheduling fields only (focus_week / planned_day / reminder_at) —
+  // the same fields slot_task touches. The routines reconcile the matching
+  // [core-quest] calendar event on their next run.
+  const moveQuest = async (questId, updates) => {
+    const { data, error } = await supabase
+      .from('quests')
+      .update(updates)
+      .eq('id', questId)
+      .select()
+      .single()
+    if (!error) fetchWeek()
+    return { data, error }
+  }
+
+  return { quests, loading, moveQuest, refresh: fetchWeek }
 }

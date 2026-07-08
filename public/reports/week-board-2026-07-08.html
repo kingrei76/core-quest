@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Week Board — What Changed + Quiz</title>
+<title>Week Board — What Changed + Quiz (v2)</title>
 <style>
   :root {
     --bg: #1a1a2e; --bg2: #16213e; --card: #0f3460;
@@ -21,6 +21,8 @@
   .sub { color: var(--ink2); margin: 0 0 1rem; }
   .gate { background: var(--bg2); border: 1px solid var(--red); border-radius: 8px;
           padding: .8rem 1rem; font-weight: 600; }
+  .new { color: var(--green); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em;
+         border: 1px solid var(--green); border-radius: 999px; padding: 0 .5em; margin-right: .4em; }
   ul { padding-left: 1.25rem; } li { margin-bottom: .5rem; }
   b { color: var(--gold); font-weight: 600; }
   .q { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
@@ -34,61 +36,48 @@
 </head>
 <body>
 <main>
-  <h1>The Week Board</h1>
-  <p class="sub">What changed, why it's built this way, and a short quiz. July 8, 2026.</p>
+  <h1>The Week Board — v2, with your changes</h1>
+  <p class="sub">Updated after your feedback: editable cards, backlog on the board, unfinished-task pressing, timezone that travels. July 8, 2026.</p>
 
-  <div class="gate">⛔ Merge gate: this change ships to your phone only after you've read this and answered the quiz (in chat, in your own words — no grading, just checking it landed).</div>
+  <div class="gate">⛔ Merge gate: ships to your phone after you've read this and answered the quiz in chat, in your own words.</div>
 
-  <h2>Context — the mental model</h2>
+  <h2>What changed since v1 (your four asks)</h2>
   <ul>
-    <li>Every Monday at 7am, the planning routine stamps three things onto each chosen task: <b>which week</b> it belongs to, <b>which day</b>, and <b>a reminder time</b>. Until now that plan was only visible as a Slack message.</li>
-    <li>The Week board is a new screen in Core Quest that <b>reads those same three stamps</b> and draws them as your whiteboard: Monday–Friday columns, tasks grouped into blocks, colored by area.</li>
-    <li>The reminder time does double duty: it's <b>when your phone pings</b>, and it's <b>which block the task sits in</b> — before noon = 🌅 morning, noon or later = 🌆 afternoon, no reminder = "anytime" that day.</li>
+    <li><span class="new">New</span><b>Tap a card to move it.</b> Any card — on a day, unslotted, or backlog — opens a sheet: pick a day (Mon–Fri or "no day"), pick a block (🌅/🌆/anytime), tap Move. It updates the task's day and reminder instantly. I chose tap-over-drag because dragging on a scrolling phone screen misfires constantly; tap is reliable. Drag can still come later.
+      <br><b>One honest catch:</b> the app can't touch your Google Calendar, so when YOU move a card, the 🔨 calendar block doesn't move at that instant — the next routine check-in (7am daily) now has a reconcile step that finds every mismatched 🔨 event and moves it to match the board. Task, reminder, and board are instant; the calendar mirror catches up by morning.</li>
+    <li><span class="new">New</span><b>Backlog on the board.</b> Below the week you now see "Backlog — not in this week": every open task that isn't in the focus week. Tap one → "Add to this week" with a day and block. The Quests tab remains the full-management view; the board's backlog is for slotting.</li>
+    <li><span class="new">New</span><b>Unfinished tasks get pressed, not shuffled.</b> Done tasks show grayed with a ✓ (unchanged). But now, when the 7am routine finds yesterday's task still open, it doesn't just quietly roll it — the DM names it, says where it was tentatively re-slotted, and asks you straight: <i>"when will you actually finish this?"</i> Reply in the Claude app to lock a real time. If something slips twice, it says so.</li>
+    <li><span class="new">New</span><b>Timezone travels with you.</b> Blocks and times on the board now display in whatever timezone your phone is in — this was easy, one-line-per-function easy, because a reminder is an absolute moment and the board just renders it locally. Your <b>meetings need nothing</b>: Google Calendar events shift automatically when your phone changes timezone; that's built into how calendars work. The one thing that stays Denver-pinned is <i>which Monday a week belongs to</i>, so the board and the routines never disagree about what "this week" means. The routines also still CREATE reminders anchored to Denver 9am/1pm — making them schedule around your travel location is the genuinely hard part (they'd need to know where you are), so that's not in this build.</li>
   </ul>
 
-  <h2>Intuition — the non-obvious calls</h2>
+  <h2>Unchanged from v1</h2>
   <ul>
-    <li><b>The board copies the routine's date rules exactly</b> — including a quirky one: on Saturday and Sunday, "this week" still means the week that just ended. Why? Next week's plan doesn't exist until Monday 7am. If the board flipped to next week on Saturday, you'd see an empty board every weekend. Instead the weekend shows the finished week — done items checked off — and the ▸ arrow peeks ahead.</li>
-    <li><b>All time math is pinned to Denver time</b>, not whatever timezone your device happens to be in. A 9am Denver reminder is a morning task even if you're traveling. This also stops a subtle bug class where the automated tests (which run in a different timezone) would disagree with your Mac — the exact blind spot that bit this repo before.</li>
-    <li><b>Read-only on purpose.</b> Moving a task involves three linked updates (day stamp, reminder, calendar event) — that's Claude's job via chat/routines, which already does all three together. Drag-and-drop on the board would only do one and desync the rest. The markup is pre-wired for drag later if we want it.</li>
+    <li>Weekend shows the week that just ended (next week doesn't exist until Monday 7am); ▸ peeks ahead.</li>
+    <li>Mon–Fri swipe columns opening on today, area colors, priority flags, live updates when a routine or chat moves something.</li>
+    <li>No database changes. 120 automated tests green (24 new for this feature), production build clean.</li>
   </ul>
 
-  <h2>What was done — the diff in plain language</h2>
-  <ul>
-    <li><b>New "Week" tab</b> in the app nav (between Quests and Hero), on phone and desktop.</li>
-    <li><b>The board</b>: swipe through Mon–Fri columns (opens on today), each split into 🌅 / 🌆 / anytime. Cards show a colored area bar, the reminder time, and priority. ✓ Completed tasks stay visible, dimmed and checked — like circling a number off the whiteboard, not erasing it.</li>
-    <li><b>"Unslotted this week" rail</b> below: focus-week tasks with no day yet (plus anything parked on a weekend, with a date tag).</li>
-    <li><b>Live updates</b>: when a routine or a Claude chat re-slots something, the board changes in front of you — no refresh.</li>
-    <li><b>20 new automated tests</b> guard the date rules (weekend anchoring, the Denver-vs-UTC divergence, the noon boundary, done-tasks-stay-visible). Full suite: 116 passing. No database changes at all.</li>
-  </ul>
+  <h2>Quiz — 6 questions (3 changed)</h2>
 
-  <h2>Deviations from the plan</h2>
-  <ul>
-    <li>A newer code-quality rule flags the standard "fetch when the screen opens" pattern. Every existing data hook in the app uses that same pattern and gets the same advisory flag, so I matched the house style rather than restructuring all of them in this change. (Logged in the implementation notes.)</li>
-    <li>The plan worried 6 nav tabs wouldn't fit on a small phone; measured — they fit. Combat tab stays.</li>
-  </ul>
+  <div class="q"><p>1. You tap "Fix Phones" and move it from Tuesday morning to Wednesday afternoon on the board. What's true immediately, and what's true only after the next 7am check-in?</p>
+    <details><summary>Check your answer</summary><p>Immediately: the task's day and reminder change — your phone will now ping Wednesday ~1pm, and the board shows it Wednesday 🌆. By next 7am: the routine notices the 🔨 calendar event still sits on Tuesday and moves it to Wednesday 1–3pm. The calendar mirror lags; the task never does.</p></details></div>
 
-  <h2>Quiz — 6 questions</h2>
+  <div class="q"><p>2. Where do you find a task that ISN'T part of this week's plan, and how do you get it onto Thursday morning?</p>
+    <details><summary>Check your answer</summary><p>Scroll below the week to "Backlog — not in this week." Tap the task → pick Thu → 🌅 Morning → "Add to this week." It joins the focus week with a Thursday 9am reminder.</p></details></div>
 
-  <div class="q"><p>1. It's Saturday morning and you open the Week tab. Which week do you see, and how do you look at the coming week?</p>
-    <details><summary>Check your answer</summary><p>The week that just ended (with its checked-off items) — because next week's plan doesn't exist until Monday 7am. Tap ▸ to peek ahead; it'll mostly be empty until the routine runs.</p></details></div>
+  <div class="q"><p>3. What single thing decides a task's block, and what else does that same thing control?</p>
+    <details><summary>Check your answer</summary><p>The reminder time: before noon = 🌅, noon+ = 🌆. It's also when your phone pings — moving blocks moves the ping.</p></details></div>
 
-  <div class="q"><p>2. A task is in Core Quest but does NOT appear anywhere on the Week board — not even the unslotted rail. What does that mean, and where does it live?</p>
-    <details><summary>Check your answer</summary><p>It wasn't picked for this week's focus (no week stamp). It's backlog — it lives on the Quests tab. The Week board is only the curated week.</p></details></div>
+  <div class="q"><p>4. Tuesday's task didn't get done. What exactly does Wednesday 7am look like now?</p>
+    <details><summary>Check your answer</summary><p>The DM has a "🔁 Unfinished" section: it names the task, says it was planned Tuesday and is still open, says where it was tentatively moved (e.g. today 9am), and asks you directly when you'll actually finish it — you reply in the Claude app to commit to a time. It won't slide by silently, and a second slip gets called out.</p></details></div>
 
-  <div class="q"><p>3. What single thing decides whether a task sits in the 🌅 morning or 🌆 afternoon block — and what else does that same thing control?</p>
-    <details><summary>Check your answer</summary><p>The reminder time: before noon Denver = morning, noon+ = afternoon. The same timestamp is when your phone pings — so moving a task's block also moves its reminder.</p></details></div>
+  <div class="q"><p>5. You're in New York. A task has a 9:00am Denver reminder, and you have a 4pm Denver meeting. What does each show on your phone?</p>
+    <details><summary>Check your answer</summary><p>The task shows 11:00a New York time on the board (and pings at that moment) — the board renders in your phone's timezone. The meeting shows 6pm — Google Calendar does that shift natively, nothing we built. Both are the same absolute moment they always were.</p></details></div>
 
-  <div class="q"><p>4. You want to move "Fix Phones" from Tuesday morning to Wednesday afternoon. How do you do it, and why can't you drag it on the board?</p>
-    <details><summary>Check your answer</summary><p>Say it in the Claude app (or reply to a routine DM): "move Fix Phones to Wednesday afternoon." Claude updates the day, the reminder, AND the 🔨 calendar block together. The board is read-only in v1 because dragging would update only one of those three and desync the rest — it refreshes live once the change lands.</p></details></div>
+  <div class="q"><p>6. It's Saturday. Which week does the board show and why — and what stays pinned to Denver even when you travel?</p>
+    <details><summary>Check your answer</summary><p>The week that just ended, because next week's plan doesn't exist until Monday 7am (▸ peeks ahead). "Which Monday a week belongs to" stays Denver-pinned so the board and routines always agree on what "this week" means — only the display of times follows your phone.</p></details></div>
 
-  <div class="q"><p>5. You complete a task on Wednesday. What happens to it on the board?</p>
-    <details><summary>Check your answer</summary><p>It stays in its block, dimmed with a green ✓ — like a circled-out number on the whiteboard. It does not disappear; the week's history stays visible until the week rolls.</p></details></div>
-
-  <div class="q"><p>6. You're in New York on a Tuesday. A task has a 9:00am Denver reminder. Which block is it in, on your phone, in New York?</p>
-    <details><summary>Check your answer</summary><p>Still the 🌅 morning block. All block math is pinned to Denver time, not the device's timezone — the board always agrees with the routines.</p></details></div>
-
-  <p class="sub" style="margin-top:1.5rem">Reply in chat with your answers (or "quiz passed, merge it" once you're confident). If any answer surprises you, say which — I'll re-explain that piece before we ship.</p>
+  <p class="sub" style="margin-top:1.5rem">Reply in chat with your answers, or "quiz passed, merge it." Anything surprising — say which and I'll re-explain before shipping.</p>
 </main>
 </body>
 </html>
