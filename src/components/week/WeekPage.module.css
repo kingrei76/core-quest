@@ -48,6 +48,63 @@
   color: var(--color-text-secondary);
 }
 
+.viewToggle {
+  margin-left: auto;
+  display: flex;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.toggleBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  padding: var(--space-xs) var(--space-md);
+  cursor: pointer;
+}
+
+.toggleOn {
+  background: var(--color-bg-card);
+  color: var(--color-gold);
+}
+
+.reviewBanner {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-gold);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.reviewText {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.confirmBtn {
+  align-self: flex-start;
+  background: var(--color-gold);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-bg-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.confirmedNote {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-xp);
+}
+
 .thisWeek {
   color: var(--color-text-muted);
 }

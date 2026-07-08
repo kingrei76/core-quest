@@ -5,9 +5,11 @@ const NAV_ITEMS = [
   { to: '/inbox', label: 'Inbox', icon: '+ ' },
   { to: '/quests', label: 'Quests', icon: '\u2694' },
   { to: '/week', label: 'Week', icon: '\u{1F4C5}' },
+  { to: '/hq', label: 'HQ', icon: '\u{1F3F0}' },
   { to: '/character', label: 'Hero', icon: '\u{1F6E1}' },
   { to: '/notes', label: 'Notes', icon: '\u{1F4DC}' },
-  { to: '/combat', label: 'Combat', icon: '\u{1F300}' },
+  // Combat lives on the desktop sidebar; the game is parked and 7 tabs
+  // don't fit a 375px bar
 ]
 
 export default function BottomNav() {
