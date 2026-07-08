@@ -1,0 +1,60 @@
+.column {
+  flex: 0 0 78vw;
+  scroll-snap-align: start;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  min-height: 140px;
+}
+
+.today {
+  border-color: var(--color-gold);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding-bottom: var(--space-sm);
+}
+
+.dayName {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.today .dayName {
+  color: var(--color-gold);
+}
+
+.dayNum {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.todayTag {
+  margin-left: auto;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-bg-primary);
+  background: var(--color-gold);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin: var(--space-sm) 0 0;
+}
+
+@media (min-width: 769px) {
+  .column {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
