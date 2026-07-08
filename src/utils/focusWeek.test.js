@@ -10,6 +10,7 @@ import {
   boardQuests,
   splitBoard,
   groupFocusWeek,
+  groupByArea,
   deviceTz,
 } from './focusWeek'
 
@@ -147,6 +148,26 @@ describe('boardQuests', () => {
       { id: 4, status: 'available', parent_quest_id: 'abc' },
     ]
     expect(boardQuests(rows).map(q => q.id)).toEqual([1])
+  })
+})
+
+describe('groupByArea', () => {
+  it('groups week + backlog per category, slotted vs unslotted, most-involved first', () => {
+    const week = [
+      { id: 'a1', category: 'mtk', planned_day: '2026-07-06' },
+      { id: 'a2', category: 'mtk', planned_day: null },
+      { id: 'b1', category: 'tu-clean', planned_day: '2026-07-07' },
+    ]
+    const backlog = [
+      { id: 'a3', category: 'mtk' },
+      { id: 'c1', category: null }, // no area → 'other'
+    ]
+    const areas = groupByArea(week, backlog)
+    expect(areas.map(a => a.key)).toEqual(['mtk', 'tu-clean', 'other'])
+    const mtk = areas[0]
+    expect(mtk.slotted.map(q => q.id)).toEqual(['a1'])
+    expect(mtk.unslotted.map(q => q.id)).toEqual(['a2'])
+    expect(mtk.backlog.map(q => q.id)).toEqual(['a3'])
   })
 })
 

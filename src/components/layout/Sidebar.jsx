@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { to: '/inbox', label: 'Inbox', icon: '+' },
   { to: '/quests', label: 'Quests', icon: '\u2694' },
   { to: '/week', label: 'Week', icon: '\u{1F4C5}' },
+  { to: '/hq', label: 'HQ', icon: '\u{1F3F0}' },
   { to: '/character', label: 'Hero', icon: '\u{1F6E1}' },
   { to: '/notes', label: 'Notes', icon: '\u{1F4DC}' },
   { to: '/encounter', label: 'Spike', icon: '\u{1F300}' },

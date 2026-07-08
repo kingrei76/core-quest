@@ -123,6 +123,27 @@ export function splitBoard(quests, monday) {
   }
 }
 
+// Monday-review grouping: everything by AREA (category) — Matt's "babies" —
+// so the whole week can be inspected per area before it's confirmed.
+// Returns [{ key, slotted, unslotted, backlog }] sorted by week involvement.
+export function groupByArea(week, backlog) {
+  const areas = new Map()
+  const bucket = (key) => {
+    if (!areas.has(key)) areas.set(key, { key, slotted: [], unslotted: [], backlog: [] })
+    return areas.get(key)
+  }
+  for (const q of week) {
+    const area = bucket(q.category || 'other')
+    if (q.planned_day) area.slotted.push(q)
+    else area.unslotted.push(q)
+  }
+  for (const q of backlog) bucket(q.category || 'other').backlog.push(q)
+  return [...areas.values()].sort(
+    (a, b) =>
+      b.slotted.length + b.unslotted.length - (a.slotted.length + a.unslotted.length)
+  )
+}
+
 // Group a focus week's quests into day columns + rails.
 // Returns {
 //   days: [{ date, blocks: { morning: [], afternoon: [], anytime: [] } } ×5],

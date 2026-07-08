@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HQ + Monday Review — What Changed + Quiz</title>
+<style>
+  :root {
+    --bg: #1a1a2e; --bg2: #16213e; --card: #0f3460;
+    --ink: #e8e8e8; --ink2: #a0a0b0; --gold: #ffd700; --green: #00d4aa;
+    --red: #e94560; --border: #2a3a5e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem 1rem 4rem; background: var(--bg); color: var(--ink);
+         font: 16px/1.6 system-ui, -apple-system, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; color: var(--gold); line-height: 1.25; margin: 0 0 .3rem; }
+  h2 { font-size: .95rem; text-transform: uppercase; letter-spacing: .07em; color: var(--gold);
+       border-bottom: 1px solid var(--border); padding-bottom: .3rem; margin: 2rem 0 .8rem; }
+  .sub { color: var(--ink2); margin: 0 0 1rem; }
+  .gate { background: var(--bg2); border: 1px solid var(--red); border-radius: 8px;
+          padding: .8rem 1rem; font-weight: 600; }
+  ul { padding-left: 1.25rem; } li { margin-bottom: .5rem; }
+  b { color: var(--gold); font-weight: 600; }
+  .q { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+       padding: .8rem 1rem; margin-bottom: .7rem; }
+  .q p { margin: 0 0 .5rem; font-weight: 600; }
+  details { margin-top: .3rem; }
+  summary { cursor: pointer; color: var(--green); font-size: .85rem; }
+  details p { font-weight: 400; color: var(--ink2); margin: .5rem 0 0; }
+  code { background: var(--card); border-radius: 4px; padding: .05em .35em; font-size: .85em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>HQ + the Monday Review</h1>
+  <p class="sub">All your babies in one place, goals that steer the planner, and a week that waits for your eyes. July 8, 2026.</p>
+
+  <div class="gate">⛔ Two gates this time: (1) answer the quiz in chat, AND (2) run one command in your terminal — <code>! supabase db push --linked</code> — to apply the database update I'm not allowed to run for you. Then I merge.</div>
+
+  <h2>What's new</h2>
+  <ul>
+    <li><b>HQ tab</b> (🏰, next to Week): the big picture. Top: <b>Bottlenecks 🧱 and big goals 🎯</b> you type right there — mark them done or drop them anytime. Bottom: a <b>pulse card for every project</b> — status, next steps, blockers — read live from the same working memory your Claude sessions keep. You never edit pulse cards; working sessions do.</li>
+    <li><b>Your goals steer Monday.</b> The planner now reads your active goals and bottlenecks before anything else: bottlenecks are what it plans around and attacks first; the week's promises must visibly advance a goal, and the plan tags them ("→ advances: …").</li>
+    <li><b>The week arrives as a draft.</b> Monday's routine drafts and places everything, then marks the week "awaiting review." The Week tab opens in a new <b>By area view</b> — every one of your babies with its slotted work, its unslotted items, its backlog, and its memory pulse line — with a banner up top. You walk it, move whatever's wrong (tap-to-move works everywhere), then tap <b>"I've seen it all — start the week."</b> That flips you into working mode; the Tue–Fri routines take it from there.</li>
+    <li><b>By day / By area toggle</b> stays on the Week tab permanently — review view isn't just for Mondays.</li>
+    <li>Phone bottom bar was full at 7 tabs, so <b>Combat moved off the phone bar</b> (still on desktop sidebar; the game is parked anyway). Veto if you want it back.</li>
+  </ul>
+
+  <h2>The one command you need to run</h2>
+  <ul>
+    <li>This feature adds two small tables (your goals, and the week's draft/confirmed state) and a read-only window from the app into project memory. That's a production database change, and my safety rails correctly refused to let me apply it unattended.</li>
+    <li>In our chat, type: <code>! supabase db push --linked</code> (run from <code>~/Development/core-quest</code>). The <code>!</code> runs it in our session so I see the output and can verify.</li>
+    <li>Until it runs: the app still works fine — HQ just shows empty pulse, and no review banner appears.</li>
+  </ul>
+
+  <h2>Quiz — 5 questions</h2>
+
+  <div class="q"><p>1. Monday 7:05am. The plan DM is in Slack. What does the Week tab look like when you open it, and what are you supposed to do before working?</p>
+    <details><summary>Check your answer</summary><p>It opens in By-area review mode with a banner: every area shows its slotted work, unslotted items, backlog, and memory pulse. You walk each baby, tap-move anything that's wrong, then tap "I've seen it all — start the week." Until you do, the week stays marked as a draft.</p></details></div>
+
+  <div class="q"><p>2. You write "🧱 GHL access blocking Growth Audit" on the HQ tab Wednesday. What difference does that make, and when?</p>
+    <details><summary>Check your answer</summary><p>Next Monday 7am: the planner reads your active bottlenecks first and builds the week around attacking/unblocking them — it outranks everything else as steering. It won't change the current week retroactively.</p></details></div>
+
+  <div class="q"><p>3. Who updates the project pulse cards on HQ — and what should you do if one looks stale or wrong?</p>
+    <details><summary>Check your answer</summary><p>Your Claude work sessions update them (each session writes project memory as it works). The app is read-only there. If one's wrong, tell a Claude session ("update the Tu Clean status") — not the app.</p></details></div>
+
+  <div class="q"><p>4. What happens if you never tap "start the week"?</p>
+    <details><summary>Check your answer</summary><p>Nothing breaks — reminders, calendar blocks, and daily check-ins all run regardless. The banner just stays, and the Week tab keeps opening in review mode. Confirming is your ritual, not a mechanical gate on the machinery.</p></details></div>
+
+  <div class="q"><p>5. Why do YOU have to run the database command instead of me?</p>
+    <details><summary>Check your answer</summary><p>It changes the production database — including a window from the app into the locked memory area — and my permission system requires the human to explicitly apply that class of change. It's the same guardrail that keeps an unattended routine from ever altering your database structure.</p></details></div>
+
+  <p class="sub" style="margin-top:1.5rem">Reply with your answers (or "quiz passed") + run the command, and I'll merge and deploy.</p>
+</main>
+</body>
+</html>

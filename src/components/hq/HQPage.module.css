@@ -1,0 +1,221 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: 800px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--color-gold);
+  margin: 0;
+}
+
+.sub {
+  margin: calc(-1 * var(--space-md)) 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.sectionLabel {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-xs);
+  margin: 0 0 var(--space-xs);
+}
+
+.hint {
+  margin: 0 0 var(--space-sm);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.addRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.input {
+  flex: 1 1 220px;
+  padding: var(--space-sm);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--color-gold);
+}
+
+.kindToggle {
+  display: flex;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.kindBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  padding: var(--space-xs) var(--space-md);
+  cursor: pointer;
+}
+
+.kindOn {
+  background: var(--color-bg-card);
+  color: var(--color-gold);
+}
+
+.kindOnRed {
+  background: var(--color-bg-card);
+  color: var(--color-hp);
+}
+
+.addBtn {
+  background: var(--color-gold);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-bg-primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+}
+
+.addBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.goalList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.goalRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.goalKind,
+.goalKindRed {
+  flex-shrink: 0;
+}
+
+.goalTitle {
+  flex: 1;
+  font-size: 0.92rem;
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.goalActions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.doneBtn,
+.dropBtn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.doneBtn {
+  color: var(--color-xp);
+}
+
+.doneBtn:hover {
+  border-color: var(--color-xp);
+}
+
+.dropBtn {
+  color: var(--color-text-muted);
+}
+
+.dropBtn:hover {
+  border-color: var(--color-hp);
+  color: var(--color-hp);
+}
+
+.pulseGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-sm);
+}
+
+.card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--area-color, var(--color-border));
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.cardName {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.cardWhen {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.card p {
+  margin: 0 0 var(--space-xs);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.cardStatus {
+  color: var(--color-text-secondary);
+}
+
+.cardBlockers {
+  color: var(--color-hp);
+}
+
+.cardNext {
+  color: var(--color-text-secondary);
+}
