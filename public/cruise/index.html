@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cruise '26">
+<meta name="theme-color" content="#16101f">
+<title>Big Alaskan Cruise Scoreboard 2026</title>
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #16101f;
+    --bg2: #1f1830;
+    --card: #271f3d;
+    --card2: #2f2648;
+    --accent: #ffc857;
+    --accent2: #7b5cff;
+    --good: #4ade80;
+    --bad: #fb7185;
+    --text: #f4f0ff;
+    --dim: #a99fc9;
+    --line: #3a3157;
+  }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: contain;
+  }
+  body { padding-bottom: 120px; }
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(180deg, var(--bg2), rgba(31,24,48,0.96));
+    border-bottom: 1px solid var(--line);
+    padding: 14px 16px calc(12px + env(safe-area-inset-top)) 16px;
+    padding-top: calc(14px + env(safe-area-inset-top));
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .title { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .title .line1 { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .6px; text-transform: uppercase; }
+  .title .line2 { font-size: 19px; font-weight: 800; letter-spacing: .2px; display: flex; align-items: baseline; gap: 7px; }
+  .title .line2 .yr { color: var(--accent); }
+  .title .badge { font-size: 11px; color: var(--dim); font-weight: 600; align-self: flex-end; }
+  .gamebar {
+    display: flex; align-items: center; gap: 8px; overflow-x: auto;
+    padding: 10px 16px; background: var(--bg2); border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+  .gamebar::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; padding: 7px 14px; border-radius: 999px;
+    background: var(--card); color: var(--dim); border: 1px solid var(--line);
+    font-size: 14px; font-weight: 600; white-space: nowrap;
+  }
+  .chip.active { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+  .chip.add { color: var(--accent); border-style: dashed; }
+  main { padding: 14px 14px 0; max-width: 640px; margin: 0 auto; }
+  .subtitle { font-size: 13px; color: var(--dim); margin: 0 4px 12px; display: flex; justify-content: space-between; }
+  .players { display: flex; flex-direction: column; gap: 12px; }
+  .player {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    padding: 14px; position: relative; overflow: hidden;
+  }
+  .player.leader { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .prow { display: flex; align-items: center; gap: 12px; }
+  .rank {
+    width: 34px; height: 34px; flex: 0 0 auto; border-radius: 50%;
+    background: var(--card2); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: var(--dim);
+  }
+  .player.leader .rank { background: var(--accent); color: #201800; }
+  .pinfo { flex: 1; min-width: 0; }
+  .pname { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .pmeta { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .pscore { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 58px; text-align: right; }
+  .controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn {
+    flex: 1; min-width: 52px; border: none; border-radius: 12px; padding: 12px 6px;
+    font-size: 16px; font-weight: 700; color: var(--text); background: var(--card2);
+    cursor: pointer; user-select: none; transition: transform .05s;
+  }
+  .btn:active { transform: scale(.94); }
+  .btn.plus { background: rgba(74,222,128,.15); color: var(--good); }
+  .btn.minus { background: rgba(251,113,133,.13); color: var(--bad); }
+  .btn.custom { background: var(--card2); color: var(--accent); }
+  .kebab {
+    background: none; border: none; color: var(--dim); font-size: 22px;
+    padding: 4px 6px; cursor: pointer; line-height: 1;
+  }
+  .empty { text-align: center; color: var(--dim); padding: 50px 20px; }
+  .empty h2 { color: var(--text); font-weight: 700; }
+  /* footer action bar */
+  .footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+    background: linear-gradient(0deg, var(--bg2), rgba(31,24,48,.9));
+    border-top: 1px solid var(--line);
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 10px; max-width: 640px; margin: 0 auto;
+  }
+  .footer button {
+    flex: 1; border: none; border-radius: 14px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  .f-add { background: var(--card2); color: var(--text); }
+  .f-win { background: var(--accent); color: #201800; }
+  /* modal */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(8,5,16,.7); z-index: 40;
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  .scrim.open { display: flex; }
+  .sheet {
+    background: var(--bg2); border: 1px solid var(--line); border-bottom: none;
+    border-radius: 22px 22px 0 0; width: 100%; max-width: 640px;
+    padding: 20px 18px calc(24px + env(safe-area-inset-bottom));
+    animation: up .2s ease;
+  }
+  @keyframes up { from { transform: translateY(40px); opacity: .6; } }
+  .sheet h3 { margin: 0 0 14px; font-size: 18px; }
+  .sheet label { display: block; font-size: 13px; color: var(--dim); margin: 12px 0 6px; }
+  input[type=text], input[type=number] {
+    width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--card); color: var(--text); font-size: 17px; outline: none;
+  }
+  input:focus { border-color: var(--accent2); }
+  .sheet-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .sheet-actions button { flex: 1; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .primary { background: var(--accent2); color: #fff; }
+  .ghost { background: var(--card); color: var(--dim); }
+  .danger { background: rgba(251,113,133,.15); color: var(--bad); }
+  .list-opt {
+    width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line);
+    color: var(--text); padding: 15px; border-radius: 12px; margin-bottom: 8px; font-size: 16px; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .list-opt small { color: var(--dim); }
+  .quick-amts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .quick-amts button {
+    flex: 1 0 26%; padding: 14px 0; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--card); color: var(--text); font-size: 17px; font-weight: 700; cursor: pointer;
+  }
+  .toast {
+    position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%);
+    background: var(--card2); color: var(--text); border: 1px solid var(--line);
+    padding: 12px 18px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    z-index: 50; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+  .hist-item { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-item b { color: var(--accent); }
+  .hist-item small { color: var(--dim); display: block; margin-top: 2px; }
+  .muted-note { font-size: 12px; color: var(--dim); text-align: center; padding: 18px 20px 6px; }
+  .warn-banner {
+    background: rgba(251,113,133,.15); color: var(--bad); border: 1px solid rgba(251,113,133,.4);
+    border-radius: 12px; padding: 12px 14px; margin: 0 0 14px; font-size: 13px; font-weight: 600;
+    display: none;
+  }
+  .warn-banner.show { display: block; }
+  .warn-banner small { display:block; color: var(--text); font-weight: 400; margin-top: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="title">
+    <span class="line1">🏔️ Big Alaskan Cruise</span>
+    <span class="line2">Scoreboard <span class="yr">2026</span> <span class="badge" id="offlineBadge"></span></span>
+  </div>
+  <button class="kebab" onclick="openMenu()" aria-label="menu">⋮</button>
+</header>
+
+<div class="gamebar" id="gamebar"></div>
+
+<main>
+  <div class="warn-banner" id="warnBanner"></div>
+  <div class="subtitle" id="subtitle"></div>
+  <div class="players" id="players"></div>
+  <div class="muted-note" id="saveNote">All scores are saved on this device. No internet needed.</div>
+</main>
+
+<input type="file" id="importFile" accept="application/json,.json" style="display:none">
+
+
+<div class="footer">
+  <button class="f-add" onclick="openAddPlayer()">＋ Player</button>
+  <button class="f-win" onclick="openEndRound()">🏁 End round</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- generic bottom sheet -->
+<div class="scrim" id="scrim" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+"use strict";
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+const KEY = "familyScoreboard.v1";
+const $ = (id) => document.getElementById(id);
+
+// ---------- storage health ----------
+let storageOK = false;
+(function testStorage() {
+  try {
+    const t = "__sbtest__";
+    localStorage.setItem(t, "1");
+    storageOK = localStorage.getItem(t) === "1";
+    localStorage.removeItem(t);
+  } catch (e) { storageOK = false; }
+})();
+
+// Ask the browser to keep this data and NOT evict it. Meaningfully improves
+// durability on Chrome/Firefox; Safari ignores it but still persists for
+// home-screen apps. Runs quietly; failure is harmless.
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().catch(() => {});
+}
+
+// ---------- state ----------
+let state = load();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { games: [ newGame("Game 1") ], current: 0 };
+}
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+    stampSaved();
+  } catch (e) {
+    // Storage is blocked/full (e.g. private mode or an in-app browser).
+    showWarn("⚠︎ Can't save on this device", "Scores may reset when you close this. Open the file in Safari or Chrome (not from inside a chat app), or use ⋮ → Back up to file to keep them safe.");
+  }
+}
+function stampSaved() {
+  const n = $("saveNote");
+  if (n) n.textContent = "Saved on this device · " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+}
+function newGame(name) {
+  return { id: Date.now() + Math.floor(performance.now()), name, players: [], history: [], round: 1 };
+}
+function game() { return state.games[state.current]; }
+
+// ---------- rendering ----------
+function render() {
+  renderGamebar();
+  const g = game();
+  const players = [...g.players].sort((a,b) => b.score - a.score);
+  const topScore = players.length ? players[0].score : null;
+
+  $("subtitle").innerHTML =
+    `<span>Round ${g.round}</span><span>${g.players.length} player${g.players.length===1?"":"s"}</span>`;
+
+  const wrap = $("players");
+  if (!g.players.length) {
+    wrap.innerHTML = `<div class="empty"><h2>No players yet</h2><p>Tap “＋ Player” to add everyone playing.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = players.map((p, i) => {
+    const leader = topScore !== null && topScore !== 0 && p.score === topScore;
+    return `
+    <div class="player ${leader ? "leader":""}">
+      <div class="prow">
+        <div class="rank">${leader ? "★" : (i+1)}</div>
+        <div class="pinfo">
+          <div class="pname">${esc(p.name)}</div>
+          <div class="pmeta">${p.wins} win${p.wins===1?"":"s"} · best ${p.best}</div>
+        </div>
+        <div class="pscore">${p.score}</div>
+        <button class="kebab" onclick="playerMenu('${p.id}')">⋮</button>
+      </div>
+      <div class="controls">
+        <button class="btn minus" onclick="bump('${p.id}',-1)">−1</button>
+        <button class="btn plus" onclick="bump('${p.id}',1)">＋1</button>
+        <button class="btn plus" onclick="bump('${p.id}',5)">＋5</button>
+        <button class="btn plus" onclick="bump('${p.id}',10)">＋10</button>
+        <button class="btn custom" onclick="openCustom('${p.id}')">＋…</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderGamebar() {
+  $("gamebar").innerHTML =
+    state.games.map((g,i) =>
+      `<button class="chip ${i===state.current?"active":""}" onclick="switchGame(${i})">${esc(g.name)}</button>`
+    ).join("") +
+    `<button class="chip add" onclick="openAddGame()">＋ Game</button>`;
+}
+
+// ---------- actions ----------
+function bump(pid, delta) {
+  const p = game().players.find(x => x.id === pid);
+  if (!p) return;
+  p.score += delta;
+  if (p.score > p.best) p.best = p.score;
+  save(); render();
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function switchGame(i) { state.current = i; save(); render(); }
+
+// ---------- sheets ----------
+function openSheet(html) { $("sheet").innerHTML = html; $("scrim").classList.add("open"); }
+function closeSheet() { $("scrim").classList.remove("open"); }
+
+function openAddPlayer() {
+  openSheet(`
+    <h3>Add player</h3>
+    <label>Name</label>
+    <input type="text" id="pname" placeholder="e.g. Grandpa" autocomplete="off">
+    <div class="sheet-actions">
+      <button class="ghost" onclick="closeSheet()">Cancel</button>
+      <button class="primary" onclick="addPlayer()">Add</button>
+    </div>`);
+  setTimeout(() => $("pname").focus(), 60);
+  $("pname").addEventListener("keydown", e => { if (e.key === "Enter") addPlayer(); });
+}
+function addPlayer() {
+  const name = ($("pname").value || "").trim();
+  if (!name) { $("pname").focus(); return; }
+  game().players.push({ id: "p"+Date.now()+Math.floor(Math.random()*999), name, score: 0, wins: 0, best: 0 });
+  save(); closeSheet(); render(); toast(name + " added");
+}
+
+function openCustom(pid) {
+  const p = game().players.find(x => x.id === pid);
+  openSheet(`
+    <h3>Add points — ${esc(p.name)}</h3>
+    <div class="quick-amts">
+      ${[2,3,15,20,25,50,100].map(n=>`<button onclick="bump('${pid}',${n});closeSheet();toast('+${n} to ${escAttr(p.name)}')">＋${n}</button>`).join("")}
+    </div>
+    <label>Custom amount (use − for minus)</label>
+    <input type="number" id="camt" inputmode="numeric" placeholder="e.g. 12 or -4">
+    <div class="sheet-actions">
+      <button class="ghost" onclick="closeSheet()">Cancel</button>
+      <button class="primary" onclick="applyCustom('${pid}')">Apply</button>
+    </div>`);
+  setTimeout(() => $("camt").focus(), 60);
+  $("camt").addEventListener("keydown", e => { if (e.key === "Enter") applyCustom(pid); });
+}
+function applyCustom(pid) {
+  const v = parseInt($("camt").value, 10);
+  if (!isNaN(v) && v !== 0) bump(pid, v);
+  closeSheet();
+}
+
+function playerMenu(pid) {
+  const p = game().players.find(x => x.id === pid);
+  openSheet(`
+    <h3>${esc(p.name)}</h3>
+    <button class="list-opt" onclick="renamePlayer('${pid}')">Rename <small>edit name</small></button>
+    <button class="list-opt" onclick="resetPlayerScore('${pid}')">Reset score to 0 <small>keeps wins</small></button>
+    <button class="list-opt danger" style="border-color:var(--line)" onclick="removePlayer('${pid}')">Remove player <small>can't undo</small></button>
+    <div class="sheet-actions"><button class="ghost" onclick="closeSheet()">Close</button></div>`);
+}
+function renamePlayer(pid) {
+  const p = game().players.find(x => x.id === pid);
+  openSheet(`
+    <h3>Rename</h3>
+    <input type="text" id="rn" value="${escAttr(p.name)}">
+    <div class="sheet-actions">
+      <button class="ghost" onclick="closeSheet()">Cancel</button>
+      <button class="primary" onclick="doRename('${pid}')">Save</button>
+    </div>`);
+  setTimeout(()=>{ $("rn").focus(); $("rn").select(); }, 60);
+}
+function doRename(pid) {
+  const p = game().players.find(x => x.id === pid);
+  const v = ($("rn").value||"").trim();
+  if (v) { p.name = v; save(); }
+  closeSheet(); render();
+}
+function resetPlayerScore(pid) {
+  const p = game().players.find(x => x.id === pid);
+  p.score = 0; save(); closeSheet(); render();
+}
+function removePlayer(pid) {
+  const g = game();
+  g.players = g.players.filter(x => x.id !== pid);
+  save(); closeSheet(); render();
+}
+
+// ---------- end round / declare winner ----------
+function openEndRound() {
+  const g = game();
+  if (!g.players.length) { toast("Add players first"); return; }
+  const ranked = [...g.players].sort((a,b)=>b.score-a.score);
+  const top = ranked[0];
+  const tie = ranked.filter(p => p.score === top.score && top.score !== 0);
+  openSheet(`
+    <h3>End round ${g.round}</h3>
+    <p style="color:var(--dim);font-size:14px;margin:0 0 6px">Who won? Tap a name to give them a win.</p>
+    ${ranked.map(p => `
+      <button class="list-opt ${p.score===top.score && top.score!==0 ? "":""}" onclick="declareWinner('${p.id}')">
+        ${esc(p.name)} <small>${p.score} pts${p.score===top.score && top.score!==0 ? " · leading":""}</small>
+      </button>`).join("")}
+    <div class="sheet-actions">
+      <button class="ghost" onclick="closeSheet()">No winner</button>
+      <button class="danger" onclick="startNextRound(null)">Next round, reset points</button>
+    </div>`);
+}
+function declareWinner(pid) {
+  const p = game().players.find(x => x.id === pid);
+  p.wins += 1;
+  startNextRound(p.name);
+  toast("🏆 " + p.name + " wins the round!");
+}
+function startNextRound(winnerName) {
+  const g = game();
+  g.history.unshift({
+    round: g.round,
+    winner: winnerName,
+    scores: g.players.map(p => ({ name: p.name, score: p.score }))
+  });
+  if (g.history.length > 100) g.history.pop();
+  g.players.forEach(p => { p.score = 0; });
+  g.round += 1;
+  save(); closeSheet(); render();
+}
+
+// ---------- games ----------
+function openAddGame() {
+  openSheet(`
+    <h3>New game</h3>
+    <label>Name</label>
+    <input type="text" id="gname" placeholder="e.g. Uno, Trivia, Cornhole" autocomplete="off">
+    <div class="sheet-actions">
+      <button class="ghost" onclick="closeSheet()">Cancel</button>
+      <button class="primary" onclick="addGame()">Create</button>
+    </div>`);
+  setTimeout(()=>$("gname").focus(),60);
+  $("gname").addEventListener("keydown", e => { if (e.key==="Enter") addGame(); });
+}
+function addGame() {
+  const name = ($("gname").value||"").trim() || ("Game " + (state.games.length+1));
+  const prev = game();
+  const g = newGame(name);
+  // carry the same roster over so you don't retype everyone
+  g.players = prev.players.map(p => ({ id:"p"+Date.now()+Math.floor(Math.random()*99999), name:p.name, score:0, wins:0, best:0 }));
+  state.games.push(g);
+  state.current = state.games.length - 1;
+  save(); closeSheet(); render();
+  toast(g.players.length ? "New game — same players carried over" : "New game created");
+}
+
+// ---------- overflow menu ----------
+function openMenu() {
+  const g = game();
+  openSheet(`
+    <h3>${esc(g.name)}</h3>
+    <button class="list-opt" onclick="renameGame()">Rename this game</button>
+    <button class="list-opt" onclick="showHistory()">Round history <small>${g.history.length} recorded</small></button>
+    <button class="list-opt" onclick="shareBackup()">📤 Share / AirDrop scores <small>send the latest to family</small></button>
+    <button class="list-opt" onclick="downloadBackup()">💾 Save backup to Files <small>keep a copy on this device</small></button>
+    <button class="list-opt" onclick="restoreFromFile()">↺ Restore from backup <small>load scores someone shared with you</small></button>
+    <button class="list-opt" onclick="resetAllScores()">Reset all scores <small>keeps players & wins</small></button>
+    <button class="list-opt danger" style="border-color:var(--line)" onclick="deleteGame()">Delete this game</button>
+    <div class="sheet-actions"><button class="ghost" onclick="closeSheet()">Close</button></div>`);
+}
+function renameGame() {
+  const g = game();
+  openSheet(`
+    <h3>Rename game</h3>
+    <input type="text" id="gn" value="${escAttr(g.name)}">
+    <div class="sheet-actions">
+      <button class="ghost" onclick="closeSheet()">Cancel</button>
+      <button class="primary" onclick="doRenameGame()">Save</button>
+    </div>`);
+  setTimeout(()=>{ $("gn").focus(); $("gn").select(); },60);
+}
+function doRenameGame() {
+  const v = ($("gn").value||"").trim();
+  if (v) { game().name = v; save(); }
+  closeSheet(); render();
+}
+function resetAllScores() {
+  game().players.forEach(p => p.score = 0);
+  save(); closeSheet(); render(); toast("Scores reset");
+}
+function deleteGame() {
+  if (state.games.length === 1) {
+    state.games[0] = newGame("Game 1");
+  } else {
+    state.games.splice(state.current, 1);
+    state.current = Math.max(0, state.current - 1);
+  }
+  save(); closeSheet(); render();
+}
+function showHistory() {
+  const g = game();
+  const items = g.history.length ? g.history.map(h => `
+    <div class="hist-item">
+      Round ${h.round}${h.winner ? ` — <b>🏆 ${esc(h.winner)}</b>` : " — no winner"}
+      <small>${h.scores.map(s=>esc(s.name)+": "+s.score).join("  ·  ") || "—"}</small>
+    </div>`).join("") : `<p style="color:var(--dim)">No rounds recorded yet.</p>`;
+  openSheet(`<h3>Round history</h3>${items}
+    <div class="sheet-actions"><button class="ghost" onclick="openMenu()">Back</button></div>`);
+}
+
+// ---------- backup & restore (bulletproof durability) ----------
+function backupData() {
+  return JSON.stringify({ app: "family-scoreboard", v: 1, saved: new Date().toISOString(), state }, null, 2);
+}
+function backupName() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return `scoreboard-backup-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+}
+function downloadBackup() {
+  const blob = new Blob([backupData()], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = backupName();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  closeSheet();
+  toast("Backup saved — keep it safe");
+}
+// Native share sheet → AirDrop / Messages the backup straight to family.
+// Falls back to a plain download where file-sharing isn't supported.
+async function shareBackup() {
+  const file = new File([backupData()], backupName(), { type: "application/json" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: "Big Alaskan Cruise Scoreboard 2026" });
+      closeSheet();
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // user tapped cancel
+    }
+  }
+  downloadBackup();
+}
+// Back-compat alias
+function backupToFile() { shareBackup(); }
+function restoreFromFile() {
+  closeSheet();
+  $("importFile").click();
+}
+$("importFile").addEventListener("change", function () {
+  const file = this.files && this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      const incoming = parsed && parsed.state ? parsed.state : parsed;
+      if (!incoming || !Array.isArray(incoming.games)) throw new Error("bad file");
+      state = incoming;
+      if (typeof state.current !== "number" || state.current >= state.games.length) state.current = 0;
+      save(); render();
+      toast("✓ Scores restored");
+    } catch (e) {
+      toast("Couldn't read that backup file");
+    }
+  };
+  reader.readAsText(file);
+  this.value = "";
+});
+
+function showWarn(title, body) {
+  const b = $("warnBanner");
+  b.innerHTML = esc(title) + "<small>" + esc(body) + "</small>";
+  b.classList.add("show");
+}
+
+// ---------- helpers ----------
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+let toastT;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove("show"), 1600);
+}
+function startupChecks(){
+  if (storageOK) {
+    $("offlineBadge").textContent = "saved ✓";
+    stampSaved();
+  } else {
+    $("offlineBadge").textContent = "not saving";
+    showWarn("⚠︎ This device won't remember scores",
+      "You're likely viewing this inside a chat/email app. Open the file in Safari or Chrome — or add it to your Home Screen — so scores stick. Meanwhile, use ⋮ → Back up to file after each game.");
+  }
+}
+
+render();
+startupChecks();
+</script>
+</body>
+</html>
