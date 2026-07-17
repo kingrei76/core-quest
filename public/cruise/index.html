@@ -159,6 +159,14 @@
   .hist-item b { color: var(--accent); }
   .hist-item small { color: var(--dim); display: block; margin-top: 2px; }
   .muted-note { font-size: 12px; color: var(--dim); text-align: center; padding: 18px 20px 6px; }
+  .notes-wrap { margin: 20px 4px 0; }
+  .notes-label { display: block; font-size: 13px; font-weight: 700; color: var(--dim); margin-bottom: 6px; }
+  .notes-area {
+    width: 100%; min-height: 110px; resize: vertical; padding: 14px; border-radius: 14px;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    font-size: 16px; font-family: inherit; line-height: 1.5; outline: none;
+  }
+  .notes-area:focus { border-color: var(--accent2); }
   .warn-banner {
     background: rgba(251,113,133,.15); color: var(--bad); border: 1px solid rgba(251,113,133,.4);
     border-radius: 12px; padding: 12px 14px; margin: 0 0 14px; font-size: 13px; font-weight: 600;
@@ -183,6 +191,10 @@
   <div class="warn-banner" id="warnBanner"></div>
   <div class="subtitle" id="subtitle"></div>
   <div class="players" id="players"></div>
+  <div class="notes-wrap">
+    <label class="notes-label" for="notesArea">Notes</label>
+    <textarea id="notesArea" class="notes-area" placeholder="House rules, running tallies, anything…" oninput="saveNotes()"></textarea>
+  </div>
   <div class="muted-note" id="saveNote">All scores are saved on this device. No internet needed.</div>
 </main>
 
@@ -233,9 +245,16 @@ let state = load();
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && Array.isArray(s.games) && s.games.length) {
+        if (typeof s.current !== "number" || s.current < 0 || s.current >= s.games.length) s.current = 0;
+        if (typeof s.notes !== "string") s.notes = "";
+        return s;
+      }
+    }
   } catch (e) {}
-  return { games: [ newGame("Game 1") ], current: 0 };
+  return { games: [ newGame("Section 1") ], current: 0, notes: "" };
 }
 function save() {
   try {
@@ -253,11 +272,16 @@ function stampSaved() {
 function newGame(name) {
   return { id: Date.now() + Math.floor(performance.now()), name, players: [], history: [], round: 1 };
 }
-function game() { return state.games[state.current]; }
+function game() {
+  if (!state.games || !state.games.length) { state.games = [ newGame("Section 1") ]; state.current = 0; }
+  if (state.current < 0 || state.current >= state.games.length) state.current = 0;
+  return state.games[state.current];
+}
 
 // ---------- rendering ----------
 function render() {
   renderGamebar();
+  syncNotes();
   const g = game();
   const players = [...g.players].sort((a,b) => b.score - a.score);
   const topScore = players.length ? players[0].score : null;
@@ -299,7 +323,7 @@ function renderGamebar() {
     state.games.map((g,i) =>
       `<button class="chip ${i===state.current?"active":""}" onclick="switchGame(${i})">${esc(g.name)}</button>`
     ).join("") +
-    `<button class="chip add" onclick="openAddGame()">＋ Game</button>`;
+    `<button class="chip add" onclick="openAddGame()">＋ Section</button>`;
 }
 
 // ---------- actions ----------
@@ -436,7 +460,7 @@ function startNextRound(winnerName) {
 // ---------- games ----------
 function openAddGame() {
   openSheet(`
-    <h3>New game</h3>
+    <h3>New section</h3>
     <label>Name</label>
     <input type="text" id="gname" placeholder="e.g. Uno, Trivia, Cornhole" autocomplete="off">
     <div class="sheet-actions">
@@ -447,7 +471,7 @@ function openAddGame() {
   $("gname").addEventListener("keydown", e => { if (e.key==="Enter") addGame(); });
 }
 function addGame() {
-  const name = ($("gname").value||"").trim() || ("Game " + (state.games.length+1));
+  const name = ($("gname").value||"").trim() || ("Section " + (state.games.length+1));
   const prev = game();
   const g = newGame(name);
   // carry the same roster over so you don't retype everyone
@@ -455,7 +479,7 @@ function addGame() {
   state.games.push(g);
   state.current = state.games.length - 1;
   save(); closeSheet(); render();
-  toast(g.players.length ? "New game — same players carried over" : "New game created");
+  toast(g.players.length ? "New section — same players carried over" : "New section created");
 }
 
 // ---------- overflow menu ----------
@@ -463,19 +487,19 @@ function openMenu() {
   const g = game();
   openSheet(`
     <h3>${esc(g.name)}</h3>
-    <button class="list-opt" onclick="renameGame()">Rename this game</button>
+    <button class="list-opt" onclick="renameGame()">Rename this section</button>
     <button class="list-opt" onclick="showHistory()">Round history <small>${g.history.length} recorded</small></button>
     <button class="list-opt" onclick="shareBackup()">📤 Share / AirDrop scores <small>send the latest to family</small></button>
     <button class="list-opt" onclick="downloadBackup()">💾 Save backup to Files <small>keep a copy on this device</small></button>
     <button class="list-opt" onclick="restoreFromFile()">↺ Restore from backup <small>load scores someone shared with you</small></button>
     <button class="list-opt" onclick="resetAllScores()">Reset all scores <small>keeps players & wins</small></button>
-    <button class="list-opt danger" style="border-color:var(--line)" onclick="deleteGame()">Delete this game</button>
+    <button class="list-opt danger" style="border-color:var(--line)" onclick="deleteGame()">Delete this section</button>
     <div class="sheet-actions"><button class="ghost" onclick="closeSheet()">Close</button></div>`);
 }
 function renameGame() {
   const g = game();
   openSheet(`
-    <h3>Rename game</h3>
+    <h3>Rename section</h3>
     <input type="text" id="gn" value="${escAttr(g.name)}">
     <div class="sheet-actions">
       <button class="ghost" onclick="closeSheet()">Cancel</button>
@@ -494,7 +518,7 @@ function resetAllScores() {
 }
 function deleteGame() {
   if (state.games.length === 1) {
-    state.games[0] = newGame("Game 1");
+    state.games[0] = newGame("Section 1");
   } else {
     state.games.splice(state.current, 1);
     state.current = Math.max(0, state.current - 1);
@@ -582,6 +606,16 @@ function showWarn(title, body) {
   b.classList.add("show");
 }
 
+// ---------- notes ----------
+function saveNotes() {
+  const t = $("notesArea");
+  if (t) { state.notes = t.value; save(); }
+}
+function syncNotes() {
+  const t = $("notesArea");
+  if (t && t.value !== (state.notes || "")) t.value = state.notes || "";
+}
+
 // ---------- helpers ----------
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
@@ -601,8 +635,16 @@ function startupChecks(){
   }
 }
 
-render();
-startupChecks();
+try {
+  render();
+  startupChecks();
+} catch (e) {
+  // Self-heal from any corrupt saved data so the board never shows blank.
+  try { localStorage.removeItem(KEY); } catch (_) {}
+  state = { games: [ newGame("Section 1") ], current: 0, notes: "" };
+  render();
+  startupChecks();
+}
 </script>
 </body>
 </html>
