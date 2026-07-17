@@ -17,11 +17,13 @@ registerRoute(
   })
 )
 
-// SPA navigation fallback
+// SPA navigation fallback. Denylist /cruise/* so the standalone offline
+// scoreboard under public/cruise/ (its own service worker) is served from
+// the network/static file instead of being swallowed by the app shell.
 registerRoute(new NavigationRoute(async () => {
   const cache = await caches.match('/index.html')
   return cache || fetch('/index.html')
-}))
+}, { denylist: [/^\/cruise(\/|$)/] }))
 
 sw.addEventListener('push', (event) => {
   let payload = { title: 'CORE Quest', body: 'You have a quest reminder.', url: '/quests' }
