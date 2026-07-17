@@ -1,0 +1,43 @@
+name: Deploy Cruise Scoreboard to Pages
+
+# Publishes the standalone Big Alaskan Cruise Scoreboard 2026 (public/cruise/)
+# to GitHub Pages, giving it its own origin (kingrei76.github.io/core-quest/)
+# that is completely separate from the CORE Quest app on Vercel — so the app's
+# service worker can never hijack it.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/cruise/**'
+      - '.github/workflows/deploy-cruise-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment.
+concurrency:
+  group: cruise-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload scoreboard as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/cruise
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
