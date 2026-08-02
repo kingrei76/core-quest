@@ -6,6 +6,7 @@ import App from './App'
 import LoginPage from './components/auth/LoginPage'
 import AuthCallback from './components/auth/AuthCallback'
 import OnboardingPage from './components/onboarding/OnboardingPage'
+import BarkToBoatPage from './components/boat/BarkToBoatPage'
 import InboxPage from './components/inbox/InboxPage'
 import QuestsPage from './components/quests/QuestsPage'
 import WeekPage from './components/week/WeekPage'
@@ -28,6 +29,12 @@ const router = createBrowserRouter([
   {
     path: '/onboarding',
     element: <OnboardingPage />,
+  },
+  {
+    // Standalone PUBLIC page (no auth, no AppShell). Anyone with the link can
+    // read/write the shared dog-sitting fund. See src/hooks/useBoatFund.js.
+    path: '/bark-to-boat',
+    element: <BarkToBoatPage />,
   },
   {
     path: '/',
